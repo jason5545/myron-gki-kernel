@@ -1,0 +1,12 @@
+{
+  "run_id": 36955312429,
+  "run_url": "https://github.com/jason5545/myron-gki-kernel/actions/runs/36955312429",
+  "build_project_commit": "762e6938729a9d3103b8f09e18d8d3ed66b69e80",
+  "packaging_project_commit": "995148e",
+  "artifact_ids": {
+    "reports": 11207037228,
+    "baseline": 11207291953
+  },
+  "standby": "skipped_by_user",
+  "on_device_boot_verified": false
+}

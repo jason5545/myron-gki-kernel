@@ -1,0 +1,22 @@
+# 來源：linux-6.12.y stable 2fcc2fc21
+# scsi: ufs: core: Fix SError in ufshcd_rtc_work() during UFS suspend
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index cd14a3873..4072380c2 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -9986,6 +9986,7 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ 	}
+ 
+ 	flush_work(&hba->eeh_work);
++	cancel_delayed_work_sync(&hba->ufs_rtc_update_work);
+ 
+ 	ret = ufshcd_vops_suspend(hba, pm_op, PRE_CHANGE);
+ 	if (ret)
+@@ -10040,7 +10041,6 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ 	if (ret)
+ 		goto set_link_active;
+ 
+-	cancel_delayed_work_sync(&hba->ufs_rtc_update_work);
+ 	goto out;
+ 
+ set_link_active:

@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable df8060ca14ac（upstream 7eca3292cac7，6.12.92）
+# tcp: Fix imbalanced icsk_accept_queue count.
+# TCP 接收佇列計數、剩餘空間計算、ehash 查找 race
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 74ac047be2..531ed18175 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -1189,7 +1189,7 @@ static void reqsk_timer_handler(struct timer_list *t)
+ 	}
+ 
+ drop:
+-	__inet_csk_reqsk_queue_drop(sk_listener, oreq, true);
++	__inet_csk_reqsk_queue_drop(oreq->rsk_listener, oreq, true);
+ 	reqsk_put(oreq);
+ }
+ 

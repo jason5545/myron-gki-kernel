@@ -1,0 +1,10 @@
+{
+  "compatible": true,
+  "scope": "核心匯出符號 CRC；不代表模組簽章、CFI 或實機開機已通過",
+  "unversioned_symbols": 284,
+  "unversioned_missing": [],
+  "root_runtime_validation_required": true,
+  "checked": 4015,
+  "missing": [],
+  "mismatched": []
+}

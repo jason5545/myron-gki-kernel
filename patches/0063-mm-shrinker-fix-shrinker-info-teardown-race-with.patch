@@ -1,0 +1,47 @@
+# 來源：linux-6.12.y stable b9a280a9a454（upstream 65476d31d805，6.12.96）
+# mm: shrinker: fix shrinker_info teardown race with expansion
+# memcg shrinker_info 釋放與擴充的 race
+diff --git a/mm/shrinker.c b/mm/shrinker.c
+index 6ad91d959a..aff332d845 100644
+--- a/mm/shrinker.c
++++ b/mm/shrinker.c
+@@ -62,12 +62,14 @@ static inline int shrinker_unit_alloc(struct shrinker_info *new,
+ 	return 0;
+ }
+ 
+-void free_shrinker_info(struct mem_cgroup *memcg)
++static void __free_shrinker_info(struct mem_cgroup *memcg)
+ {
+ 	struct mem_cgroup_per_node *pn;
+ 	struct shrinker_info *info;
+ 	int nid;
+ 
++	lockdep_assert_held(&shrinker_mutex);
++
+ 	for_each_node(nid) {
+ 		pn = memcg->nodeinfo[nid];
+ 		info = rcu_dereference_protected(pn->shrinker_info, true);
+@@ -77,6 +79,13 @@ void free_shrinker_info(struct mem_cgroup *memcg)
+ 	}
+ }
+ 
++void free_shrinker_info(struct mem_cgroup *memcg)
++{
++	mutex_lock(&shrinker_mutex);
++	__free_shrinker_info(memcg);
++	mutex_unlock(&shrinker_mutex);
++}
++
+ int alloc_shrinker_info(struct mem_cgroup *memcg)
+ {
+ 	int nid, ret = 0;
+@@ -101,8 +110,8 @@ int alloc_shrinker_info(struct mem_cgroup *memcg)
+ 	return ret;
+ 
+ err:
++	__free_shrinker_info(memcg);
+ 	mutex_unlock(&shrinker_mutex);
+-	free_shrinker_info(memcg);
+ 	return -ENOMEM;
+ }
+ 

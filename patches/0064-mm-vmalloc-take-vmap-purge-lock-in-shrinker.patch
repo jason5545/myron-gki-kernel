@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable c15ff206ba78（upstream ec05f51f1e65，6.12.96）
+# mm/vmalloc: take vmap_purge_lock in shrinker
+# vmalloc shrinker 沒拿 vmap_purge_lock
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index d5f69322fb..32b2a24ef4 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -5188,6 +5188,7 @@ vmap_node_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+ {
+ 	int i;
+ 
++	guard(mutex)(&vmap_purge_lock);
+ 	for (i = 0; i < nr_vmap_nodes; i++)
+ 		decay_va_pool_node(&vmap_nodes[i], true);
+ 

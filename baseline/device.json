@@ -1,0 +1,28 @@
+{
+  "recorded_on": "2026-10-01",
+  "device": "myron",
+  "model": "25102PCBEG",
+  "firmware": "OS3.0.309.0.WPMCNXM",
+  "android": 16,
+  "active_slot": "_a",
+  "bootloader_unlocked": true,
+  "bootloader_evidence": "Jason 確認；不使用 locked／green 系統屬性作判斷",
+  "module_count": 618,
+  "runtime_build_ids_verified": 617,
+  "kernel_crc_requirements": 4015,
+  "input_hashes": {
+    "mishare-init_boot.img": "a4ed45c0af246068212b899a3f7e003b396d45b77af59b7f37acca0495ffe4b3",
+    "ramdisk-modules.tar.gz": "e01e09a6e0026042804f67fb06c96fd1b832f9d44b84ab541e8945e570ddbc4b",
+    "vendor-modules.tar.gz": "578b97879ee85e5e2a5f1838929130861f109b6f0e205479ba4cd47c4ae2a815",
+    "device-init_boot_a.img": "5dee4a6da2e6c6718ccec7c6570ff90371a94468103a54fc53a37fa629406f7f",
+    "LunarKernel-v1.8.1.zip": "4ed913b7407bdc08613ddf02e2db8948da9d0626a1dadac320f88f96c71dbfeb",
+    "system-modules.tar.gz": "4b4c8187aa1f109b1fe483c2c9033e2245b88d6a0735518a1844c9453a9448ac",
+    "LunarKernel-v1.3.zip": "ba41a8560ab2af1f419f83718f97ef513fe5c19a17cecb800b612842f50d1728",
+    "device-vendor_boot_a.img": "cc7e2691cb3516c9adf0673c172b98e0db8f2544bb38399d75fe5af0748d296b",
+    "device-boot_a.img": "e4a6fea84769a450c26550f07ca4dc2967f03541f2a6716ad995065f1fa7a19d"
+  },
+  "source_selection": "官方 android16-6.12-2025-06 固定 snapshot；未聲稱等同原廠原始碼",
+  "status": "基準已取得；候選核心尚未完成編譯或實機驗證",
+  "unversioned_symbol_count": 284,
+  "kernelsu_unversioned_symbol_count": 224
+}

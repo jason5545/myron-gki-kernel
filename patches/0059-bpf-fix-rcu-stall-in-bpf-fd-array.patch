@@ -1,0 +1,19 @@
+# 來源：linux-6.12.y stable 71ddb7defc44（upstream 4406942e65ca，6.12.91）
+# bpf: Fix RCU stall in bpf_fd_array_map_clear()
+# RCU stall 會 panic（panic_on_rcu_stall=1）：fd array map 清除時的 stall
+diff --git a/kernel/bpf/arraymap.c b/kernel/bpf/arraymap.c
+index 6cdbb4c33d..7ec69545fe 100644
+--- a/kernel/bpf/arraymap.c
++++ b/kernel/bpf/arraymap.c
+@@ -998,8 +998,10 @@ static void bpf_fd_array_map_clear(struct bpf_map *map, bool need_defer)
+ 	struct bpf_array *array = container_of(map, struct bpf_array, map);
+ 	int i;
+ 
+-	for (i = 0; i < array->map.max_entries; i++)
++	for (i = 0; i < array->map.max_entries; i++) {
+ 		__fd_array_map_delete_elem(map, &i, need_defer);
++		cond_resched();
++	}
+ }
+ 
+ static void prog_array_map_seq_show_elem(struct bpf_map *map, void *key,

@@ -1,0 +1,26 @@
+{
+  "size": 40413696,
+  "sha256": "06d41b575a6e67f8103cc1b0e4e1c512479b4e71b606996746f568d5a81f10f2",
+  "kind": "kernel",
+  "image_sha256": "06d41b575a6e67f8103cc1b0e4e1c512479b4e71b606996746f568d5a81f10f2",
+  "image_size": 40413696,
+  "release": "6.12.23-android16-5-maybe-dirty-4k",
+  "kmi": "6.12-android16-5",
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG": "y",
+    "CONFIG_MODULE_SIG_ALL": "y",
+    "CONFIG_MODULE_SIG_FORCE": "n",
+    "CONFIG_MODULE_SIG_PROTECT_LIST": "\"\"",
+    "CONFIG_MODULE_SIG_PROTECT": "n",
+    "CONFIG_TRIM_UNUSED_KSYMS": "n",
+    "CONFIG_MODULE_FORCE_LOAD": "n",
+    "CONFIG_ANDROID_BINDER_IPC_RUST": "m",
+    "CONFIG_ZRAM": "m",
+    "CONFIG_ZSMALLOC": "m",
+    "CONFIG_KSU": "n"
+  },
+  "file": "Image"
+}

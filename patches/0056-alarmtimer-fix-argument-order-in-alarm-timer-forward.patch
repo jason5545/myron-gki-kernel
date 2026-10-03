@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 6d37ec779d56（upstream 5d16467ae563，6.12.80）
+# alarmtimer: Fix argument order in alarm_timer_forward()
+# alarm_timer_forward() 參數順序錯；Android 大量使用 alarmtimer
+diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
+index 8bf8886416..59aa7b6836 100644
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -614,7 +614,7 @@ static s64 alarm_timer_forward(struct k_itimer *timr, ktime_t now)
+ {
+ 	struct alarm *alarm = &timr->it.alarm.alarmtimer;
+ 
+-	return alarm_forward(alarm, timr->it_interval, now);
++	return alarm_forward(alarm, now, timr->it_interval);
+ }
+ 
+ /**

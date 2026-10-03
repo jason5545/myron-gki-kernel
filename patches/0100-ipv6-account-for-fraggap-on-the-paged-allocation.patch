@@ -1,0 +1,30 @@
+# 來源：linux-6.12.y stable 46f201f8b4c3（upstream 736b380e28d0，6.12.95）
+# ipv6: account for fraggap on the paged allocation path
+# IPv6 paged 配置漏算 fraggap，資料錯誤
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 16df0e5a21..3d288e945e 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1624,8 +1624,8 @@ static int __ip6_append_data(struct sock *sk,
+ 				  !(rt->dst.dev->features & NETIF_F_SG)))
+ 				alloclen = fraglen;
+ 			else {
+-				alloclen = fragheaderlen + transhdrlen;
+-				pagedlen = datalen - transhdrlen;
++				alloclen = fragheaderlen + transhdrlen + fraggap;
++				pagedlen = datalen - transhdrlen - fraggap;
+ 			}
+ 			alloclen += alloc_extra;
+ 
+@@ -1640,10 +1640,7 @@ static int __ip6_append_data(struct sock *sk,
+ 			fraglen = datalen + fragheaderlen;
+ 
+ 			copy = datalen - transhdrlen - fraggap - pagedlen;
+-			/* [!] NOTE: copy may be negative if pagedlen>0
+-			 * because then the equation may reduces to -fraggap.
+-			 */
+-			if (copy < 0 && !(flags & MSG_SPLICE_PAGES)) {
++			if (copy < 0) {
+ 				err = -EINVAL;
+ 				goto error;
+ 			}

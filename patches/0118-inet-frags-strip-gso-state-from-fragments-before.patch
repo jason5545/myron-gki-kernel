@@ -1,0 +1,21 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） dec2edb7aaf1（upstream d5dc1e69fd72，6.12.107）
+# inet: frags: strip GSO state from fragments before reassembly
+# 分片與 MTU 檢查（LunaKernel 已採用）
+diff --git a/net/ipv4/inet_fragment.c b/net/ipv4/inet_fragment.c
+index d179a2c842..b3d6d0aad6 100644
+--- a/net/ipv4/inet_fragment.c
++++ b/net/ipv4/inet_fragment.c
+@@ -388,6 +388,13 @@ int inet_frag_queue_insert(struct inet_frag_queue *q, struct sk_buff *skb,
+ {
+ 	struct sk_buff *last = q->fragments_tail;
+ 
++	/* An IP fragment is never a GSO packet, but an untrusted source
++	 * (virtio_net_hdr) may have attached GSO metadata to it. Do not let
++	 * that reach the reassembled skb, whose head keeps the first
++	 * fragment's shinfo and whose frag_list is not GRO-shaped.
++	 */
++	skb_gso_reset(skb);
++
+ 	/* RFC5722, Section 4, amended by Errata ID : 3089
+ 	 *                          When reassembling an IPv6 datagram, if
+ 	 *   one or more its constituent fragments is determined to be an

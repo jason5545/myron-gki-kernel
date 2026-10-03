@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） c78206dcb912（upstream 3cf11e6f36c1，6.12.84）
+# f2fs: fix to avoid memory leak in f2fs_rename()
+# rename 的記憶體洩漏（LunaKernel 已採用）
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index a18d676958..1fe9b83db8 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -953,6 +953,7 @@ static int f2fs_rename(struct mnt_idmap *idmap, struct inode *old_dir,
+ 			return err;
+ 
+ 		err = f2fs_create_whiteout(idmap, old_dir, &whiteout, &fname);
++		f2fs_free_filename(&fname);
+ 		if (err)
+ 			return err;
+ 	}

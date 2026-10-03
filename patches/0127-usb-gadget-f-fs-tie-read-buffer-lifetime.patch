@@ -1,0 +1,23 @@
+# 來源：linux-6.12.y stable 0aeda584554e（upstream 8bdcf96eb135，6.12.97）
+# usb: gadget: f_fs: Tie read_buffer lifetime to ffs_epfile
+# f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 058f43a030..e73460a924 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1362,7 +1362,6 @@ ffs_epfile_release(struct inode *inode, struct file *file)
+ 
+ 	mutex_unlock(&epfile->dmabufs_mutex);
+ 
+-	__ffs_epfile_read_buffer_free(epfile);
+ 	ffs_data_closed(epfile->ffs);
+ 
+ 	return 0;
+@@ -2368,6 +2367,7 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
+ 
+ 	for (; count; --count, ++epfile) {
+ 		BUG_ON(mutex_is_locked(&epfile->mutex));
++		__ffs_epfile_read_buffer_free(epfile);
+ 		if (epfile->dentry) {
+ 			d_delete(epfile->dentry);
+ 			dput(epfile->dentry);

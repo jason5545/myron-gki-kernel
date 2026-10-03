@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable 60cbe67d1342（upstream 66366d291f66，6.12.96）
+# mm/swap: add cond_resched() in swap_reclaim_full_clusters to prevent softlockup
+# swap 回收全滿 cluster 時缺 cond_resched，16 GB zram 可能 soft lockup
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index c9175120ff..be44a2cf3b 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -778,6 +778,7 @@ static void swap_reclaim_full_clusters(struct swap_info_struct *si, bool force)
+ 
+ 		if (to_scan <= 0)
+ 			break;
++		cond_resched();
+ 	}
+ }
+ 

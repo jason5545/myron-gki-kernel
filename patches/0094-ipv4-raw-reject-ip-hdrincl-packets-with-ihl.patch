@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 145e9afa5b90（upstream 915fab69823a，6.12.92）
+# ipv4: raw: reject IP_HDRINCL packets with ihl < 5
+# 分片與 MTU 檢查（LunaKernel 已採用）
+diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
+index 474dfd263c..3352d42c2b 100644
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -390,7 +390,7 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
+ 	 * in, reject the frame as invalid
+ 	 */
+ 	err = -EINVAL;
+-	if (iphlen > length)
++	if (iphlen > length || iphlen < sizeof(*iph))
+ 		goto error_free;
+ 
+ 	if (iphlen >= sizeof(*iph)) {

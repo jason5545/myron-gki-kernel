@@ -1,0 +1,25 @@
+# 來源：linux-6.12.y stable 378949f46e89（upstream c23df30915f8，6.12.80）
+# erofs: add GFP_NOIO in the bio completion if needed
+# bio 完成時需要 GFP_NOIO，避免回收遞迴死鎖
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index f0b5446f83..6f7da2734b 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1469,6 +1469,7 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ 				       int bios)
+ {
+ 	struct erofs_sb_info *const sbi = EROFS_SB(io->sb);
++	int gfp_flag;
+ 
+ 	/* wake up the caller thread for sync decompression */
+ 	if (io->sync) {
+@@ -1501,7 +1502,9 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ 			sbi->opt.sync_decompress = EROFS_SYNC_DECOMPRESS_FORCE_ON;
+ 		return;
+ 	}
++	gfp_flag = memalloc_noio_save();
+ 	z_erofs_decompressqueue_work(&io->u.work);
++	memalloc_noio_restore(gfp_flag);
+ }
+ 
+ static void z_erofs_fill_bio_vec(struct bio_vec *bvec,

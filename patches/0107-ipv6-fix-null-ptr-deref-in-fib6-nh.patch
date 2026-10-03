@@ -1,0 +1,17 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 80600b5d0f3e（upstream 46c3b8191aad，6.12.97）
+# ipv6: Fix null-ptr-deref in fib6_nh_mtu_change().
+# IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 81d00c7ecf..9015d36f2b 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -4956,6 +4956,9 @@ static int fib6_nh_mtu_change(struct fib6_nh *nh, void *_arg)
+ 		struct inet6_dev *idev = __in6_dev_get(arg->dev);
+ 		u32 mtu = f6i->fib6_pmtu;
+ 
++		if (!idev)
++			return 0;
++
+ 		if (mtu >= arg->mtu ||
+ 		    (mtu < arg->mtu && mtu == idev->cnf.mtu6))
+ 			fib6_metric_set(f6i, RTAX_MTU, arg->mtu);

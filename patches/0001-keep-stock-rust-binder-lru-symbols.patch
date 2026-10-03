@@ -1,0 +1,12 @@
+diff --git a/gki/aarch64/symbols/xiaomi b/gki/aarch64/symbols/xiaomi
+index d4d4490..c27909e 100644
+--- a/gki/aarch64/symbols/xiaomi
++++ b/gki/aarch64/symbols/xiaomi
+@@ -520,3 +520,7 @@ vfs_fadvise
+ __tracepoint_android_rvh_update_cpus_allowed
+ __traceiter_android_rvh_update_cpus_allowed
+ 
++
++# 原廠 myron rust_binder.ko 需要的既有匯出，避免 TRIM_UNUSED_KSYMS 裁掉。
++list_lru_add_obj
++list_lru_del_obj

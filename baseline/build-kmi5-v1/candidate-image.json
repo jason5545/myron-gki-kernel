@@ -1,0 +1,17 @@
+{
+  "size": 39954944,
+  "sha256": "0721b909ec6f287b176c8f15d9107d35ecec79aae26a4418e3572611fb64173f",
+  "kind": "kernel",
+  "image_sha256": "0721b909ec6f287b176c8f15d9107d35ecec79aae26a4418e3572611fb64173f",
+  "image_size": 39954944,
+  "release": "6.12.23-android16-5-maybe-dirty-4k",
+  "kmi": "6.12-android16-5",
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG_PROTECT": "y",
+    "CONFIG_KSU": "n"
+  },
+  "file": "Image"
+}

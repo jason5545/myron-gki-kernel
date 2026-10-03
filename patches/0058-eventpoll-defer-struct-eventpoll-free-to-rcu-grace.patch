@@ -1,0 +1,27 @@
+# 來源：linux-6.12.y stable 5b1173b16542（upstream 07712db80857，6.12.83）
+# eventpoll: defer struct eventpoll free to RCU grace period
+# eventpoll 釋放延到 RCU、反向路徑檢查時 pin 檔案
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 6e32372761..1745074027 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -225,6 +225,9 @@ struct eventpoll {
+ 	 */
+ 	refcount_t refcount;
+ 
++	/* used to defer freeing past ep_get_upwards_depth_proc() RCU walk */
++	struct rcu_head rcu;
++
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	/* used to track busy poll napi_id */
+ 	unsigned int napi_id;
+@@ -789,7 +792,8 @@ static void ep_free(struct eventpoll *ep)
+ 	mutex_destroy(&ep->mtx);
+ 	free_uid(ep->user);
+ 	wakeup_source_unregister(ep->ws);
+-	kfree(ep);
++	/* ep_get_upwards_depth_proc() may still hold epi->ep under RCU */
++	kfree_rcu(ep, rcu);
+ }
+ 
+ /*

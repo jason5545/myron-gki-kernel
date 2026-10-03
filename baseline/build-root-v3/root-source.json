@@ -1,0 +1,36 @@
+{
+  "resukisu": {
+    "repository": "https://github.com/ReSukiSU/ReSukiSU",
+    "commit": "239e1e8871b8fcd51a6e5b3002e0ba522fdd99fb",
+    "tag": "v4.2.0-rc3",
+    "version_code": 35171,
+    "commit_count": 4471,
+    "uapi_version": 4
+  },
+  "susfs": {
+    "repository": "https://gitlab.com/simonpunk/susfs4ksu",
+    "branch": "gki-android16-6.12",
+    "commit": "b213c54126fb243595ce7876e91d84d6e0861fec",
+    "version": "v2.3.0",
+    "upstream_kernel_patch_sha256": "31333a67aef105ce85b43fda29f407cfa4d5585060ed12375da535a4122ea682"
+  },
+  "manager": {
+    "file": "ReSukiSU_v4.2.0-rc3_35171-arm64-v8a-release.apk",
+    "sha256": "25657bc449439687608fffa04b4b586de90fc405e3dc6217bd997fc71ba0a0a1",
+    "size": 9379362,
+    "certificate_sha256": "d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64",
+    "certificate_size": 887,
+    "repository": "https://github.com/ReSukiSU/ReSukiSU",
+    "tag": "v4.2.0-rc3",
+    "commit": "239e1e8871b8fcd51a6e5b3002e0ba522fdd99fb",
+    "version_code": 35171,
+    "uapi_version": 4,
+    "url": "https://github.com/ReSukiSU/ReSukiSU/releases/download/v4.2.0-rc3/ReSukiSU_v4.2.0-rc3_35171-arm64-v8a-release.apk"
+  },
+  "root_adapter_sha256": "386bad6a452ed93a46b56c8de3d718f7b63b6743dfd70d286e1396a51618afe5",
+  "copied": {
+    "fs/susfs.c": "5521aa600f6df698e1d5e31df72e3557a36d33c161bd65dcafe5788fb56a7fa7",
+    "include/linux/susfs.h": "fafff787b8856bd37a6736c2f0bbc5a57fd1f36232be267936f892fb57bc5120",
+    "include/linux/susfs_def.h": "db7f98dcf8119a4eb5c45c05205b6c1065766047d6f803b0e86f3d14b1a251f0"
+  }
+}

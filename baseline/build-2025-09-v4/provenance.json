@@ -1,0 +1,20 @@
+{
+  "build_host": "PC Proxmox LXC 112 gki-build（Ubuntu 24.04，原生 x86_64，24 核）",
+  "build_script": "scripts/remote-build.sh",
+  "build_project_commit": "276185b",
+  "first_build_project_commit": "bff8310",
+  "first_build_note": "首次完整編譯在 bff8310，之後只改驗收程式與腳本；276185b 的重跑為 Bazel 快取命中，Image、vmlinux.symvers、System.map 的 SHA-256 與首次相同。",
+  "superproject": "6c674d769718b4089f343cea754916d0f9becbad",
+  "common_commit": "1ad7be92b3ed2e7d9c39f9b6d96bb91f1220c76d",
+  "timing": {
+    "sync_seconds_approx": 540,
+    "bazel_seconds": 142
+  },
+  "abi_exceptions": ["rust_binder.ko"],
+  "root_markers_in_image": {
+    "resukisu": "v4.2.0-rc3-239e1e88@ReSukiSU",
+    "susfs": "susfs is initialized! version: v2.3.0"
+  },
+  "standby": "skipped_by_user",
+  "on_device_boot_verified": false
+}

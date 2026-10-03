@@ -1,0 +1,29 @@
+# 來源：linux-6.12.y stable dc0abce05513（upstream 1799d8abeabc，6.12.75）
+# xfrm6: fix uninitialized saddr in xfrm6_get_saddr()
+# xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr
+diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+index 1f19b6f144..125ea9a5b8 100644
+--- a/net/ipv6/xfrm6_policy.c
++++ b/net/ipv6/xfrm6_policy.c
+@@ -57,6 +57,7 @@ static int xfrm6_get_saddr(xfrm_address_t *saddr,
+ 	struct dst_entry *dst;
+ 	struct net_device *dev;
+ 	struct inet6_dev *idev;
++	int err;
+ 
+ 	dst = xfrm6_dst_lookup(params);
+ 	if (IS_ERR(dst))
+@@ -68,9 +69,11 @@ static int xfrm6_get_saddr(xfrm_address_t *saddr,
+ 		return -EHOSTUNREACH;
+ 	}
+ 	dev = idev->dev;
+-	ipv6_dev_get_saddr(dev_net(dev), dev, &params->daddr->in6, 0,
+-			   &saddr->in6);
++	err = ipv6_dev_get_saddr(dev_net(dev), dev, &params->daddr->in6, 0,
++				 &saddr->in6);
+ 	dst_release(dst);
++	if (err)
++		return -EHOSTUNREACH;
+ 	return 0;
+ }
+ 

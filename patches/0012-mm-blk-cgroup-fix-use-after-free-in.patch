@@ -1,0 +1,23 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） dfc8292a1d67（upstream 8f5857be99f1，6.12.83）
+# mm: blk-cgroup: fix use-after-free in cgwb_release_workfn()
+# cgroup writeback（CGROUP_WRITEBACK=y）釋放時 UAF（LunaKernel 已採用）
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index f913e673e7..1511432670 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -619,12 +619,13 @@ static void cgwb_release_workfn(struct work_struct *work)
+ 	wb_shutdown(wb);
+ 
+ 	css_put(wb->memcg_css);
+-	css_put(wb->blkcg_css);
+-	mutex_unlock(&wb->bdi->cgwb_release_mutex);
+ 
+ 	/* triggers blkg destruction if no online users left */
+ 	blkcg_unpin_online(wb->blkcg_css);
+ 
++	css_put(wb->blkcg_css);
++	mutex_unlock(&wb->bdi->cgwb_release_mutex);
++
+ 	fprop_local_destroy_percpu(&wb->memcg_completions);
+ 
+ 	spin_lock_irq(&cgwb_lock);

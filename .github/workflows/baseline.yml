@@ -1,0 +1,77 @@
+name: 編譯 HyperOS 3 核心基底
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_kernel:
+        description: 同步固定官方來源並編譯候選核心
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: myron-baseline-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - run: |
+          python3 scripts/validate.py
+          python3 scripts/prepare_root.py
+          python3 -m unittest discover -s tests -v
+          bash -n scripts/sync.sh scripts/build.sh
+          sh -n packaging/anykernel.sh
+  build:
+    if: github.event_name == 'workflow_dispatch' && inputs.build_kernel
+    needs: audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: 準備 Linux 編譯環境
+        run: |
+          df -h .
+          if [[ "$GITHUB_ACTIONS" == true && "$RUNNER_ENVIRONMENT" == github-hosted ]]; then
+            sudo rm -rf /usr/local/lib/android /usr/share/dotnet /usr/share/swift \
+              /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          fi
+          sudo apt-get update
+          sudo apt-get install -y bison flex libelf-dev libssl-dev lz4 zstd rsync
+          git config --global user.name 'myron-gki CI'
+          git config --global user.email 'myron-gki@users.noreply.github.com'
+          df -h .
+      - name: 同步固定的 GKI 來源
+        run: bash scripts/sync.sh
+      - name: 編譯與相容性檢查
+        run: bash scripts/build.sh
+      - name: 保存小型驗收報告
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: myron-kmi5-reports-${{ github.run_number }}
+          path: |
+            out/reports/
+            out/packages/*.json
+            out/build.log
+            work/resolved-manifest.xml
+          if-no-files-found: warn
+          retention-days: 14
+      - name: 保存候選核心與模組
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: myron-kmi5-baseline-${{ github.run_number }}
+          path: |
+            out/dist/Image*
+            out/dist/boot*.img
+            out/dist/vmlinux.symvers
+            out/dist/System.map
+            out/dist/system_dlkm*
+            out/dist/*headers*.tar.gz
+            out/dist/modules.*
+            out/packages/*.zip
+          if-no-files-found: warn
+          retention-days: 14

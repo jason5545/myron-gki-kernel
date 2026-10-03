@@ -1,0 +1,23 @@
+# 來源：ACK android16-6.12 1c91f3784（upstream 82cf1142e5cc）
+# UPSTREAM: usb: gadget: f_fs: Initialize epfile->in early to fix endpoint direction checks
+# f_fs 提早設定 epfile->in，修正端點方向檢查（adb 使用 f_fs）
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 5855f3a3b2..3d5314a89e 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -2354,6 +2354,7 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
+ 			sprintf(epfile->name, "ep%02x", ffs->eps_addrmap[i]);
+ 		else
+ 			sprintf(epfile->name, "ep%u", i);
++		epfile->in = (ffs->eps_addrmap[i] & USB_ENDPOINT_DIR_MASK) ? 1 : 0;
+ 		epfile->dentry = ffs_sb_create_file(ffs->sb, epfile->name,
+ 						 epfile,
+ 						 &ffs_epfile_operations);
+@@ -2442,7 +2443,6 @@ static int ffs_func_eps_enable(struct ffs_function *func)
+ 		ret = usb_ep_enable(ep->ep);
+ 		if (!ret) {
+ 			epfile->ep = ep;
+-			epfile->in = usb_endpoint_dir_in(ep->ep->desc);
+ 			epfile->isoc = usb_endpoint_xfer_isoc(ep->ep->desc);
+ 		} else {
+ 			break;

@@ -1,0 +1,28 @@
+# 來源：linux-6.12.y stable 86ab00cf81d4（upstream 1aee05e814d2，6.12.94）
+# erofs: fix use-after-free on sbi->sync_decompress
+# 解壓 work 送出後卸載可能先釋放 sbi，之後才寫 sync_decompress 會 UAF
+# 改寫：ACK 2025-09 的欄位是 sbi->opt.sync_decompress、註解也不同；照 upstream 的做法把設定移到送出 work 之前（與 LunaKernel r21 改寫版內容相同，該檔 hunk 行數有誤無法直接套用）
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 6f7da2734b..575689f671 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1481,6 +1481,9 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ 	if (atomic_add_return(bios, &io->pending_bios))
+ 		return;
+ 	if (z_erofs_in_atomic()) {
++		/* enable sync decompression for readahead */
++		if (sbi->opt.sync_decompress == EROFS_SYNC_DECOMPRESS_AUTO)
++			sbi->opt.sync_decompress = EROFS_SYNC_DECOMPRESS_FORCE_ON;
+ #ifdef CONFIG_EROFS_FS_PCPU_KTHREAD
+ 		struct kthread_worker *worker;
+ 
+@@ -1497,9 +1500,6 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ #else
+ 		queue_work(z_erofs_workqueue, &io->u.work);
+ #endif
+-		/* enable sync decompression for readahead */
+-		if (sbi->opt.sync_decompress == EROFS_SYNC_DECOMPRESS_AUTO)
+-			sbi->opt.sync_decompress = EROFS_SYNC_DECOMPRESS_FORCE_ON;
+ 		return;
+ 	}
+ 	gfp_flag = memalloc_noio_save();

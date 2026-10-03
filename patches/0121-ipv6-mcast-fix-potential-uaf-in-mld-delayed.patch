@@ -1,0 +1,117 @@
+# 來源：linux-6.12.y stable ebbebf6cee95（upstream 9b26518b6896，6.12.97）
+# ipv6: mcast: Fix potential UAF in MLD delayed work
+# 裝置拆除與 MLD query 競爭時，對 refcount 為 0 的 inet6_dev 排程 delayed work 造成 UAF
+# 改寫：原 patch 的上下文 mc_assert_locked() 在 6.12.38 不存在；改用 LunaKernel r21 的 patches/backports/ipv6-mld-delayed-work-uaf-r21.patch，改動行與 upstream 完全相同
+diff --git a/include/net/addrconf.h b/include/net/addrconf.h
+index a44ab67c9c..797e2d395e 100644
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -430,6 +430,11 @@ static inline void in6_dev_hold(struct inet6_dev *idev)
+ 	refcount_inc(&idev->refcnt);
+ }
+ 
++static inline bool in6_dev_hold_safe(struct inet6_dev *idev)
++{
++	return refcount_inc_not_zero(&idev->refcnt);
++}
++
+ /* called with rcu_read_lock held */
+ static inline bool ip6_ignore_linkdown(const struct net_device *dev)
+ {
+diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
+index bed936b348..495a4b5da9 100644
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -1054,8 +1054,10 @@ static void mld_gq_start_work(struct inet6_dev *idev)
+ 	unsigned long tv = get_random_u32_below(idev->mc_maxdelay);
+ 
+ 	idev->mc_gq_running = 1;
+-	if (!mod_delayed_work(mld_wq, &idev->mc_gq_work, tv + 2))
+-		in6_dev_hold(idev);
++	if (in6_dev_hold_safe(idev)) {
++		if (mod_delayed_work(mld_wq, &idev->mc_gq_work, tv + 2))
++			in6_dev_put(idev);
++	}
+ }
+ 
+ /* called with mc_lock */
+@@ -1071,8 +1073,10 @@ static void mld_ifc_start_work(struct inet6_dev *idev, unsigned long delay)
+ {
+ 	unsigned long tv = get_random_u32_below(delay);
+ 
+-	if (!mod_delayed_work(mld_wq, &idev->mc_ifc_work, tv + 2))
+-		in6_dev_hold(idev);
++	if (in6_dev_hold_safe(idev)) {
++		if (mod_delayed_work(mld_wq, &idev->mc_ifc_work, tv + 2))
++			in6_dev_put(idev);
++	}
+ }
+ 
+ /* called with mc_lock */
+@@ -1088,8 +1092,10 @@ static void mld_dad_start_work(struct inet6_dev *idev, unsigned long delay)
+ {
+ 	unsigned long tv = get_random_u32_below(delay);
+ 
+-	if (!mod_delayed_work(mld_wq, &idev->mc_dad_work, tv + 2))
+-		in6_dev_hold(idev);
++	if (in6_dev_hold_safe(idev)) {
++		if (mod_delayed_work(mld_wq, &idev->mc_dad_work, tv + 2))
++			in6_dev_put(idev);
++	}
+ }
+ 
+ static void mld_dad_stop_work(struct inet6_dev *idev)
+@@ -1375,18 +1381,23 @@ static void mld_process_v2(struct inet6_dev *idev, struct mld2_query *mld,
+ void igmp6_event_query(struct sk_buff *skb)
+ {
+ 	struct inet6_dev *idev = __in6_dev_get(skb->dev);
++	bool put = false;
+ 
+ 	if (!idev || idev->dead)
+ 		goto out;
+ 
+ 	spin_lock_bh(&idev->mc_query_lock);
+-	if (skb_queue_len(&idev->mc_query_queue) < MLD_MAX_SKBS) {
++	if (skb_queue_len(&idev->mc_query_queue) < MLD_MAX_SKBS &&
++	    in6_dev_hold_safe(idev)) {
+ 		__skb_queue_tail(&idev->mc_query_queue, skb);
+-		if (!mod_delayed_work(mld_wq, &idev->mc_query_work, 0))
+-			in6_dev_hold(idev);
++		if (mod_delayed_work(mld_wq, &idev->mc_query_work, 0))
++			put = true;
+ 		skb = NULL;
+ 	}
+ 	spin_unlock_bh(&idev->mc_query_lock);
++
++	if (put)
++		in6_dev_put(idev);
+ out:
+ 	kfree_skb(skb);
+ }
+@@ -1543,18 +1554,23 @@ static void mld_query_work(struct work_struct *work)
+ void igmp6_event_report(struct sk_buff *skb)
+ {
+ 	struct inet6_dev *idev = __in6_dev_get(skb->dev);
++	bool put = false;
+ 
+ 	if (!idev || idev->dead)
+ 		goto out;
+ 
+ 	spin_lock_bh(&idev->mc_report_lock);
+-	if (skb_queue_len(&idev->mc_report_queue) < MLD_MAX_SKBS) {
++	if (skb_queue_len(&idev->mc_report_queue) < MLD_MAX_SKBS &&
++	    in6_dev_hold_safe(idev)) {
+ 		__skb_queue_tail(&idev->mc_report_queue, skb);
+-		if (!mod_delayed_work(mld_wq, &idev->mc_report_work, 0))
+-			in6_dev_hold(idev);
++		if (mod_delayed_work(mld_wq, &idev->mc_report_work, 0))
++			put = true;
+ 		skb = NULL;
+ 	}
+ 	spin_unlock_bh(&idev->mc_report_lock);
++
++	if (put)
++		in6_dev_put(idev);
+ out:
+ 	kfree_skb(skb);
+ }

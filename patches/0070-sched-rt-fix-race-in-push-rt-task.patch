@@ -1,0 +1,31 @@
+# 來源：linux-6.12.y stable debfbc047196（upstream 690e47d1403e，6.12.64）
+# sched/rt: Fix race in push_rt_task
+# push_rt_task 重新上鎖後，task 可能已被遷移、執行又被喚醒回同一個 rq，舊檢查會誤判而造成 RT 佇列損毀與 BUG_ON
+# 改寫：ACK 2025-09 帶 proxy execution，重新驗證移到 rt_revalidate_rq_state()；未啟用 proxy exec（手機 cmdline 沒有 sched_proxy_exec=）時走 __rt_revalidate_rq_state()，在這裡改用 upstream 的檢查（task 必須仍是 pick_next_pushable_task() 的結果）。sched.h 的 __revalidate_rq_state() 由 deadline 共用，不動
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 3d2e43080e..2247efe90a 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2030,9 +2030,20 @@ static struct task_struct *pick_next_pushable_task(struct rq *rq)
+ static inline bool __rt_revalidate_rq_state(struct task_struct *task, struct rq *rq,
+ 					    struct rq *lowest)
+ {
+-	if (!rt_task(task))
++	/*
++	 * We had to unlock the run queue. In the mean time, task could have
++	 * migrated already or had its affinity changed, therefore check if
++	 * the task is still at the head of the pushable tasks list.
++	 * It is possible the task was scheduled, set "migrate_disabled" and
++	 * then got preempted, so we must check the task migration disable
++	 * flag here too.
++	 */
++	if (unlikely(is_migration_disabled(task) ||
++		     !cpumask_test_cpu(lowest->cpu, &task->cpus_mask) ||
++		     task != pick_next_pushable_task(rq)))
+ 		return false;
+-	return __revalidate_rq_state(task, rq, lowest);
++
++	return true;
+ }
+ 
+ static inline bool rt_revalidate_rq_state(struct task_struct *task, struct rq *rq,

@@ -1,0 +1,46 @@
+name: 讀取既有核心 ABI 報告
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: 已完成編譯的 workflow run ID
+        required: true
+        type: string
+      artifact_name:
+        description: 核心產物名稱
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          run-id: ${{ inputs.source_run }}
+          name: ${{ inputs.artifact_name }}
+          github-token: ${{ github.token }}
+          path: imported
+      - name: 印出缺少的符號並保存小型報告
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,shutil
+          root=pathlib.Path('imported')
+          output=pathlib.Path('reports');output.mkdir()
+          for name in ('module-abi.json','candidate-image.json','candidate.config','resolved-manifest.xml'):
+              files=list(root.rglob(name))
+              if len(files)!=1:
+                  raise SystemExit(f'無法唯一取得 {name}：{files}')
+              shutil.copyfile(files[0],output/name)
+          data=json.loads((output/'module-abi.json').read_text())
+          print(json.dumps({'checked':data['checked'],'missing':data['missing'],
+                            'mismatched':data['mismatched'],
+                            'unversioned_missing':data['unversioned_missing']},ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: myron-abi-reports
+          path: reports/
+          retention-days: 14

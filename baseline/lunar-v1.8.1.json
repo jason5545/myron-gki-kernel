@@ -1,0 +1,20 @@
+{
+  "size": 42310144,
+  "sha256": "752e43f8fb49d2429da070416412344f8331b6686b6a695c940d1e29870e7d33",
+  "kind": "kernel",
+  "image_sha256": "752e43f8fb49d2429da070416412344f8331b6686b6a695c940d1e29870e7d33",
+  "image_size": 42310144,
+  "release": "6.12.69-android16-6-ge6e6dde6913c-LunarKernel-V1.8.1",
+  "kmi": "6.12-android16-6",
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG_PROTECT": "n",
+    "CONFIG_KSU": "n"
+  },
+  "package_sha256": "4ed913b7407bdc08613ddf02e2db8948da9d0626a1dadac320f88f96c71dbfeb",
+  "package_version": "LunarKernel OS4 GKI 6.12.69-android16-6-ge6e6dde6913c-LunarKernel-V1.8.1\nRelease: V1.8.1\nBranch: Dev09-03\nCommit: e6e6dde6913c45e6c31114600db19868a93637f1\nConfiguration: 4K pages; base CONFIG_KSU=n; optional ReSukiSU + SUSFS CONFIG_KSU=y via Resuki.lkpatch\nBuilt: Sat Sep 19 16:48:13 UTC 2026",
+  "supported_android_versions": "17",
+  "file": "LunarKernel-v1.8.1.zip"
+}

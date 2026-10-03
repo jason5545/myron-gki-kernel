@@ -1,0 +1,13 @@
+{
+  "base_commit": "13ff069897df965d9039dca208b2f39dacf81957",
+  "patches": [
+    {
+      "name": "0001-keep-stock-rust-binder-lru-symbols.patch",
+      "sha256": "3e0f97400c4b571d47ab5c5fea0c2e75ac79d33b98a74d695542594c5f8032e7"
+    },
+    {
+      "name": "0002-allow-stock-gki-modules-with-custom-kernel.patch",
+      "sha256": "2ffe4afd6cec53f7e2ffff5447b2d363b0e507507b00438058abf87ccb7e6d28"
+    }
+  ]
+}

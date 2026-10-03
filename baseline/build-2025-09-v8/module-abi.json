@@ -1,0 +1,187 @@
+{
+  "compatible": true,
+  "scope": "核心匯出符號 CRC；不代表模組簽章、CFI 或實機開機已通過",
+  "unversioned_symbols": 284,
+  "unversioned_missing": [],
+  "root_runtime_validation_required": true,
+  "checked": 4015,
+  "missing": [],
+  "mismatched": [],
+  "exceptions": {
+    "rust_binder.ko": "手機使用 C binder（kcmdline.binder=c，rust_binder 引用數 0、沒有依賴模組）。它由 /vendor/bin/system_dlkm_modprobe.sh 第二階段逐一載入，失敗不影響其他模組；該目錄第一個模組是 gzvm.ko。Rust kernel crate 符號不在 KMI 保證內，6.12.38 與原廠 6.12.23 不同。Jason 2026/10/2 同意。"
+  },
+  "excepted": [
+    {
+      "symbol": "_RNvMs0_NtCsdfZWD8DztAw_6kernel4pageNtB5_4Page8read_raw",
+      "expected": "0x6916361e",
+      "actual": "0xa3377f0f",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "_RNvMs1_NtCsdfZWD8DztAw_6kernel4taskNtB5_4Task4euid",
+      "expected": "0x0b7f78ce",
+      "actual": "0x223afc88",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "_RNvMs1_NtCsdfZWD8DztAw_6kernel4taskNtB5_4Task6policy",
+      "expected": "0x1ca8eb04",
+      "actual": "0xe9f85619",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "_RNvMs1_NtCsdfZWD8DztAw_6kernel4taskNtB5_4Task7current",
+      "expected": "0x227c62ad",
+      "actual": "0xf65611e6",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_current_user_ns",
+      "expected": "0xfd1a1446",
+      "actual": "0xe2d20156",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_from_kuid",
+      "expected": "0x77b4f04e",
+      "actual": "0x143d1b29",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_get_cred",
+      "expected": "0xca70cbd4",
+      "actual": "0x69e7ad14",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_get_file",
+      "expected": "0x5fabf72f",
+      "actual": "0x5f94c6ca",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmap_read_lock",
+      "expected": "0xf1cc28e7",
+      "actual": "0x2dc2e602",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmap_read_trylock",
+      "expected": "0xbf3284e1",
+      "actual": "0x454bc78d",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmap_read_unlock",
+      "expected": "0xf1cc28e7",
+      "actual": "0x2dc2e602",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmdrop",
+      "expected": "0xf1cc28e7",
+      "actual": "0x2dc2e602",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmget_not_zero",
+      "expected": "0xbf3284e1",
+      "actual": "0x454bc78d",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_mmgrab",
+      "expected": "0xf1cc28e7",
+      "actual": "0x2dc2e602",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_put_cred",
+      "expected": "0xb02ca9b8",
+      "actual": "0x8ff8c9c7",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "rust_helper_vma_lookup",
+      "expected": "0x36367025",
+      "actual": "0x0c4cc023",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ],
+      "kind": "mismatched"
+    },
+    {
+      "symbol": "_RNvMs1_NtCsdfZWD8DztAw_6kernel4taskNtB5_4Task17pid_in_current_ns",
+      "kind": "unversioned_missing",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ]
+    },
+    {
+      "symbol": "_RNvXs1N_NtCsg7kyWky7wBq_8bindings12bindings_rawNtB6_7rb_nodeNtNtCs3o2tGsuHyou_4core7default7Default7default",
+      "kind": "unversioned_missing",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ]
+    },
+    {
+      "symbol": "_RNvXs1O_NtCsg7kyWky7wBq_8bindings12bindings_rawNtB6_7rb_rootNtNtCs3o2tGsuHyou_4core7default7Default7default",
+      "kind": "unversioned_missing",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ]
+    },
+    {
+      "symbol": "_RNvXs7_NtCsdfZWD8DztAw_6kernel2mmNtB5_15MmWithUserAsyncNtNtB7_5types16AlwaysRefCounted7dec_ref",
+      "kind": "unversioned_missing",
+      "modules": [
+        "system-modules.tar:./rust_binder.ko"
+      ]
+    }
+  ]
+}

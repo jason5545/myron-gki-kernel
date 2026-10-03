@@ -1,0 +1,19 @@
+# 來源：linux-6.12.y stable b84f083f50ec（upstream ac1499fcd40f，6.12.59）
+# ipv4: route: Prevent rt_bind_exception() from rebinding stale fnhe
+# IPv6 輸出、dst 快取、fnhe 的 UAF 與 race
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 093be77af0..c40a839863 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -605,6 +605,11 @@ static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
+ 			oldest_p = fnhe_p;
+ 		}
+ 	}
++
++	/* Clear oldest->fnhe_daddr to prevent this fnhe from being
++	 * rebound with new dsts in rt_bind_exception().
++	 */
++	oldest->fnhe_daddr = 0;
+ 	fnhe_flush_routes(oldest);
+ 	*oldest_p = oldest->fnhe_next;
+ 	kfree_rcu(oldest, rcu);

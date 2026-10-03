@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "manifest_branch": "common-android16-6.12-2025-09",
+  "superproject": "6c674d769718b4089f343cea754916d0f9becbad",
+  "common_commit": "1ad7be92b3ed2e7d9c39f9b6d96bb91f1220c76d",
+  "kernel_version": "6.12.38",
+  "kmi": "6.12-android16-5",
+  "kmi_generation": 5,
+  "clang_version": "r536225",
+  "page_size": 4096,
+  "target": "//common:kernel_aarch64_dist",
+  "repo_tool_commit": "d53a4278f5156d57d71fe401ba87efcd8435886a",
+  "stock_commit_available": false,
+  "stock_commit_note": "原廠 g16e473de48a3 在公開 Android common Gitiles 回傳 404；此基底為官方 ACK 候選，非原廠原始碼重建。",
+  "repo_launcher_sha256": "1211b57b57e4122a9c546295a59b37d24068f1164d0e87bef096d5323c413e4f"
+}

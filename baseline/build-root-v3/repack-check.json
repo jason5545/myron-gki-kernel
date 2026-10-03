@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "mode": "temporary_files_only",
+  "original_boot_sha256": "e4a6fea84769a450c26550f07ca4dc2967f03541f2a6716ad995065f1fa7a19d",
+  "live_boot_sha256_after": "e4a6fea84769a450c26550f07ca4dc2967f03541f2a6716ad995065f1fa7a19d",
+  "live_boot_unchanged": true,
+  "boot_header_preserved_except_kernel_size": true,
+  "candidate_kernel_matches_image": true,
+  "candidate": {
+    "size": 100663296,
+    "sha256": "4e931383e39966b200caf6732fc1600295b5bb0498d7d51ad89e5e952a3e48be",
+    "boot": {
+      "header_version": 4,
+      "kernel_size": 40614400,
+      "ramdisk_size": 0,
+      "os_version": 0,
+      "signature_size": 0
+    },
+    "kind": "kernel",
+    "image_sha256": "6c5d676bbab21995bc0056e36c2572efe9499ef3940025ca89cd29d39be7839b",
+    "image_size": 40614400,
+    "release": "6.12.23-android16-5-maybe-dirty-4k",
+    "kmi": "6.12-android16-5",
+    "page_size": 4096,
+    "config": {
+      "CONFIG_MODVERSIONS": "y",
+      "CONFIG_CFI_CLANG": "y",
+      "CONFIG_MODULE_SIG": "y",
+      "CONFIG_MODULE_SIG_ALL": "y",
+      "CONFIG_MODULE_SIG_FORCE": "n",
+      "CONFIG_MODULE_SIG_PROTECT_LIST": "\"\"",
+      "CONFIG_MODULE_SIG_PROTECT": "n",
+      "CONFIG_TRIM_UNUSED_KSYMS": "n",
+      "CONFIG_MODULE_FORCE_LOAD": "n",
+      "CONFIG_ANDROID_BINDER_IPC_RUST": "m",
+      "CONFIG_ZRAM": "m",
+      "CONFIG_ZSMALLOC": "m",
+      "CONFIG_KSU": "y",
+      "CONFIG_KSU_SUSFS": "y",
+      "CONFIG_KSU_MULTI_MANAGER_SUPPORT": "y",
+      "CONFIG_KALLSYMS_ALL": "y",
+      "CONFIG_KSU_DISABLE_MANAGER": "n",
+      "CONFIG_KSU_DISABLE_POLICY": "n",
+      "CONFIG_KSU_DEBUG": "n",
+      "CONFIG_KSU_TOOLKIT_SUPPORT": "n"
+    },
+    "file": "boot-from-stock.img"
+  },
+  "magiskboot_sha256": "077bf95aeab6520db017e9bae25829afc2a9d75b15a6be06ddb383841dcdbb03",
+  "boot_partition_written": false,
+  "on_device_boot_verified": false,
+  "standby": {
+    "requested_default": false,
+    "implemented": false,
+    "status": "skipped_by_user",
+    "reason": "Jason 確認沒有 LK 待機功能的來源，已指示跳過。"
+  }
+}

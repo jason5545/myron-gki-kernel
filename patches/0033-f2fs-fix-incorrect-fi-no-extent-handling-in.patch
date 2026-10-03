@@ -1,0 +1,53 @@
+# 來源：linux-6.12.y stable 58a5deb220bc（upstream 1f70ddb28a3c，6.12.95）
+# f2fs: fix incorrect FI_NO_EXTENT handling in __destroy_extent_node()
+# FI_NO_EXTENT 處理錯誤（3-way）
+diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
+index a0708ba9fb..15ee756e72 100644
+--- a/fs/f2fs/extent_cache.c
++++ b/fs/f2fs/extent_cache.c
+@@ -119,10 +119,9 @@ static bool __may_extent_tree(struct inode *inode, enum extent_type type)
+ 	if (!__init_may_extent_tree(inode, type))
+ 		return false;
+ 
+-	if (is_inode_flag_set(inode, FI_NO_EXTENT))
+-		return false;
+-
+ 	if (type == EX_READ) {
++		if (is_inode_flag_set(inode, FI_NO_EXTENT))
++			return false;
+ 		if (is_inode_flag_set(inode, FI_COMPRESSED_FILE) &&
+ 				 !f2fs_sb_has_readonly(F2FS_I_SB(inode)))
+ 			return false;
+@@ -645,14 +644,10 @@ static unsigned int __destroy_extent_node(struct inode *inode,
+ 
+ 	while (atomic_read(&et->node_cnt)) {
+ 		write_lock(&et->lock);
+-		if (!is_inode_flag_set(inode, FI_NO_EXTENT))
+-			set_inode_flag(inode, FI_NO_EXTENT);
+ 		node_cnt += __free_extent_tree(sbi, et, nr_shrink);
+ 		write_unlock(&et->lock);
+ 	}
+ 
+-	f2fs_bug_on(sbi, atomic_read(&et->node_cnt));
+-
+ 	return node_cnt;
+ }
+ 
+@@ -682,12 +677,12 @@ static void __update_extent_tree_range(struct inode *inode,
+ 
+ 	write_lock(&et->lock);
+ 
+-	if (is_inode_flag_set(inode, FI_NO_EXTENT)) {
+-		write_unlock(&et->lock);
+-		return;
+-	}
+-
+ 	if (type == EX_READ) {
++		if (is_inode_flag_set(inode, FI_NO_EXTENT)) {
++			write_unlock(&et->lock);
++			return;
++		}
++
+ 		prev = et->largest;
+ 		dei.len = 0;
+ 

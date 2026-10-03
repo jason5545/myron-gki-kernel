@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable c301ec61ce6f（upstream 3ebcd3460cad，6.12.52）
+# binder: fix double-free in dbitmap
+# binder dbitmap double free
+diff --git a/drivers/android/dbitmap.h b/drivers/android/dbitmap.h
+index 956f1bd087..c7299ce8b3 100644
+--- a/drivers/android/dbitmap.h
++++ b/drivers/android/dbitmap.h
+@@ -37,6 +37,7 @@ static inline void dbitmap_free(struct dbitmap *dmap)
+ {
+ 	dmap->nbits = 0;
+ 	kfree(dmap->map);
++	dmap->map = NULL;
+ }
+ 
+ /* Returns the nbits that a dbitmap can shrink to, 0 if not possible. */

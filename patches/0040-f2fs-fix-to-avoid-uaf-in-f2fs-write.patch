@@ -1,0 +1,32 @@
+# 來源：linux-6.12.y stable cf4a9e1bc812（upstream ce2739e482bc，6.12.74）
+# f2fs: fix to avoid UAF in f2fs_write_end_io()
+# f2fs_write_end_io() UAF：umount 釋放 sbi 與最後一個 folio_end_writeback() 競爭
+# 改寫：stable 版是 page 介面，ACK 2025-09 的 f2fs 已是 folio 版；照 upstream ce2739e482bc 的 folio 寫法，把 cp_wait 喚醒移到 folio_end_writeback() 之前
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 9595d40a20..3efd10e715 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -363,14 +363,20 @@ static void f2fs_write_end_io(struct bio *bio)
+ 				folio->index != nid_of_node(&folio->page));
+ 
+ 		dec_page_count(sbi, type);
++
++		/*
++		 * we should access sbi before folio_end_writeback() to
++		 * avoid racing w/ kill_f2fs_super()
++		 */
++		if (type == F2FS_WB_CP_DATA && !get_pages(sbi, type) &&
++				wq_has_sleeper(&sbi->cp_wait))
++			wake_up(&sbi->cp_wait);
++
+ 		if (f2fs_in_warm_node_list(sbi, folio))
+ 			f2fs_del_fsync_node_entry(sbi, &folio->page);
+ 		clear_page_private_gcing(&folio->page);
+ 		folio_end_writeback(folio);
+ 	}
+-	if (!get_pages(sbi, F2FS_WB_CP_DATA) &&
+-				wq_has_sleeper(&sbi->cp_wait))
+-		wake_up(&sbi->cp_wait);
+ 
+ 	bio_put(bio);
+ }

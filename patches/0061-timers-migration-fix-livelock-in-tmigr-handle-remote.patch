@@ -1,0 +1,22 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 07b3b83587fb（upstream d486b4934a8e，6.12.94）
+# timers/migration: Fix livelock in tmigr_handle_remote_up()
+# timer migration livelock（LunaKernel 已採用）
+diff --git a/kernel/time/timer_migration.c b/kernel/time/timer_migration.c
+index 72538baa7a..e8cc341c85 100644
+--- a/kernel/time/timer_migration.c
++++ b/kernel/time/timer_migration.c
+@@ -931,8 +931,12 @@ static void tmigr_handle_remote_cpu(unsigned int cpu, u64 now,
+ 	/* Drop the lock to allow the remote CPU to exit idle */
+ 	raw_spin_unlock_irq(&tmc->lock);
+ 
+-	if (cpu != smp_processor_id())
+-		timer_expire_remote(cpu);
++	/*
++	 * This can't exclude the local CPU because jiffies might have advanced
++	 * after the timer softirq invoked run_timer_base(BASE_GLOBAL) and the
++	 * point where the jiffies snapshot @jif was taken in tmigr_handle_remote().
++	 */
++	timer_expire_remote(cpu);
+ 
+ 	/*
+ 	 * Lock ordering needs to be preserved - timer_base locks before tmigr

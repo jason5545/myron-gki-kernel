@@ -1,0 +1,44 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+index 532cd5a..c14d3ba 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -252,7 +252,10 @@ common_kernel(
+     ddk_headers_archive = ":kernel_aarch64_ddk_headers_archive",
+     ddk_module_headers = [":all_headers_aarch64"],
+     defconfig = "arch/arm64/configs/gki_defconfig",
+-    post_defconfig_fragments = ["arch/arm64/configs/myron_root.fragment"],
++    post_defconfig_fragments = [
++        "arch/arm64/configs/myron_root.fragment",
++        "arch/arm64/configs/myron_tuning.fragment",
++    ],
+     extra_dist = [
+         ":test_mappings_zip",
+         ":tests_zip_arm64",
+diff --git a/arch/arm64/configs/myron_tuning.fragment b/arch/arm64/configs/myron_tuning.fragment
+new file mode 100644
+index 0000000..0a3824a
+--- /dev/null
++++ b/arch/arm64/configs/myron_tuning.fragment
+@@ -0,0 +1,22 @@
++# 取自 LunarKernel v1.8.1、ACK 已有實作的設定；預設擁塞控制維持 cubic。
++CONFIG_TCP_CONG_ADVANCED=y
++CONFIG_TCP_CONG_BBR=y
++CONFIG_DEFAULT_CUBIC=y
++# 其餘擁塞控制預設會編成模組，GKI 模組清單沒有它們。
++# CONFIG_TCP_CONG_BIC is not set
++# CONFIG_TCP_CONG_WESTWOOD is not set
++# CONFIG_TCP_CONG_HTCP is not set
++# CONFIG_TCP_CONG_HSTCP is not set
++# CONFIG_TCP_CONG_HYBLA is not set
++# CONFIG_TCP_CONG_VEGAS is not set
++# CONFIG_TCP_CONG_NV is not set
++# CONFIG_TCP_CONG_SCALABLE is not set
++# CONFIG_TCP_CONG_LP is not set
++# CONFIG_TCP_CONG_VENO is not set
++# CONFIG_TCP_CONG_YEAH is not set
++# CONFIG_TCP_CONG_ILLINOIS is not set
++# CONFIG_TCP_CONG_DCTCP is not set
++# CONFIG_TCP_CONG_CDG is not set
++CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y
++CONFIG_TMPFS_XATTR=y
++CONFIG_TMPFS_POSIX_ACL=y

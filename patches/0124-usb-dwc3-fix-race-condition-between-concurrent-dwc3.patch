@@ -1,0 +1,33 @@
+# 來源：linux-6.12.y stable 7cfb62888eba（upstream e4037689a366，6.12.61）
+# usb: dwc3: Fix race condition between concurrent dwc3_remove_requests() call paths
+# dwc3 並行 remove_requests 的 race
+diff --git a/drivers/usb/dwc3/ep0.c b/drivers/usb/dwc3/ep0.c
+index 874497f864..8a0f251c55 100644
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -94,6 +94,7 @@ static int __dwc3_gadget_ep0_queue(struct dwc3_ep *dep,
+ 	req->request.actual	= 0;
+ 	req->request.status	= -EINPROGRESS;
+ 	req->epnum		= dep->number;
++	req->status		= DWC3_REQUEST_STATUS_QUEUED;
+ 
+ 	list_add_tail(&req->list, &dep->pending_list);
+ 
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index f95d1369bb..926c0d2143 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -229,6 +229,13 @@ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
+ {
+ 	struct dwc3			*dwc = dep->dwc;
+ 
++	/*
++	 * The request might have been processed and completed while the
++	 * spinlock was released. Skip processing if already completed.
++	 */
++	if (req->status == DWC3_REQUEST_STATUS_COMPLETED)
++		return;
++
+ 	dwc3_gadget_del_and_unmap_request(dep, req, status);
+ 	req->status = DWC3_REQUEST_STATUS_COMPLETED;
+ 

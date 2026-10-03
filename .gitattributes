@@ -1,0 +1,7 @@
+# 官方工具保留原始位元組，SHA-256 必須與固定來源相同。
+packaging/anykernel3/** -whitespace
+# 固定版本的上游原始碼保留原始內容。
+vendor/** -whitespace
+# unified diff 的空白前後文屬於格式的一部分。
+patches/*.patch -whitespace
+root-patches/*.patch -whitespace

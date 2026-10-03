@@ -1,0 +1,29 @@
+# 來源：linux-6.12.y stable 521591170206（upstream 25e531b422dc，6.12.86）
+# usb: xhci: Make usb_host_endpoint.hcpriv survive endpoint_disable()
+# xhci endpoint_disable 後 hcpriv 被釋放的 UAF
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index c29d4e4143..6cdbd552c5 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3124,7 +3124,6 @@ static void xhci_endpoint_disable(struct usb_hcd *hcd,
+ 		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
+ 			 ep->ep_state);
+ done:
+-	host_ep->hcpriv = NULL;
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+ }
+ 
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index 5766b7856d..c54fa8ac1d 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -54,7 +54,8 @@ struct ep_device;
+  * @ssp_isoc_ep_comp: SuperSpeedPlus isoc companion descriptor for this endpoint
+  * @urb_list: urbs queued to this endpoint; maintained by usbcore
+  * @hcpriv: for use by HCD; typically holds hardware dma queue head (QH)
+- *	with one or more transfer descriptors (TDs) per urb
++ *	with one or more transfer descriptors (TDs) per urb; must be preserved
++ *	by core while BW is allocated for the endpoint
+  * @ep_dev: ep_device for sysfs info
+  * @extra: descriptors following this endpoint in the configuration
+  * @extralen: how many bytes of "extra" are valid

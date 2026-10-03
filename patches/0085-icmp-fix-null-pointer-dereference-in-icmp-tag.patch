@@ -1,0 +1,21 @@
+# 來源：linux-6.12.y stable 9647e99d2a61（upstream 614aefe56af8，6.12.78）
+# icmp: fix NULL pointer dereference in icmp_tag_validation()
+# ICMP、in6_dev、fib6 walk 的 NULL deref
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 71c30fc45c..1ead264ce7 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -852,10 +852,12 @@ static void icmp_socket_deliver(struct sk_buff *skb, u32 info)
+ 
+ static bool icmp_tag_validation(int proto)
+ {
++	const struct net_protocol *ipprot;
+ 	bool ok;
+ 
+ 	rcu_read_lock();
+-	ok = rcu_dereference(inet_protos[proto])->icmp_strict_tag_validation;
++	ipprot = rcu_dereference(inet_protos[proto]);
++	ok = ipprot ? ipprot->icmp_strict_tag_validation : false;
+ 	rcu_read_unlock();
+ 	return ok;
+ }

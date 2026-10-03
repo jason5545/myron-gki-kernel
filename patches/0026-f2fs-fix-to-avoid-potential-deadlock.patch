@@ -1,0 +1,84 @@
+# 來源：linux-6.12.y stable 6c3bab5c6261（upstream ca8b201f2854，6.12.64）
+# f2fs: fix to avoid potential deadlock
+# 潛在死鎖（f2fs_handle_error_async 宣告有改，需確認 KMI）
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index 78407380d5..b4242f467a 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -756,10 +756,7 @@ void f2fs_decompress_cluster(struct decompress_io_ctx *dic, bool in_task)
+ 		ret = -EFSCORRUPTED;
+ 
+ 		/* Avoid f2fs_commit_super in irq context */
+-		if (!in_task)
+-			f2fs_handle_error_async(sbi, ERROR_FAIL_DECOMPRESSION);
+-		else
+-			f2fs_handle_error(sbi, ERROR_FAIL_DECOMPRESSION);
++		f2fs_handle_error(sbi, ERROR_FAIL_DECOMPRESSION);
+ 		goto out_release;
+ 	}
+ 
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index aeb37ac96f..9b47944a51 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3753,7 +3753,6 @@ void f2fs_quota_off_umount(struct super_block *sb);
+ void f2fs_save_errors(struct f2fs_sb_info *sbi, unsigned char flag);
+ void f2fs_handle_critical_error(struct f2fs_sb_info *sbi, unsigned char reason);
+ void f2fs_handle_error(struct f2fs_sb_info *sbi, unsigned char error);
+-void f2fs_handle_error_async(struct f2fs_sb_info *sbi, unsigned char error);
+ int f2fs_commit_super(struct f2fs_sb_info *sbi, bool recover);
+ int f2fs_sync_fs(struct super_block *sb, int sync);
+ int f2fs_sanity_check_ckpt(struct f2fs_sb_info *sbi);
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 0fa228f7d6..0232e26d12 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -4231,48 +4231,7 @@ void f2fs_save_errors(struct f2fs_sb_info *sbi, unsigned char flag)
+ 	spin_unlock_irqrestore(&sbi->error_lock, flags);
+ }
+ 
+-static bool f2fs_update_errors(struct f2fs_sb_info *sbi)
+-{
+-	unsigned long flags;
+-	bool need_update = false;
+-
+-	spin_lock_irqsave(&sbi->error_lock, flags);
+-	if (sbi->error_dirty) {
+-		memcpy(F2FS_RAW_SUPER(sbi)->s_errors, sbi->errors,
+-							MAX_F2FS_ERRORS);
+-		sbi->error_dirty = false;
+-		need_update = true;
+-	}
+-	spin_unlock_irqrestore(&sbi->error_lock, flags);
+-
+-	return need_update;
+-}
+-
+-static void f2fs_record_errors(struct f2fs_sb_info *sbi, unsigned char error)
+-{
+-	int err;
+-
+-	f2fs_down_write(&sbi->sb_lock);
+-
+-	if (!f2fs_update_errors(sbi))
+-		goto out_unlock;
+-
+-	err = f2fs_commit_super(sbi, false);
+-	if (err)
+-		f2fs_err_ratelimited(sbi,
+-			"f2fs_commit_super fails to record errors:%u, err:%d",
+-			error, err);
+-out_unlock:
+-	f2fs_up_write(&sbi->sb_lock);
+-}
+-
+ void f2fs_handle_error(struct f2fs_sb_info *sbi, unsigned char error)
+-{
+-	f2fs_save_errors(sbi, error);
+-	f2fs_record_errors(sbi, error);
+-}
+-
+-void f2fs_handle_error_async(struct f2fs_sb_info *sbi, unsigned char error)
+ {
+ 	f2fs_save_errors(sbi, error);
+ 

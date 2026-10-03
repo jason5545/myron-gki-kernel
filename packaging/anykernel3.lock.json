@@ -1,0 +1,40 @@
+{
+  "repository": "https://github.com/osm0sis/AnyKernel3",
+  "pins": {
+    "scripts": "020dfeccf9d7e962a48400fc94d3e451df92eead",
+    "arm64_tools": "f1a6f5ec47749252d30cc5e26f71f06b14cba617"
+  },
+  "architecture": "aarch64",
+  "files": {
+    "tools/ak3-core.sh": {
+      "sha256": "f7a51cfe2e093016a34a76e16de6c9885c2d1992c3482fcabc668680e1f0f6bb",
+      "commit": "020dfeccf9d7e962a48400fc94d3e451df92eead",
+      "source_path": "tools/ak3-core.sh"
+    },
+    "META-INF/com/google/android/update-binary": {
+      "sha256": "cf3ebe7183d5e3f25e9215cde7ef9dd956e836232a70f2a671891ab4889c7e7d",
+      "commit": "020dfeccf9d7e962a48400fc94d3e451df92eead",
+      "source_path": "META-INF/com/google/android/update-binary"
+    },
+    "META-INF/com/google/android/updater-script": {
+      "sha256": "33330c2def4147d90e6532bc7a710c86a0a870c6d530b99eb62ff5fe8cb9997e",
+      "commit": "020dfeccf9d7e962a48400fc94d3e451df92eead",
+      "source_path": "META-INF/com/google/android/updater-script"
+    },
+    "LICENSE": {
+      "sha256": "df6f65da47d459fdf2a2ef0eadb34f37d838befc91352b64a84f35507bea95cd",
+      "commit": "020dfeccf9d7e962a48400fc94d3e451df92eead",
+      "source_path": "LICENSE"
+    },
+    "tools/busybox": {
+      "sha256": "c629fce4b0dd3ba9775f851d0941e74582115f423258d3a79800f2bd11d30f5c",
+      "commit": "f1a6f5ec47749252d30cc5e26f71f06b14cba617",
+      "source_path": "busybox"
+    },
+    "tools/magiskboot": {
+      "sha256": "077bf95aeab6520db017e9bae25829afc2a9d75b15a6be06ddb383841dcdbb03",
+      "commit": "f1a6f5ec47749252d30cc5e26f71f06b14cba617",
+      "source_path": "magiskboot"
+    }
+  }
+}

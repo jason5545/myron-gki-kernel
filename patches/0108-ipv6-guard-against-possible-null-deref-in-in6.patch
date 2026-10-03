@@ -1,0 +1,20 @@
+# 來源：linux-6.12.y stable 952426a83ca7（upstream 507541c2a8ee，6.12.97）
+# ipv6: guard against possible NULL deref in __in6_dev_stats_get()
+# ICMP、in6_dev、fib6 walk 的 NULL deref
+diff --git a/include/net/addrconf.h b/include/net/addrconf.h
+index 6b9cde3e3c..bdd3374842 100644
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -353,8 +353,11 @@ static inline struct inet6_dev *__in6_dev_get(const struct net_device *dev)
+ static inline struct inet6_dev *__in6_dev_stats_get(const struct net_device *dev,
+ 						    const struct sk_buff *skb)
+ {
+-	if (netif_is_l3_master(dev))
++	if (netif_is_l3_master(dev)) {
+ 		dev = dev_get_by_index_rcu(dev_net(dev), inet6_iif(skb));
++		if (!dev)
++			return NULL;
++	}
+ 	return __in6_dev_get(dev);
+ }
+ 

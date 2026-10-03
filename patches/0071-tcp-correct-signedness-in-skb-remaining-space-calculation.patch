@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 62e6160cfb55（upstream d3a5f2871adc，6.12.39）
+# tcp: Correct signedness in skb remaining space calculation
+# TCP 接收佇列計數、剩餘空間計算、ehash 查找 race
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 9792e82e55..4180028ca0 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1148,7 +1148,7 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 		goto do_error;
+ 
+ 	while (msg_data_left(msg)) {
+-		ssize_t copy = 0;
++		int copy = 0;
+ 
+ 		skb = tcp_write_queue_tail(sk);
+ 		if (skb)

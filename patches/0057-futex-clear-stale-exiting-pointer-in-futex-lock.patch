@@ -1,0 +1,24 @@
+# 來源：linux-6.12.y stable 7475dfad10a0（upstream 210d36d892de，6.12.80）
+# futex: Clear stale exiting pointer in futex_lock_pi() retry path
+# futex PI／robust list 的 UAF 與 race
+diff --git a/kernel/futex/pi.c b/kernel/futex/pi.c
+index 635c7d5d42..ccd5d19dea 100644
+--- a/kernel/futex/pi.c
++++ b/kernel/futex/pi.c
+@@ -918,7 +918,7 @@ int fixup_pi_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+ int futex_lock_pi(u32 __user *uaddr, unsigned int flags, ktime_t *time, int trylock)
+ {
+ 	struct hrtimer_sleeper timeout, *to;
+-	struct task_struct *exiting = NULL;
++	struct task_struct *exiting;
+ 	struct rt_mutex_waiter rt_waiter;
+ 	struct futex_hash_bucket *hb;
+ 	struct futex_q q = futex_q_init;
+@@ -934,6 +934,7 @@ int futex_lock_pi(u32 __user *uaddr, unsigned int flags, ktime_t *time, int tryl
+ 	to = futex_setup_timer(time, &timeout, flags, 0);
+ 
+ retry:
++	exiting = NULL;
+ 	ret = get_futex_key(uaddr, flags, &q.key, FUTEX_WRITE);
+ 	if (unlikely(ret != 0))
+ 		goto out;

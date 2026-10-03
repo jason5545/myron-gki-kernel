@@ -1,0 +1,45 @@
+diff --git a/drivers/Makefile b/drivers/Makefile
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -195,3 +195,6 @@
+ obj-$(CONFIG_DPLL)		+= dpll/
+ 
+ obj-$(CONFIG_S390)		+= s390/
++
++# 固定版本的 ReSukiSU 核心實作。
++obj-$(CONFIG_KSU) += kernelsu/
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -245,4 +245,6 @@
+ 
+ source "drivers/dpll/Kconfig"
+ 
++source "drivers/kernelsu/Kconfig"
++
+ endmenu
+diff --git a/BUILD.bazel b/BUILD.bazel
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -242,6 +242,7 @@
+     ddk_headers_archive = ":kernel_aarch64_ddk_headers_archive",
+     ddk_module_headers = [":all_headers_aarch64"],
+     defconfig = "arch/arm64/configs/gki_defconfig",
++    post_defconfig_fragments = ["arch/arm64/configs/myron_root.fragment"],
+     extra_dist = [
+         ":test_mappings_zip",
+         ":tests_zip_arm64",
+diff --git a/arch/arm64/configs/myron_root.fragment b/arch/arm64/configs/myron_root.fragment
+new file mode 100644
+--- /dev/null
++++ b/arch/arm64/configs/myron_root.fragment
+@@ -0,0 +1,9 @@
++# 固定版本的 ReSukiSU 與 SUSFS；不啟用 LK 待機或版本偽裝服務。
++CONFIG_KSU=y
++CONFIG_KSU_SUSFS=y
++CONFIG_KSU_MULTI_MANAGER_SUPPORT=y
++CONFIG_KALLSYMS_ALL=y
++# CONFIG_KSU_DEBUG is not set
++# CONFIG_KSU_TOOLKIT_SUPPORT is not set
++# CONFIG_KSU_DISABLE_MANAGER is not set
++# CONFIG_KSU_DISABLE_POLICY is not set

@@ -1,0 +1,24 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） a38212687519（upstream a13cdb19fcb2，6.12.106）
+# HID: core: fix OOB read of field->usage in hid_set_field()
+# HID 報告欄位越界與停止時的 UAF（前者 LunaKernel 已採用）
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index ce219fdb12..7acb6a9220 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1896,13 +1896,14 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
+ 
+ 	size = field->report_size;
+ 
+-	hid_dump_input(field->report->device, field->usage + offset, value);
+-
+ 	if (offset >= field->report_count) {
+ 		hid_err(field->report->device, "offset (%d) exceeds report_count (%d)\n",
+ 				offset, field->report_count);
+ 		return -1;
+ 	}
++
++	hid_dump_input(field->report->device, field->usage + offset, value);
++
+ 	if (field->logical_minimum < 0) {
+ 		if (value != snto32(s32ton(value, size), size)) {
+ 			hid_err(field->report->device, "value %d is out of range\n", value);

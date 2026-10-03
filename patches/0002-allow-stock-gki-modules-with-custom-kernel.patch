@@ -1,0 +1,20 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -251,12 +251,13 @@ common_kernel(
+     kcflags = COMMON_KCFLAGS,
+     kmi_enforced = True,
+     kmi_symbol_list = "gki/aarch64/symbols/base",
+-    kmi_symbol_list_strict_mode = True,
++    # 保留完整匯出，另以實機模組的 CRC 清單驗收。
++    kmi_symbol_list_strict_mode = False,
+     make_goals = _GKI_AARCH64_MAKE_GOALS,
+     makefile = ":Makefile",
+     module_implicit_outs = get_gki_modules_list("arm64") + get_kunit_modules_list("arm64"),
+-    protected_module_names_list = ":gki_aarch64_protected_module_names",
++    protected_module_names_list = None,
+     system_dlkm_extra_archive_files = [":generate_gki_module_info_arm64"],
+-    trim_nonlisted_kmi = True,
++    trim_nonlisted_kmi = False,
+     visibility = ["//visibility:public"],
+ )

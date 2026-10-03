@@ -1,0 +1,940 @@
+建議	批次	commit	來源	stable 版本	子系統	類型	狀態（對 v8）	KMI 風險	說明	標題	upstream commit	KMI 判斷依據
+建議	1	3baeec23a82e	stable	6.12.63	block	修正	可套用	低	UFS 錯誤處理會 quiesce tagset；改用 RCU 避免死鎖	block: Use RCU in blk_mq_[un]quiesce_tagset() instead of set->tag_list_lock	59e25ef2b413	
+建議	1	5b029dd854f8	LunaKernel／stable、stable	6.12.97	block	修正	可套用	低	blk_time_get_ns() 被搶占時回傳 0（LunaKernel 已採用）	block: fix race in blk_time_get_ns() returning 0		block/blk.h: inline／header 內容
+建議	1	a09280c39ea5	stable	6.12.109	block	修正	可套用	低	Android init 開機時會寫 queue sysfs；store 期間 GFP_NOIO 避免回收遞迴死鎖	block: mark GFP_NOIO around sysfs ->store()	7c0be4ead1f8	
+建議	1	bbebd9425cad	stable	6.12.95	block	修正	可套用	低	blk-cgroup rstat flush UAF	blk-cgroup: fix UAF in __blkcg_rstat_flush()	0ab5ee5a1bad	
+建議	1	dfc8292a1d67	LunaKernel／stable、stable	6.12.83	mm	修正	可套用	低	cgroup writeback（CGROUP_WRITEBACK=y）釋放時 UAF（LunaKernel 已採用）	mm: blk-cgroup: fix use-after-free in cgwb_release_workfn()		
+建議	1	64ae21b9c4f0	stable	6.12.68	scsi	修正	可套用	低	SCSI 錯誤處理在最後一個完成與 EH 競爭時沒被喚醒，UFS 走這條路	scsi: core: Wake up the error handler when final completions race against each other	fe2f8ad6f099	
+建議	1	6557af8245c0	stable	6.12.78	ufs	修正	可套用	低	MCQ 模式（實機 use_mcq_mode=Y）下 MAXQ=32 的位移越界	scsi: ufs: core: Fix shift out of bounds when MAXQ=32	2f38fd99c000	
+建議	1	79bb460d3	ACK android16-6.12		ufs	修正	可套用	低	W-LUN resume 失敗後 EH 無法把裝置設回 active；接在 0007 之後	FROMGIT: scsi: ufs: core: Fix EH failure after W-LUN resume error	b4bb6daf4ac4	
+建議	1	aa134d3a4	ACK android16-6.12		ufs	修正	衝突需改寫	低	上一項的 mutex 初始化順序修正；上下文不同，手工套用相同改動：mutex_init 移到 ufshcd_init() 前段	BACKPORT: scsi: ufs: core: Fix PM QoS mutex initialization	0ba7a254afd0	
+建議	1	e6f3cb873	ACK android16-6.12		ufs	修正	可套用	低	高通提交的 UFS CPU latency PM QoS race，會造成 list 損毀；用 ufs_hba_priv 保持 KMI	BACKPORT: FROMLIST: scsi: ufs: core: Fix data race in CPU latency PM QoS request handling		drivers/ufs/core/ufshcd-priv.h: inline／header 內容
+建議	2	c301ec61ce6f	stable	6.12.52	binder	修正	可套用	低	binder dbitmap double free	binder: fix double-free in dbitmap	3ebcd3460cad	drivers/android/dbitmap.h: inline／header 內容
+建議	2	378949f46e89	stable	6.12.80	erofs	修正	可套用	低	bio 完成時需要 GFP_NOIO，避免回收遞迴死鎖	erofs: add GFP_NOIO in the bio completion if needed	c23df30915f8	
+建議	2	86ab00cf81d4	LunaKernel／stable、stable	6.12.94	erofs	修正	衝突需改寫（LunaKernel 改寫版：衝突需改寫）	低	sync_decompress UAF；衝突需改寫（LunaKernel 改寫版也衝突）	erofs: fix use-after-free on sbi->sync_decompress		
+建議	2	ad07ea069f92	stable	6.12.78	erofs	修正	可套用	低	ztailpacking pcluster 的 inline 資料讀取失敗	erofs: fix inline data read failure for ztailpacking pclusters	c134a40f86ef	
+建議	2	cc2ec79a6cb1	stable	6.12.45	erofs	修正	可套用	低	非 DEBUG_LOCK_ALLOC 的正式核心誤判 atomic context，可能在不能睡眠時同步解壓	erofs: fix atomic context detection when !CONFIG_DEBUG_LOCK_ALLOC	c99fab6e80b7	
+建議	2	19d7ac99e101	stable	6.12.64	f2fs	修正	可套用	低	age extent cache 計數溢位（實機掛載 atgc）	f2fs: fix age extent cache insertion skip on counter overflow	27bf6a637b76	fs/f2fs/f2fs.h: 巨集
+建議	2	25d2dc669f2a	stable	6.12.78	f2fs	修正	可套用	低	GC 不搬空 section	f2fs: fix to avoid migrating empty section	d625a2b08c08	
+建議	2	473550e71565	stable	6.12.64	f2fs	修正	可套用	低	fsync 復原回傳值錯誤	f2fs: fix return value of f2fs_recover_fsync_data()	01fba45deadd	
+建議	2	4f244c64efe6	stable	6.12.64	f2fs	修正	可套用	低	extent cache 寫入零長度 extent	f2fs: fix to avoid updating zero-sized extent in extent cache	7c37c7951032	
+建議	2	56038756aae6	stable	6.12.96	f2fs	修正	可套用	低	atomic write 的 atomic_inode UAF；SQLite 依賴 f2fs atomic write	f2fs: atomic: fix UAF issue on f2fs_inode_info.atomic_inode	e0288584baa5	
+建議	2	58a5deb220bc	stable	6.12.95	f2fs	修正	可套用（3-way）	低	FI_NO_EXTENT 處理錯誤（3-way）	f2fs: fix incorrect FI_NO_EXTENT handling in __destroy_extent_node()	1f70ddb28a3c	
+建議	2	603c55e992f8	LunaKernel／stable	6.12.95	f2fs	修正	可套用	低	atomic write 重試時把原始資料清成 0（LunaKernel 已採用）	f2fs: keep atomic write retry from zeroing original data		
+建議	2	6c3bab5c6261	stable	6.12.64	f2fs	修正	可套用	中	潛在死鎖（f2fs_handle_error_async 宣告有改，需確認 KMI）	f2fs: fix to avoid potential deadlock	ca8b201f2854	fs/f2fs/f2fs.h: 宣告 f2fs_handle_error_async 有改
+建議	2	7be222de96c0	LunaKernel／stable、stable	6.12.86	f2fs	修正	衝突需改寫（LunaKernel 改寫版：衝突需改寫）	低	f2fs_write_end_io() 遞減 nr_pages 的 UAF；衝突需改寫（LunaKernel 也改寫過）	f2fs: fix UAF caused by decrementing sbi->nr_pages[] in		
+建議	2	97df495d7541	stable	6.12.42	f2fs	修正	可套用	低	evict_inode 時的 panic	f2fs: fix to avoid panic in f2fs_evict_inode	a509a55f8eec	
+建議	2	a7b7ebdd7045	stable	6.12.53	f2fs	修正	可套用	低	f2fs_truncate() 錯誤路徑沒截掉第一頁	f2fs: fix to truncate first page in error path of f2fs_truncate()	9251a9e6e871	
+建議	2	ab1eaf9d5c99	stable	6.12.88	f2fs	修正	可套用	低	extent node 銷毀與 writeback 的 node_cnt race	f2fs: fix node_cnt race between extent node destroy and writeback	ed78aeebef05	
+建議	2	c78206dcb912	LunaKernel／stable、stable	6.12.84	f2fs	修正	可套用	低	rename 的記憶體洩漏（LunaKernel 已採用）	f2fs: fix to avoid memory leak in f2fs_rename()		
+建議	2	cf4a9e1bc812	stable	6.12.74	f2fs	修正	衝突需改寫	低	f2fs_write_end_io() UAF；6.12.38 衝突需改寫	f2fs: fix to avoid UAF in f2fs_write_end_io()	ce2739e482bc	
+建議	2	46473ddccdc5	stable	6.12.95	fuse	修正	可套用	低	FUSE 替換 page cache folio 前沒重新上鎖，UAF；/sdcard 走 FUSE	fuse: re-lock request before replacing page cache folio	a07848492105	
+建議	2	a3d06921ce75	LunaKernel／ACK		fuse	修正	可套用	低	fuse-bpf verifier 繞過（LunaKernel 已採用）	ANDROID: fuse-bpf: fix verifier bypass in		
+建議	2	af1823716	ACK android16-6.12		fuse	修正	可套用	低	fuse-bpf read backing 邏輯錯誤	ANDROID: fuse-bpf: fix wrong logic in read backing		
+建議	2	aff1917ea	ACK android16-6.12		fuse	修正	可套用	低	FUSE 等待回應改用 freezable wait，避免 suspend 卡住	ANDROID: fuse: Use freezable wait in request_wait_answer to avoid suspend deadlock		
+建議	2	e6aa539720c3	stable	6.12.96	fuse	修正	可套用	低	FUSE 替換 page cache folio 前沒重新上鎖，UAF；/sdcard 走 FUSE	fuse: re-lock request before returning from fuse_ref_folio()	b5befa80fdbe	
+建議	3	708fd522b86d	stable	6.12.41	arm64	修正	可套用	低	arm64 cpu_switch_to()、call_on_irq_stack() 沒遮 DAIF	arm64/entry: Mask DAIF in cpu_switch_to(), call_on_irq_stack()	d42e6c20de61	arch/arm64/include/asm/assembler.h: inline／header 內容
+建議	3	71ddb7defc44	stable	6.12.91	bpf	修正	可套用	低	RCU stall 會 panic（panic_on_rcu_stall=1）：fd array map 清除時的 stall	bpf: Fix RCU stall in bpf_fd_array_map_clear()	4406942e65ca	
+建議	3	993047031c9f	stable	6.12.69	cgroup	修正	可套用	低	cgroup 釋放與遷移的 UAF、race、死鎖；Android 每個 app 都建 cgroup	cgroup: Fix kernfs_node UAF in css_free_rwork_fn		
+建議	3	9cca530c7cc1	stable	6.12.78	cgroup	修正	可套用	低	cgroup 釋放與遷移的 UAF、race、死鎖；Android 每個 app 都建 cgroup	cgroup: fix race between task migration and iteration	5ee01f1a7343	
+建議	3	ded4d207a320	stable	6.12.49	cgroup	修正	可套用	低	cgroup 釋放與遷移的 UAF、race、死鎖；Android 每個 app 都建 cgroup	cgroup: split cgroup_destroy_wq into 3 workqueues	79f919a89c9d	
+建議	3	244f301759fd	stable	6.12.110	futex	修正	可套用	低	futex PI／robust list 的 UAF 與 race	futex: Prevent rcuwait use-after-free during requeue PI	a3b8d46fe401	
+建議	3	3b4222494489	stable	6.12.58	futex	修正	可套用	低	futex PI／robust list 的 UAF 與 race	futex: Don't leak robust_list pointer on exec race	6b54082c3ed4	
+建議	3	7475dfad10a0	stable	6.12.80	futex	修正	可套用	低	futex PI／robust list 的 UAF 與 race	futex: Clear stale exiting pointer in futex_lock_pi() retry path	210d36d892de	
+建議	3	925628656b73	LunaKernel／stable、stable	6.12.104	futex	修正	可套用	低	futex PI／robust list 的 UAF 與 race	futex: Prevent robust futex exit race some more		
+建議	3	a170b9c0dde8	stable	6.12.50	futex	修正	可套用	低	futex PI／robust list 的 UAF 與 race	futex: Prevent use-after-free during requeue-PI	b549113738e8	
+建議	3	6024f6d0d9b9	LunaKernel／stable、stable	6.12.104	mm	修正	可套用	低	huge_zero_pfn race；實機 THP=always（LunaKernel 已採用）	mm/huge_memory: fix huge_zero_pfn race		
+建議	3	60cbe67d1342	stable	6.12.96	mm	修正	可套用	低	swap 回收全滿 cluster 時缺 cond_resched，16 GB zram 可能 soft lockup	mm/swap: add cond_resched() in swap_reclaim_full_clusters to prevent softlockup	66366d291f66	
+建議	3	b9a280a9a454	stable	6.12.96	mm	修正	可套用	低	memcg shrinker_info 釋放與擴充的 race	mm: shrinker: fix shrinker_info teardown race with expansion	65476d31d805	
+建議	3	c0c21293d0c2	stable	6.12.41	mm	修正	可套用	低	khugepaged 對匿名 VMA 誤走檔案掃描；READ_ONLY_THP_FOR_FS=y	mm: khugepaged: fix call hpage_collapse_scan_file() for anonymous vma	f1897f2f08b2	
+建議	3	c15ff206ba78	stable	6.12.96	mm	修正	可套用	低	vmalloc shrinker 沒拿 vmap_purge_lock	mm/vmalloc: take vmap_purge_lock in shrinker	ec05f51f1e65	
+建議	3	c7af5300d784	stable	6.12.56	mm	修正	可套用	低	slab obj_exts race 導致 NULL deref；MEMCG kmem 會用到	slab: Avoid race on slab->obj_exts in alloc_slab_obj_exts	6ed8bfd24ce1	
+建議	3	7cc237e3bc17	stable	6.12.110	sched	修正	可套用	低	task group 的 runnable 溢位；Android 用 cpu cgroup	sched/fair: Fix overflow in update_tg_cfs_runnable()	4f166adb5cb0	
+建議	3	c71bf35caba1	stable	6.12.91	sched	修正	可套用	低	EEVDF：fork 出的 entity 沒清 rel_deadline	sched/fair: Clear rel_deadline when initializing forked entities	3da56dc063cd	
+建議	3	debfbc047196	stable	6.12.64	sched	修正	衝突需改寫	低	push_rt_task race；音訊、SurfaceFlinger 使用 RT；衝突需改寫	sched/rt: Fix race in push_rt_task	690e47d1403e	
+建議	3	07b3b83587fb	LunaKernel／stable、stable	6.12.94	time	修正	可套用	低	timer migration livelock（LunaKernel 已採用）	timers/migration: Fix livelock in tmigr_handle_remote_up()		
+建議	3	176725f48483	stable	6.12.60	time	修正	可套用	低	timer_shutdown_sync() 的 NULL 函式指標 race	timers: Fix NULL function pointer race in timer_shutdown_sync()	20739af07383	
+建議	3	6d37ec779d56	stable	6.12.80	time	修正	可套用	低	alarm_timer_forward() 參數順序錯；Android 大量使用 alarmtimer	alarmtimer: Fix argument order in alarm_timer_forward()	5d16467ae563	
+建議	3	0d8cd9537c64	stable	6.12.105	vfs	修正	可套用	低	eventpoll 釋放延到 RCU、反向路徑檢查時 pin 檔案	eventpoll: pin files while checking reverse paths	8b7e8245e229	
+建議	3	5b1173b16542	stable	6.12.83	vfs	修正	可套用	低	eventpoll 釋放延到 RCU、反向路徑檢查時 pin 檔案	eventpoll: defer struct eventpoll free to RCU grace period	07712db80857	
+建議	3	623bb26127fb	stable	6.12.59	vfs	修正	可套用	低	proc_readdir_de() UAF	fs/proc: fix uaf in proc_readdir_de()	895b4c0c79b0	
+建議	3	73ec7c96601d	stable	6.12.75	vfs	修正	可套用	低	do_task_stat() 讀 real_parent 缺 RCU	procfs: fix missing RCU protection when reading real_parent in do_task_stat()	76149d53502c	
+建議	3	7e64474aba78	stable	6.12.48	vfs	修正	可套用	低	kernfs poll UAF；sysfs poll 很常用	kernfs: Fix UAF in polling when open file is released	3c9ba2777d6c	
+建議	3	e63052921f1b	stable	6.12.46	vfs	修正	可套用	低	writeback __mark_inode_dirty() UAF	fs: writeback: fix use-after-free in __mark_inode_dirty()	d02d2c98d257	
+建議	4	005671c60fcf	stable	6.12.66	net	修正	可套用	低	sock_recv_errqueue() 觸發 hardened usercopy panic	net: sock: fix hardened usercopy panic in sock_recv_errqueue	2a71a1a8d0ed	
+建議	4	059efb48dd74	stable	6.12.97	net	修正	可套用	低	ICMP、in6_dev、fib6 walk 的 NULL deref	ipv6: fib6: fix NULL deref in fib6_walk_continue() on multi-batch dump	9facb861dc6b	
+建議	4	0630bfc773d8	stable	6.12.111	net	修正	可套用	低	af_unix OOB 與 GC 修正	af_unix: Update last skb marker in manage_oob().	94fd4debd2e3	
+建議	4	0c699035b7ba	LunaKernel／stable、stable	6.12.91	net	修正	可套用	低	TCP 修正（LunaKernel 已採用）	tcp: make probe0 timer handle expired user timeout		
+建議	4	0fe4636665d1	LunaKernel／stable	6.12.105	net	修正	可套用	低	TCP 修正（LunaKernel 已採用）	tcp: challenge ACK for non-exact RST in SYN-RECEIVED		include/net/tcp.h: 新增宣告 tcp_reqsk_send_challenge_ack
+建議	4	145e9afa5b90	LunaKernel／stable、stable	6.12.92	net	修正	可套用	低	分片與 MTU 檢查（LunaKernel 已採用）	ipv4: raw: reject IP_HDRINCL packets with ihl < 5		
+建議	4	165258303357	LunaKernel／stable、stable	6.12.97	net	修正	可套用	低	IGMP 計時器 UAF（LunaKernel 已採用）	ipv4: igmp: Fix potential UAF in igmp_gq_start_timer()		include/linux/inetdevice.h: 新增宣告 in_dev_hold_safe
+建議	4	192df376a05c	LunaKernel／stable、stable	6.12.94	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: Fix a potential NPD in cleanup_prefix_route()		
+建議	4	1c206d461c68	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: prevent in6_dev_get() from resurrecting inet6_dev		include/net/addrconf.h: inline／header 內容
+建議	4	1e1f0f89ee46	LunaKernel／stable、stable	6.12.91	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: fix possible UAF in icmpv6_rcv()		
+建議	4	21e235a36cfb	stable	6.12.83	net	修正	可套用	低	xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr	xfrm: fix refcount leak in xfrm_migrate_policy_find	83317cce60a0	
+建議	4	25357b670afb	stable	6.12.81	net	修正	可套用	低	IPv6 位址、MLD、IGMP 的 UAF	ipv6: prevent possible UaF in addrconf_permanent_addr()	fd63f185979b	
+建議	4	2684610a9c9c	stable	6.12.67	net	修正	可套用	低	IPv6 位址、MLD、IGMP 的 UAF	ipv6: Fix use-after-free in inet6_addr_del().	ddf96c393a33	
+建議	4	26edb0a3c99f	stable	6.12.88	net	修正	可套用	低	xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr	xfrm: defensively unhash xfrm_state lists in __xfrm_state_delete	14acf9652e56	
+建議	4	3310fc11fc47	stable	6.12.77	net	修正	可套用	低	ICMP、in6_dev、fib6 walk 的 NULL deref	ipv6: fix NULL pointer deref in ip6_rt_get_dev_rcu()	2ffb4f5c2ccb	
+建議	4	36e0741833bd	LunaKernel／stable	6.12.106	net	修正	可套用	低	分片與 MTU 檢查（LunaKernel 已採用）	ipv4: reject undersized MTUs in ip_do_fragment()		
+建議	4	38bccb927d83	LunaKernel／stable、stable	6.12.92	net	修正	衝突需改寫	低	af_unix peek UAF；衝突需改寫（LunaKernel 已採用）	af_unix: Fix UAF read of tail->len in unix_stream_data_wait()		
+建議	4	3c770ac4e6f0	stable	6.12.106	net	修正	可套用	低	IPv6 輸出、dst 快取、fnhe 的 UAF 與 race	ipv6: fix use-after-free in ip6_finish_output2()	d0d48d999b0e	
+建議	4	43de8a49335e	LunaKernel／stable、stable	6.12.101	net	修正	可套用	低	xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）	xfrm6: clear dst.dev on error to avoid double netdev_put in		
+建議	4	46f201f8b4c3	stable	6.12.95	net	修正	可套用	低	IPv6 paged 配置漏算 fraggap，資料錯誤	ipv6: account for fraggap on the paged allocation path	736b380e28d0	
+建議	4	5a28a4b22dde	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	IPv4 fnhe PMTU UAF（LunaKernel 已採用；新增的宣告不影響 KMI）	ipv4: fix use-after-free in fib_nhc_update_mtu()		include/net/route.h: 新增宣告 fnhe_update_pmtu
+建議	4	62c719203cb5	LunaKernel／stable、stable	6.12.97	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: ndisc: fix NULL deref in accept_untracked_na()		
+建議	4	62e6160cfb55	stable	6.12.39	net	修正	可套用	低	TCP 接收佇列計數、剩餘空間計算、ehash 查找 race	tcp: Correct signedness in skb remaining space calculation	d3a5f2871adc	
+建議	4	63fda7488555	stable	6.12.81	net	修正	可套用	低	ip6_datagram_send_ctl() 溢位，一般 app 可觸發	ipv6: avoid overflows in ip6_datagram_send_ctl()	4e453375561f	
+建議	4	645b1ed3259a	stable	6.12.88	net	修正	可套用	低	af_unix OOB 與 GC 修正	af_unix: Reject SIOCATMARK on non-stream sockets	d119775f2bad	
+建議	4	6bf2daafc51b	stable	6.12.41	net	修正	可套用	低	xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr	xfrm: state: initialize state_ptrs earlier in xfrm_state_find	94d077c33173	
+建議	4	6dab4dec9a49	LunaKernel／stable、stable	6.12.97	net	修正	可套用	低	xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）	xfrm: Fix xfrm state cache insertion race		
+建議	4	80600b5d0f3e	LunaKernel／stable、stable	6.12.97	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: Fix null-ptr-deref in fib6_nh_mtu_change().		
+建議	4	820e501be8ae	LunaKernel／stable、stable	6.12.93	net	修正	可套用	低	xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）	xfrm: Check for underflow in xfrm_state_mtu		
+建議	4	8820b530cb23	stable	6.12.96	net	修正	可套用	低	IPv6 位址、MLD、IGMP 的 UAF	ipv4: igmp: remove multicast group from hash table on device destruction	7993211bde16	
+建議	4	8dd8929b71c4	LunaKernel／stable、stable	6.12.106	net	修正	可套用	低	xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）	xfrm: fix sk_dst_cache double-free in xfrm_user_policy()		
+建議	4	952426a83ca7	stable	6.12.97	net	修正	可套用	低	ICMP、in6_dev、fib6 walk 的 NULL deref	ipv6: guard against possible NULL deref in __in6_dev_stats_get()	507541c2a8ee	include/net/addrconf.h: inline／header 內容
+建議	4	9647e99d2a61	stable	6.12.78	net	修正	可套用	低	ICMP、in6_dev、fib6 walk 的 NULL deref	icmp: fix NULL pointer dereference in icmp_tag_validation()	614aefe56af8	
+建議	4	a3c8fede034f	stable	6.12.75	net	修正	可套用	低	xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr	xfrm: always flush state and policy upon NETDEV_UNREGISTER event	4efa91a28576	
+建議	4	b2eb8886200b	stable	6.12.94	net	修正	可套用	低	IPv6 位址、MLD、IGMP 的 UAF	ipv6: mcast: Fix use-after-free when processing MLD queries	791c91dc7a9d	
+建議	4	b84f083f50ec	stable	6.12.59	net	修正	可套用	低	IPv6 輸出、dst 快取、fnhe 的 UAF 與 race	ipv4: route: Prevent rt_bind_exception() from rebinding stale fnhe	ac1499fcd40f	
+建議	4	dc0abce05513	stable	6.12.75	net	修正	可套用	低	xfrm 介面註銷時清除、MIGRATE 參考計數、刪除時解 hash、state_ptrs 初始化、xfrm6 saddr	xfrm6: fix uninitialized saddr in xfrm6_get_saddr()	1799d8abeabc	
+建議	4	dec2edb7aaf1	LunaKernel／stable、stable	6.12.107	net	修正	可套用	低	分片與 MTU 檢查（LunaKernel 已採用）	inet: frags: strip GSO state from fragments before reassembly		
+建議	4	df50875c208a	LunaKernel／stable、stable	6.12.105	net	修正	可套用	低	TCP 修正（LunaKernel 已採用）	tcp: fix icsk_ack.ato bitfield overflow		
+建議	4	df8060ca14ac	stable	6.12.92	net	修正	可套用	低	TCP 接收佇列計數、剩餘空間計算、ehash 查找 race	tcp: Fix imbalanced icsk_accept_queue count.	7eca3292cac7	
+建議	4	e1480cc48d41	stable	6.12.63	net	修正	可套用	低	TCP 接收佇列計數、剩餘空間計算、ehash 查找 race	inet: Avoid ehash lookup race in inet_ehash_insert()	1532ed0d0753	include/net/sock.h: 新增宣告 sk_nulls_replace_node_init_rcu
+建議	4	ebbebf6cee95	stable	6.12.97	net	修正	衝突需改寫	低	IPv6 位址、MLD、IGMP 的 UAF	ipv6: mcast: Fix potential UAF in MLD delayed work	9b26518b6896	include/net/addrconf.h: 新增宣告 in6_dev_hold_safe
+建議	4	f24a52948c95	stable	6.12.78	net	修正	可套用	低	IPv6 輸出、dst 快取、fnhe 的 UAF 與 race	dst: fix races in rt6_uncached_list_del() and rt_del_uncached_list()	9a6f0c4d5796	
+建議	4	fe89feb2bdce	stable	6.12.63	net	修正	可套用	低	TCP 接收佇列計數、剩餘空間計算、ehash 查找 race	inet: Avoid ehash lookup race in inet_twsk_hashdance_schedule()	b8ec80b13021	
+建議	4	ff3cb05289b8	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）	ipv6: fix Route Information option length validation		
+建議	4	fc38c249c622	stable	6.12.40	net,netfilter	修正	可套用	低	conntrack 移除未初始化項目時 crash、ctnetlink dump 參考計數洩漏	netfilter: nf_conntrack: fix crash due to removal of uninitialised entry	2d72afb34065	include/net/netfilter/nf_conntrack.h: inline／header 內容
+建議	4	53ef70a31542	LunaKernel／stable	6.12.97	netfilter	修正	可套用	低	conntrack 修正（LunaKernel 已採用）	netfilter: nf_conntrack_reasm: guard mac_header adjustment		
+建議	4	5e7ece24c5cb	stable	6.12.78	netfilter	修正	可套用（3-way）	低	xt_IDLETIMER 重用 ALARM 標籤；Android 用它追蹤網路介面閒置	netfilter: xt_IDLETIMER: reject rev0 reuse of ALARM timer labels	329f0b9b48ee	
+建議	4	a2cb4df7872d	stable	6.12.43	netfilter	修正	可套用	低	conntrack 移除未初始化項目時 crash、ctnetlink dump 參考計數洩漏	netfilter: ctnetlink: fix refcount leak on table dump	de788b2e6227	
+建議	4	f206def4e86d	LunaKernel／stable	6.12.93	netfilter	修正	可套用	低	conntrack 修正（LunaKernel 已採用）	netfilter: conntrack: tcp: do not force CLOSE on invalid-seq		
+建議	5	7cfb62888eba	stable	6.12.61	dwc3	修正	可套用	低	dwc3 並行 remove_requests 的 race	usb: dwc3: Fix race condition between concurrent dwc3_remove_requests() call paths	e4037689a366	
+建議	5	02246d8b462f	stable	6.12.110	hid	修正	可套用	低	HID 報告欄位越界與停止時的 UAF（前者 LunaKernel 已採用）	HID: core: quiesce input in hid_hw_stop() to prevent use-after-free	a4bc41504690	
+建議	5	a38212687519	LunaKernel／stable、stable	6.12.106	hid	修正	可套用	低	HID 報告欄位越界與停止時的 UAF（前者 LunaKernel 已採用）	HID: core: fix OOB read of field->usage in hid_set_field()		
+建議	5	0aeda584554e	stable	6.12.97	usb-gadget	修正	可套用	低	f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖	usb: gadget: f_fs: Tie read_buffer lifetime to ffs_epfile	8bdcf96eb135	
+建議	5	1c91f3784	ACK android16-6.12		usb-gadget	修正	可套用	低	f_fs 提早設定 epfile->in，修正端點方向檢查（adb 使用 f_fs）	UPSTREAM: usb: gadget: f_fs: Initialize epfile->in early to fix endpoint direction checks	82cf1142e5cc	
+建議	5	5f06ee9f9a36	stable	6.12.42	usb-gadget	修正	可套用	低	composite_dev_cleanup() UAF	usb: gadget : fix use-after-free in composite_dev_cleanup()	151c0aa896c4	
+建議	5	88874a19b2b0	stable	6.12.93	usb-gadget	修正	可套用	低	f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖	usb: gadget: f_fs: copy only received bytes on short ep0 read	4e036c10e7f4	
+建議	5	d62b808d5c68	stable	6.12.58	usb-gadget	修正	可套用	低	f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖	usb: gadget: f_fs: Fix epfile null pointer access after ep enable.	cfd6f1a7b42f	
+建議	5	fd20cc68bbdb	stable	6.12.109	usb-gadget	修正	可套用	低	f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖	usb: gadget: f_fs: Prevent deadlock during ep0 read loop	569dd7e5dcff	
+建議	5	521591170206	stable	6.12.86	xhci	修正	可套用	低	xhci endpoint_disable 後 hcpriv 被釋放的 UAF	usb: xhci: Make usb_host_endpoint.hcpriv survive endpoint_disable()	25e531b422dc	include/linux/usb.h: inline／header 內容
+建議	6	42baf997722c	stable	6.12.39	net	修正	衝突需改寫	低	上一項造成 rcvbuf 很小時連一個 dump skb 都收不到	netlink: make sure we allow at least one dump skb	a215b5723922	
+建議	6	44ddd7b1ae0b	stable	6.12.43	net	修正	衝突需改寫	低	上一項在 rmem 剛好等於 rcvbuf 時造成 netlink_unicast() 無限重試；與 0132 一起補	netlink: avoid infinite retry looping in netlink_unicast()	759dfc7d04ba	
+建議	6	4b8e18af7bea	stable	6.12.39	net	修正	可套用	低	sk_rmem_alloc 溢位繞回，接收緩衝區限制失效；標題沒有命中嚴重性關鍵字而被篩掉，Jason 10/3 同意補做	netlink: Fix wraparounds of sk->sk_rmem_alloc.	ae8f160e7eb2	
+建議	6	f98c4cec7504	stable	6.12.39	net	修正	衝突需改寫	低	上一項在 broadcast 路徑的比較條件修正	netlink: Fix rmem check in netlink_broadcast_deliver().	a3c4a125ec72	
+可選	1	13df60d19aa9	stable	6.12.110	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block/blk-iocost: collect per-cpu latency stats over possible CPUs	4e050c5b92c1	
+可選	1	197971e6ffc0	stable	6.12.95	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: Avoid mounting the bdev pseudo-filesystem in userspace	f73aa66dffcb	
+可選	1	1a0ae4d50206	stable	6.12.105	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: stop the timeout timer when releasing a never added disk	26cb8ebbfaf7	
+可選	1	23d8ea1e303b	LunaKernel／stable、stable	6.12.104	block	修正	衝突需改寫	低	LunaKernel 的 blk-mq cached request 系列；6.12.38 衝突，需先確認 bug 是否存在	blk-mq: pop cached request if it is usable		
+可選	1	2db13e1a7f2e	stable	6.12.110	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block/blk-stat: drain per-cpu callback stats over possible CPUs	9d617828cfc4	
+可選	1	3cef9aa17bf7	stable	6.12.91	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	loop: fix partition scan race between udev and loop_reread_partitions()	267ec4d7223a	
+可選	1	44e41381591d	LunaKernel／mainline		block	修正	可套用（3-way）	低	LunaKernel 的 blk-mq cached request 系列；6.12.38 衝突，需先確認 bug 是否存在	block: Reorder the request allocation code in		
+可選	1	46aa80ef4959	stable	6.12.43	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: avoid possible overflow for chunk_sectors check in blk_stack_limits()	448dfecc7ff8	
+可選	1	56ac639d6fa6	stable	6.12.58	block	修正	可套用	低	blk-cgroup 設定 policy 的死鎖；需要使用者設定 io 控制器	blk-cgroup: fix possible deadlock while configuring policy	5d726c4dbeed	
+可選	1	6e85f02d45b5	stable	6.12.111	block	修正	可套用	低	blk-cgroup 設定 policy 的死鎖；需要使用者設定 io 控制器	blk-cgroup: fix leaks and online flag on radix_tree_insert failure	dbbca2076438	
+可選	1	7337d012ca3f	stable	6.12.110	block	修正	可套用	低	blk-cgroup 設定 policy 的死鎖；需要使用者設定 io 控制器	blk-cgroup: skip dying blkg in blkcg_activate_policy()	5e9220389920	
+可選	1	8e23114b89e2	LunaKernel／stable	6.12.104	block	修正	衝突需改寫	低	LunaKernel 的 blk-mq cached request 系列；6.12.38 衝突，需先確認 bug 是否存在	blk-mq: reinsert cached request to the list		
+可選	1	9cbbac29d752	LunaKernel／mainline		block	效能	衝突需改寫（LunaKernel 改寫版：可套用）	低	效能：移除多餘的 plug（LunaKernel 改寫版可套用）	block: Remove redundant plug in __submit_bio()		
+可選	1	b6c9a75de731	stable	6.12.101	block	修正	衝突需改寫	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: remove redundant GD_NEED_PART_SCAN in add_disk_final()	181bb9c9eae4	
+可選	1	be83e6554263	stable	6.12.63	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	blk-mq: Abort suspend when wakeup events are pending	c196bf43d706	
+可選	1	e8767b89cd82	stable	6.12.40	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: fix kobject leak in blk_unregister_queue	3051247e4faa	
+可選	1	f41cf35ee2a1	stable	6.12.96	block	修正	可套用	低	錯誤路徑、熱插拔或 loop 分割區掃描；實機少走到	block: skip sync_blockdev() on surprise removal in bdev_mark_dead()	49f06cff50a4	
+可選	1	2cb75e66b6f0	stable	6.12.78	scsi	修正	衝突需改寫	低	tagset 參考計數洩漏，只在 SCSI 裝置新增失敗時發生	scsi: core: Fix error handling for scsi_alloc_sdev()	4ce7ada40c00	
+可選	1	d4dddfecdbb5	stable	6.12.93	scsi	修正	可套用	低	EH 後只 run 非 SDEV_DEL 的 queue；UFS LUN 不會移除，價值低	scsi: core: Run queues for all non-SDEV_DEL devices from scsi_run_host_queues	7205b5870227	
+可選	1	ec5c17c687b1	stable	6.12.77	scsi	修正	可套用	低	tagset 參考計數洩漏，只在 SCSI 裝置新增失敗時發生	scsi: core: Fix refcount leak for tagset_refcnt	1ac22c8eae81	
+可選	1	be730f9ee92a	stable	6.12.78	ufs	修正	可套用	低	只在開啟 UFS tracepoint 時觸發（實機 tracing_on=0）	scsi: ufs: core: Fix possible NULL pointer dereference in ufshcd_add_command_trace()	30df81f2228d	
+可選	2	352745fe3b2b	stable	6.12.56	binder	修正	可套用	低	移除會誤報的 inc weak 檢查	binder: remove "invalid inc weak" check	d90eeb8ecd22	
+可選	2	d75e1f837	ACK android16-6.12		dm	效能	可套用	低	效能：dm-default-key 的 flush 不經過 map	ANDROID: dm-default-key: Set .flush_bypasses_map		
+可選	2	2718cdb6db0f	stable	6.12.110	erofs	修正	衝突需改寫	低	只在卸載或特殊格式時發生	erofs: fix managed cache race for unaligned extents	649932fc3815	
+可選	2	48b27a955d22	stable	6.12.86	erofs	修正	可套用	低	損毀映像防護；系統分割區有 dm-verity	erofs: fix the out-of-bounds nameoff handling for trailing dirents	d18a3b5d337f	
+可選	2	5244536e650c	stable	6.12.39	erofs	修正	可套用	低	只在卸載或特殊格式時發生	erofs: fix rare pcluster memory leak after unmounting	b10a1e5643e5	
+可選	2	f1374fa6e57f	stable	6.12.88	erofs	修正	衝突需改寫	低	損毀映像防護；系統分割區有 dm-verity	erofs: fix unsigned underflow in z_erofs_lz4_handle_overlap()	21e161de2dc6	
+可選	2	0e5bd2ce9ff2	stable	6.12.110	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: reject overlapping move range after len expansion	28c1ef094e7c	
+可選	2	0e75a098b0a3	stable	6.12.59	f2fs	修正	衝突需改寫	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to avoid overflow while left shift operation	0fe1c6bec54e	
+可選	2	104059752	ACK android16-6.12		f2fs	修正	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	UPSTREAM: f2fs: fix to do sanity check on ino and xnid	061cf3a84bde	
+可選	2	16161444c30d	LunaKernel／stable、stable	6.12.95	f2fs	修正	可套用（LunaKernel 改寫版：可套用（3-way））	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: validate compress cache inode only when enabled		
+可選	2	222bc257a151	LunaKernel／mainline		f2fs	效能	可套用	低	效能：cached overwrite 略過 inode folio 查找（mainline）	f2fs: skip inode folio lookup for cached overwrite		
+可選	2	2a9f9791653b	LunaKernel／stable、stable	6.12.96	f2fs	修正	衝突需改寫（LunaKernel 改寫版：可套用）	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: bound i_inline_xattr_size for non-inline-xattr inodes		
+可選	2	2ce0bc5853be	stable	6.12.111	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: validate inline dentry name lengths before conversion	cfcd0e49a178	
+可選	2	2dda0930fb79	stable	6.12.57	f2fs	修正	衝突需改寫	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to avoid panic once fallocation fails for pinfile	48ea8b200414	
+可選	2	32c7f11a2426	stable	6.12.110	f2fs	修正	衝突需改寫	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to zero post-EOF data when extending file size	5eced87b7d19	
+可選	2	3b15d5f12935	stable	6.12.64	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: ensure node page reads complete before f2fs_put_super() finishes	297baa4aa263	
+可選	2	4205e8fd7	ACK android16-6.12		f2fs	修正	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	UPSTREAM: f2fs: prevent kernel warning due to negative i_nlink from corrupted image	42cb74a92ada	
+可選	2	4b3a1bf4c2ff	stable	6.12.91	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: protect extension_list reading with sb_lock in f2fs_sbi_show()	5909bedbed38	
+可選	2	4ef30b9f1641	stable	6.12.74	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix out-of-bounds access in sysfs attribute read/write	98ea0039dbfd	
+可選	2	550511a2470f	LunaKernel／stable、stable	6.12.96	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: validate orphan inode entry count		include/linux/f2fs_fs.h: enum f2fs_error（非 KMI）
+可選	2	6b9525596a83	stable	6.12.58	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to detect potential corrupted nid in free_nid_list	8fc6056dcf79	include/linux/f2fs_fs.h: enum stop_cp_reason（非 KMI）
+可選	2	74a46084d	ACK android16-6.12		f2fs	效能	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	BACKPORT: f2fs: fix to mitigate overhead of f2fs_zero_post_eof_page()	c2f7c32b2540	
+可選	2	78ce33690	ACK android16-6.12		f2fs	修正	可套用（3-way）	低	f2fs GC、discard、保留區塊與損毀映像檢查	FROMGIT: f2fs: fix to update map->m_next_extent correctly in f2fs_map_blocks()	869833f54e83	
+可選	2	7ccce76f8	ACK android16-6.12		f2fs	修正	可套用（3-way）	低	f2fs GC、discard、保留區塊與損毀映像檢查	FROMGIT: f2fs: fix zero-sized extent for precache extents	8175c8643917	
+可選	2	7dd01f7d0291	stable	6.12.96	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix listxattr handling of corrupted xattr entries	5ef5bc304f23	
+可選	2	888aa660144b	stable	6.12.44	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to avoid out-of-boundary access in dnode page	77de19b6867f	
+可選	2	9719875a2	ACK android16-6.12		f2fs	修正	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	FROMGIT: f2fs: fix to skip empty sections in f2fs_get_victim	3dd8312599c4	
+可選	2	aba4f94ac183	stable	6.12.95	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: validate ACL entry sizes in f2fs_acl_from_disk()	c4810ada31e8	
+可選	2	afaedae56	ACK android16-6.12		f2fs	修正	衝突需改寫	低	f2fs GC、discard、保留區塊與損毀映像檢查	UPSTREAM: f2fs: fix to avoid running out of free segments	f7f8932ca6bb	
+可選	2	c5033f81e	ACK android16-6.12		f2fs	修正	衝突需改寫	低	f2fs GC、discard、保留區塊與損毀映像檢查	UPSTREAM: f2fs: fix to avoid accessing uninitialized curseg	986c50f6bca1	fs/f2fs/segment.h: inline／header 內容
+可選	2	c89845fae250	stable	6.12.64	f2fs	修正	可套用	低	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: invalidate dentry cache on failed whiteout creation	d33f89b34aa3	
+可選	2	d73a8ddf4	ACK android16-6.12		f2fs	修正	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	BACKPORT: FROMGIT: f2fs: fix to freeze GC and discard threads quickly	62b45b0ad4cd	
+可選	2	fafade22860a	stable	6.12.86	f2fs	修正	可套用	中	損毀映像的防護；/data 由手機自己建立，價值較低	f2fs: fix to do sanity check on dcc->discard_cmd_cnt conditionally	6af249c996f7	fs/f2fs/f2fs.h: 宣告 f2fs_issue_discard_timeout 有改
+可選	2	fe3859bd3	ACK android16-6.12		f2fs	修正	可套用	低	f2fs GC、discard、保留區塊與損毀映像檢查	FROMGIT: f2fs: fix condition in __allow_reserved_blocks()	e75ce117905d	fs/f2fs/f2fs.h: inline／header 內容
+可選	2	deff41898a5a	stable	6.12.101	fscrypt	修正	可套用	低	只影響 DIRECT_KEY 政策	fscrypt: Add missing superblock check in find_or_insert_direct_key()	b5fa40226e71	
+可選	2	1d8ecd0cd696	stable	6.12.96	fuse	修正	可套用（3-way）	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: clear intr_entry in fuse_resend and fuse_remove_pending_req	f8fce75fedf7	
+可選	2	45c05af36311	stable	6.12.84	fuse	修正	可套用	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: reject oversized dirents in page cache	51a8de6c50bf	
+可選	2	532b87643f6a	stable	6.12.48	fuse	修正	可套用	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: prevent overflow in copy_file_range return value	1e08938c3694	
+可選	2	67ddf061790e	stable	6.12.111	fuse	修正	衝突需改寫	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: fix race between interrupt and resend	ed9c881f3b49	
+可選	2	ea9fea370b8d	stable	6.12.108	fuse	修正	可套用	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: fix invalidate lock leak on setattr writeback failure	9afeca0d569c	
+可選	2	fbba8b00bbe4	stable	6.12.64	fuse	修正	衝突需改寫	低	FUSE daemon 是系統的 MediaProvider，屬可信來源	fuse: fix readahead reclaim deadlock	bd5603eaae0a	
+可選	3	5d1bfb716421	stable	6.12.92	cgroup	修正	可套用	低	cgroup／cpuset 其他修正	cgroup/cpuset: Reset DL migration state on can_attach() failure	4a39eda5fdd8	
+可選	3	68da1fac48f0	stable	6.12.44	cgroup	修正	可套用	低	cgroup／cpuset 其他修正	cgroup/cpuset: Use static_branch_enable_cpuslocked() on cpusets_insane_config_key	65f97cc81b0a	
+可選	3	a0e2c571e850	stable	6.12.63	cgroup	修正	可套用	低	cgroup／cpuset 其他修正	cpuset: Treat cpusets in attaching as populated	b1bcaed1e39a	
+可選	3	b8dc20b60efd	stable	6.12.91	cgroup	修正	可套用	低	cgroup／cpuset 其他修正	cgroup: Increment nr_dying_subsys_* from rmdir context	13e786b64bd3	
+可選	3	027145ace09f	stable	6.12.80	futex	修正	可套用	低	futex requeue 旗標檢查	futex: Require sys_futex_requeue() to have identical flags	19f94b390586	
+可選	3	08de46a75f91	stable	6.12.78	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm: thp: deny THP for files on anonymous inodes	dd085fe9a8eb	include/linux/huge_mm.h: inline／header 內容
+可選	3	138ada1337b4	stable	6.12.84	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm/pagewalk: fix race between concurrent split and refault	9b25a6e3d243	
+可選	3	1be8e41962f1	stable	6.12.78	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm: shmem: avoid unpaired folio_unlock() in shmem_swapin_folio()	e08d5f515613	
+可選	3	2bdeded34117	stable	6.12.111	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm, swap: ratelimit bad swap entry reports	f9dc428249ed	
+可選	3	34f351c0fa95	stable	6.12.49	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/gup: check ref_count instead of lru before migration	98c6d259319e	
+可選	3	3e71bfbdd3fd	stable	6.12.103	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm/slab: prevent unbounded recursion in free path with new kmalloc type	d9e6a7623938	include/linux/slab.h: enum kmalloc_cache_type（非 KMI）；mm/slab.h: inline／header 內容；mm/slab.h: 新增宣告 need_kmalloc_no_objext
+可選	3	4996a7bc01ef	stable	6.12.109	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/migrate: report RCU-tasks quiescent states in migrate_pages_batch()	efe8f86c0916	
+可選	3	52f2d5cf33de	stable	6.12.59	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/secretmem: fix use-after-free race in fault handler	6f86d0534fdd	
+可選	3	58a32633d124	stable	6.12.65	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm: consider non-anon swap cache folios in folio_expected_ref_count()	f183663901f2	include/linux/mm.h: inline／header 內容
+可選	3	592db83615a9	stable	6.12.61	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/huge_memory: fix NULL pointer deference when splitting folio	cff47b9e39a6	
+可選	3	62414eec2858	stable	6.12.78	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm/shmem, swap: improve cached mTHP handling and fix potential hang	5c241ed8d031	
+可選	3	633ab680c405	stable	6.12.82	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm: filemap: fix nr_pages calculation overflow in filemap_map_pages()	f58df566524e	
+可選	3	654fa76032ee	stable	6.12.67	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/page_alloc: make percpu_pagelist_high_fraction reads lock-free	b9efe36b5e3e	
+可選	3	9108ee3d5f70	stable	6.12.96	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/khugepaged: write all dirty file folios when collapsing		
+可選	3	91b370800b3f	stable	6.12.42	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm: swap: fix potential buffer overflow in setup_clusters()	152c1339dc13	
+可選	3	9422cfa89e1d	stable	6.12.50	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm: revert "mm/gup: clear the LRU flag of a page before adding to LRU batch"	afb99e9f5004	
+可選	3	b0e49178f2ed	stable	6.12.78	mm	修正	可套用（3-way）	低	mm 其他修正：需求較少見或需逐項確認	mm: shmem: fix potential data corruption during shmem swapin	058313515d5a	
+可選	3	b5391676c61d	stable	6.12.109	mm	修正	可套用	低	mm 其他修正：需求較少見或需逐項確認	mm/vmscan: report RCU-tasks quiescent states in shrink_lruvec()	25f52e812168	
+可選	3	b8c49ad88889	stable	6.12.81	mm	修正	可套用	中	mm 其他修正：需求較少見或需逐項確認	mm/huge_memory: fix folio isn't locked in softleaf_to_folio()	4c5e7f0fcd59	include/linux/swapops.h: inline／header 內容；include/linux/swapops.h: 宣告 pfn_swap_entry_to_page 有改
+可選	3	b93d53f5d	ACK android16-6.12		mm	修正	衝突需改寫	低	CMA 頁放進正確的 pcp list；衝突需改寫	ANDROID: Fix CMA pages placement in correct pcp_list		
+可選	3	de8577db0903	stable	6.12.97	mm	修正	可套用	低	compaction_free() 沒正確處理 free_pages_prepare()	mm/compaction: handle free_pages_prepare() properly in compaction_free()	7da7d599b8a8	
+可選	3	dfc3ab6bd648	stable	6.12.70	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm, shmem: prevent infinite loop on truncate race	2030dddf9545	
+可選	3	e3dd774dbfd0	stable	6.12.103	mm	修正	可套用（3-way）	低	mm 其他修正：需求較少見或需逐項確認	mm/huge_memory: unlock i_mmap_rwsem before releasing after-split folios	e923bd21058e	
+可選	3	f9719e32a67b	stable	6.12.93	mm	修正	衝突需改寫	低	mm 其他修正：需求較少見或需逐項確認	mm/page_alloc: clear page->private in free_pages_prepare()	ac1ea219590c	
+可選	3	1cfa244f7198	stable	6.12.43	rcu	修正	衝突需改寫	低	RCU 修正，衝突需改寫	rcu: Fix rcu_read_unlock() deadloop due to IRQ work	b41642c87716	kernel/rcu/tree.h: struct rcu_data（非 KMI）；kernel/rcu/tree.h: 巨集；kernel/rcu/tree_plugin.h: inline／header 內容
+可選	3	5615fe34fd65	stable	6.12.110	rcu	修正	可套用	低	RCU 修正，衝突需改寫	rcu: Mark accesses to ->rcu_urgent_qs and ->rcu_need_heavy_qs	27d73e81195b	kernel/rcu/tree_plugin.h: inline／header 內容
+可選	3	b672daa89d1a	stable	6.12.43	rcu	修正	衝突需改寫	低	RCU 修正，衝突需改寫	rcu: Fix racy re-initialization of irq_work causing hangs	61399e0c5410	kernel/rcu/tree.h: 新增宣告 rcu_preempt_deferred_qs_init；kernel/rcu/tree_plugin.h: inline／header 內容；kernel/rcu/tree_plugin.h: 新增宣告 rcu_preempt_deferred_qs_init
+可選	3	e35e711c78c8	stable	6.12.43	rcu	修正	可套用	低	RCU 修正，衝突需改寫	rcu: Protect ->defer_qs_iw_pending from data race	90c09d57caec	kernel/rcu/tree_plugin.h: inline／header 內容
+可選	3	29cf3b31e8cc	LunaKernel／stable	6.12.97	sched	修正	可套用	低	EAS cpu_util 計算；選核由 WALT 接手（LunaKernel 已採用）	sched/fair: Fix cpu_util runnable_avg arithmetic		
+可選	3	305b1a39f3bb	stable	6.12.54	sched	修正	衝突需改寫	低	deadline 排程類別 Android 少用	sched/deadline: Fix race in push_dl_task()	8fd5485fb4f3	
+可選	3	3df959fd51d6	stable	6.12.42	sched	修正	衝突需改寫	低	依賴 psi 最佳化 patch（該 patch 改到 KMI）	sched/psi: Fix psi_seq initialization	99b773d720ae	
+可選	3	49350f77ca69	stable	6.12.97	sched	修正	可套用（3-way）	低	CFS 負載平衡修正，會改變排程結果	sched/fair: Only update stats for allowed CPUs when looking for dst group	82d6e01a0699	
+可選	3	593a86d8dbf4	stable	6.12.97	sched	修正	衝突需改寫	低	deadline 排程類別 Android 少用	sched/deadline: Reject debugfs dl_server writes for offline CPUs	4043f5498416	
+可選	3	b0bc1c75f304	LunaKernel／mainline		sched	效能	可套用	低	效能：沒有新的 irq 時間時略過計算（mainline）	sched/psi: skip irqtime accounting when no new irq time has		
+可選	3	c089147074ed	stable	6.12.81	sched	修正	衝突需改寫	低	CFS 負載平衡修正，會改變排程結果	sched/fair: Fix zero_vruntime tracking fix	1319ea57529e	
+可選	3	cee20212a7b0	stable	6.12.63	sched	修正	可套用	低	CFS 負載平衡修正，會改變排程結果	sched/fair: Fix unfairness caused by stalled tg_load_avg_contrib when the last task migrates out	ca125231dd29	
+可選	3	d2fc2dcfce47	stable	6.12.78	sched	修正	衝突需改寫	低	CFS 負載平衡修正，會改變排程結果	sched/fair: Fix zero_vruntime tracking	b3d99f43c72b	
+可選	3	f0b4e777b	ACK android16-6.12		sched	修正	衝突需改寫	低	依賴 psi 最佳化 patch	UPSTREAM: sched/psi: Fix psi_seq initialization	99b773d720ae	
+可選	3	3da55616db2b	stable	6.12.111	time	修正	可套用	低	tick／nohz 的 race	tick/broadcast: Plug clockevents replacement race	113a9796effe	kernel/time/tick-internal.h: 新增宣告 __clockevents_exchange_device
+可選	3	d8d7b0043acc	LunaKernel／stable	6.12.91	time	效能	可套用	低	效能：避免多餘的 hrtimer 重新設定（LunaKernel 已採用）	hrtimer: Avoid pointless reprogramming in		
+可選	3	da48da09de85	stable	6.12.97	time	修正	可套用	低	tick／nohz 的 race	tick/sched: Fix TOCTOU in nohz idle time fetch	86db4084b4b5	
+可選	3	eb4cec29a783	stable	6.12.96	time	修正	可套用	低	tick／nohz 的 race	posix-cpu-timers: Fix pid refcount leak in do_cpu_nanosleep() error path	87bd2ad568e1	
+可選	3	f1a2f57598b5	stable	6.12.109	time	修正	可套用	低	tick／nohz 的 race	timer: Keep debugobjects state consistent in migrate_timer_list()	c793bbfc4a0a	
+可選	4	03cb8cc2961f	LunaKernel／stable、stable	6.12.106	net	修正	可套用	低	BIG TCP、UDP tunnel GSO、bridge、sockmap 實機未使用（LunaKernel 已採用）	net: gro: properly validate BIG TCP aggregation criteria		
+可選	4	4c9d9aa809c2	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	BIG TCP、UDP tunnel GSO、bridge、sockmap 實機未使用（LunaKernel 已採用）	bpf, sockmap: Fix sk_redir use-after-free in send verdict		
+可選	4	5161e67c561c	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	BIG TCP、UDP tunnel GSO、bridge、sockmap 實機未使用（LunaKernel 已採用）	udp: fix potential use-after-free in tunnel segmentation		
+可選	4	a83264d8dfba	LunaKernel／stable、stable	6.12.104	net	修正	可套用	低	TCP rcv_ssthresh 行為調整（LunaKernel 已採用）	tcp: do not change rcv_ssthresh in tcp_measure_rcv_mss()		
+可選	4	367abcacc13a	LunaKernel／stable	6.12.94	netfilter	修正	衝突需改寫	低	同時改 ipset（未編進）與 xt_mac、nf_log；衝突，需拆出有編進的部分	netfilter: require Ethernet MAC header before using eth_hdr()		
+可選	4	f2e6596d1078	LunaKernel／stable、stable	6.12.97	netfilter	修正	可套用	低	BIG TCP、UDP tunnel GSO、bridge、sockmap 實機未使用（LunaKernel 已採用）	netfilter: bridge: fix stale prevhdr pointer in		
+可選	5	75d074a8ee92	stable	6.12.97	arm64	效能	衝突需改寫	低	效能：TLB flush 最佳化只在 memory hotplug	arm64/mm: Optimize TLB flush in unmap_hotplug_[pmd|pud]_range()	ff4c5a0de1f2	
+可選	5	d0d59a35ac0b	LunaKernel／stable	6.12.86	crypto	修正	可套用	低	crypto arm64 aes mac 參數寬度（LunaKernel 已採用）	crypto: arm64/aes - Fix 32-bit aes_mac_update() arg treated		
+可選	5	acaecb734	ACK android16-6.12		dma-buf	修正	衝突需改寫	低	dma-fence timeline name 存取；衝突需改寫	UPSTREAM: dma-fence: Fix safe access wrapper to call timeline name method	033559473dd3	
+可選	5	1fc1975ac	ACK android16-6.12		xhci	修正	衝突需改寫	低	xhci sideband 註銷 race；原廠 USB 音訊 offload 用 sideband，衝突需改寫	FROMGIT: xhci: sideband: Fix race condition in sideband unregister	8c13a7323b84	
+可選	5	2f7fc6ec5a11	stable	6.12.44	xhci	修正	可套用	中	xhci 洩漏與 bounce buffer	usb: xhci: Fix slot_id resource race conflict	2eb03376151b	drivers/usb/host/xhci.h: 宣告 xhci_free_virt_device 有改；drivers/usb/host/xhci.h: 新增宣告 xhci_disable_and_free_slot
+可選	5	3c9a2b5a4f11	stable	6.12.110	xhci	修正	可套用	低	xhci 洩漏與 bounce buffer	xhci: fix lost bounce buffers on TDs spanning several ring segments	ff44dfb03a29	
+可選	5	503a5365f	ACK android16-6.12		xhci	修正	衝突需改寫	低	xhci short packet 重寫後的錯誤處理；需確認 6.12.38 是否有那次重寫	UPSTREAM: usb: xhci: Fix Short Packet handling rework ignoring errors	1b7647efade7	
+可選	5	70706dbcf122	stable	6.12.111	xhci	修正	衝突需改寫	低	xhci 洩漏與 bounce buffer	usb: xhci: bail out of setup if the controller is inaccessible	78203d5b54a4	
+可選	5	7ee04de323f7	LunaKernel／ACK		xhci	修正	可套用	中	LunaKernel 採用的 ACK revert；需確認與原廠 USB 音訊 offload 的關係	BACKPORT: Revert "usb: xhci: remove option to change a		drivers/usb/host/xhci.h: 宣告 xhci_ring_alloc 有改
+可選	5	807e4fb5140c	stable	6.12.78	xhci	修正	可套用	低	xhci 洩漏與 bounce buffer	usb: xhci: Fix memory leak in xhci_disable_slot()	c1c8550e7040	
+可選	5	e64b2ff8643c	stable	6.12.48	xhci	修正	衝突需改寫	低	xhci 洩漏與 bounce buffer	xhci: fix memory leak regression when freeing xhci vdev devices depth first	edcbe06453dd	
+可選	0	0af233d66eff	stable	6.12.68	arm64	修正	衝突需改寫	低	自動篩出，未逐項審	arm64/fpsimd: signal: Allocate SSVE storage when restoring ZA	ea8ccfddbce0	
+可選	0	126c7019b34f	stable	6.12.96	arm64	修正	可套用	低	自動篩出，未逐項審	bpf, arm64: Reject out-of-range B.cond targets	48d83d94930e	
+可選	0	33094c725e5b	stable	6.12.97	arm64	修正	可套用	低	自動篩出，未逐項審	arm64: smp: Fix hot-unplug tearing by forcing unregistration	18a4e5cf633f	
+可選	0	3d03c85f850b	stable	6.12.43	arm64	修正	衝突需改寫	低	自動篩出，未逐項審	arm64: Mark kernel as tainted on SAE and SError panic	d7ce7e3a8464	
+可選	0	9bc366175509	stable	6.12.75	arm64	修正	可套用	低	自動篩出，未逐項審	arm64: poe: fix stale POR_EL0 values for ptrace	1f3b950492db	
+可選	0	a4ff33053da0	stable	6.12.91	arm64	修正	可套用	低	自動篩出，未逐項審	arm64: Reserve an extra page for early kernel mapping	4d8e74ad4585	arch/arm64/include/asm/kernel-pgtable.h: 巨集
+可選	0	fdd380a59505	stable	6.12.54	arm64	修正	可套用	低	自動篩出，未逐項審	arm64: map [_text, _stext) virtual address range non-executable+read-only	5973a62efa34	
+可選	0	0126358df12d	stable	6.12.48	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix out-of-bounds dynptr write in bpf_crypto_crypt	f9bb6ffa7f5a	
+可選	0	0a36c1f72888	stable	6.12.91	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix NULL deref in map_kptr_match_type for scalar regs	4d0a375887ab	
+可選	0	10ca3b2eec38	stable	6.12.58	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Sync pending IRQ work before freeing ring buffer	4e9077638301	
+可選	0	1509c1ae9185	LunaKernel／stable	6.12.105	bpf	修正	可套用	低	自動篩出，未逐項審	bpf: Fix linked reg delta tracking when src_reg == dst_reg		
+可選	0	19de99ea47e3	stable	6.12.110	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix pending_pos walk on 32-bit ring position wrap	6ff5b56a50c5	
+可選	0	1a2dc103e164	stable	6.12.108	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix use-after-free in offloaded map/prog info fill	a0c584fc1805	
+可選	0	21a681526c71	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix REG INVARIANTS VIOLATION on speculative pointer arithmetic	150aeba624e8	
+可選	0	239cec25a226	stable	6.12.91	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: fix mm lifecycle in open-coded task_vma iterator	d8e27d2d22b6	
+可選	0	25484c39d1ec	stable	6.12.91	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix stale offload->prog pointer after constant blinding	a1aa9ef47c29	
+可選	0	277168cb9d15	stable	6.12.110	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix potential UAF in bpf_netns_link_update_prog	5c5997836381	
+可選	0	342aa1ee995e	stable	6.12.80	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: Fix unsound scalar forking in maybe_fork_scalars() for BPF_OR	c845894ebd6f	
+可選	0	41688d1fc5d1	stable	6.12.46	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: Fix oob access in cgroup local storage	abad3d0bad72	include/linux/bpf.h: struct bpf_map_owner（非 KMI）
+可選	0	41b4320b84fd	stable	6.12.97	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix effective prog array index with BPF_F_PREORDER	f08aaee3152d	
+可選	0	452ad2535850	stable	6.12.50	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Reject bpf_timer for PREEMPT_RT	e25ddfb388c8	
+可選	0	4e3e57dbf46d	stable	6.12.75	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: crypto: Use the correct destructor kfunc type	b40a5d724f29	
+可選	0	53649846e043	stable	6.12.97	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: fix UAF by restoring RCU-delayed inode freeing in bpffs	b93c55b4932d	
+可選	0	6321ebf2a105	LunaKernel／stable	6.12.105	bpf	修正	可套用	低	自動篩出，未逐項審	bpf: Clear delta when clearing reg id for non-{add,sub} ops		
+可選	0	70abd9d118da	stable	6.12.81	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: reject direct access to nullable PTR_TO_BUF pointers	b0db1accbc73	
+可選	0	717abdfd1d55	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix NULL-ptr-deref when showing a void BTF type	4ea508b9ebd7	
+可選	0	723b9fa930cc	stable	6.12.88	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix use-after-free in arena_vm_close on fork	4fddde2a732d	
+可選	0	76c14b10f50e	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: NUL-terminate replaced sysctl value	a66e3b5bacf3	
+可選	0	838fe9c28121	stable	6.12.95	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: use kvfree() for replaced sysctl write buffer	4c21b5927d43	
+可選	0	8c5ba022f208	stable	6.12.109	bpf	修正	可套用（3-way）	低	只有特權程序能載入 BPF	bpf: Disable preemption in __bpf_get_stack	b1a47b2708d4	
+可選	0	9944c7938cd5	stable	6.12.59	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: account for current allocated stack depth in widen_imprecise_scalars()	b0c8e6d3d866	
+可選	0	9ab1227765c4	stable	6.12.80	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix undefined behavior in interpreter sdiv/smod for INT_MIN	c77b30bd1dcb	
+可選	0	9bfdf4b81b0e	stable	6.12.97	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: Allow LPM map access from sleepable BPF programs	2f884d371faf	
+可選	0	9ca06849c423	stable	6.12.97	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: Tighten cgroup storage cookie checks for prog arrays	10627ddc0167	
+可選	0	a033c950f673	stable	6.12.110	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf, cgroup: Fix storage null-ptr-deref after replacing prog	3f562c537e9e	
+可選	0	b1f3c2ba6512	stable	6.12.80	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Release module BTF IDR before module unload	146bd2a87a65	
+可選	0	b78eb6efbf05	stable	6.12.110	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: fix BPF_PROG_QUERY OOB write and cgroup backward compat	21c4b99b27f3	include/linux/bpf-cgroup.h: inline／header 內容
+可選	0	bee862c79cb7	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Mark sched_process_wait argument as nullable	a453d6e3b8e8	
+可選	0	c5b4f5efcb55	stable	6.12.96	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Reject fragmented frames in devmap	aa496720618f	
+可選	0	c7ad910e9870	stable	6.12.110	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix use-after-free on mm_struct in bpf_find_vma()	47b079e2117a	
+可選	0	cb2c1f3cf65b	stable	6.12.91	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Use RCU-safe iteration in dev_map_redirect_multi() SKB path	8ed82f807bb0	
+可選	0	cfcfa0ca0212	stable	6.12.77	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix a UAF issue in bpf_trampoline_link_cgroup_shim	56145d237385	
+可選	0	d16f0eafcaa6	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Don't predict JMP32 pointer vs zero comparisons	e51179a4e098	
+可選	0	d1f424a77b6b	stable	6.12.63	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix stackmap overflow check in __bpf_get_stackid()	23f852daa4ba	
+可選	0	d2c31d8e03d0	stable	6.12.77	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix stack-out-of-bounds write in devmap	b7bf516c3ecd	
+可選	0	d7d7208e2603	stable	6.12.110	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix potential UAF when reading bpf link info	863f3ddd0b8a	
+可選	0	ded1ea20d0b7	stable	6.12.81	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix u32/s32 bounds when ranges cross min/max boundary	fbc7aef517d8	
+可選	0	e0378419b0e2	stable	6.12.91	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix OOB in pcpu_init_value	576afddfee8d	
+可選	0	e472ae0d9786	stable	6.12.111	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix NULL-ptr-deref in btf_var_show()	5403a383f52f	
+可選	0	eaf302628a78	stable	6.12.110	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Fix vmlinux BTF prep race in bpf_get_btf_vmlinux	92863e678070	
+可選	0	ee04cff9ed4d	stable	6.12.54	bpf	修正	可套用	低	只有特權程序能載入 BPF	bpf: Avoid RCU context warning when unpinning htab with internal structs	4f375ade6aa9	
+可選	0	f856c598080b	stable	6.12.53	bpf	修正	衝突需改寫	低	只有特權程序能載入 BPF	bpf: Enforce expected_attach_type for tailcall compatibility	4540aed51b12	include/linux/bpf.h: struct bpf_map_owner（非 KMI）
+可選	0	058a0da4f6d9	stable	6.12.67	bpf,net	修正	可套用	低	只有特權程序能載入 BPF	bpf: Reject narrower access to pointer ctx fields	e09299225d5b	
+可選	0	de984ea88340	stable	6.12.97	bpf,security	修正	可套用	低	只有特權程序能載入 BPF	bpf: Reject BPF_MAP_TYPE_INODE_STORAGE creation if BPF LSM is uninitialized	a6f0643e4f63	include/linux/bpf_lsm.h: inline／header 內容；include/linux/bpf_lsm.h: 巨集
+可選	0	596575060f4c	stable	6.12.50	cpufreq	修正	可套用（3-way）	低	自動篩出，未逐項審	cpufreq: Initialize cpufreq-based invariance before subsys	8ffe28b4e8d8	
+可選	0	a0ef2fc89d28	stable	6.12.96	cpufreq	修正	可套用	低	自動篩出，未逐項審	cpufreq: Fix hotplug-suspend race during reboot	a9029dd55696	
+可選	0	8f6833d919ba	stable	6.12.75	cpuidle	修正	可套用	低	自動篩出，未逐項審	cpuidle: Skip governor when only one idle state is available	e5c9ffc6ae1b	
+可選	0	161bdc90fce2	stable	6.12.68	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: authencesn - reject too-short AAD (assoclen<8) to match ESP/ESN spec	2397e9264676	
+可選	0	30ab358fad0c	stable	6.12.82	crypto	修正	可套用（3-way）	低	自動篩出，未逐項審	X.509: Fix out-of-bounds access when parsing extensions	d702c3408213	
+可選	0	4c03e6eb9844	stable	6.12.91	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: jitterentropy - replace long-held spinlock with mutex	01d798e9feb3	
+可選	0	5275e0fca256	stable	6.12.96	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: ecc - Fix carry overflow in vli multiplication	27b536a2ec8e	
+可選	0	544b78d2cc48	stable	6.12.101	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: rsa-pkcs1pad: Don't WARN on an empty digest		
+可選	0	67f1f0933cc3	stable	6.12.86	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: authencesn - reject short ahash digests during instance creation	5db6ef984771	
+可選	0	c73be4f51eed	stable	6.12.63	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: asymmetric_keys - prevent overflow in asymmetric_key_generate_id	df0845cf447a	
+可選	0	f2133b849ff2	stable	6.12.39	crypto	修正	可套用	低	自動篩出，未逐項審	crypto: ecdsa - Harden against integer overflows in DIV_ROUND_UP()	b16510a530d1	include/linux/math.h: 巨集
+可選	0	0e1de15d019d	stable	6.12.97	dm	修正	可套用	低	自動篩出，未逐項審	dm-verity: increase sprintf buffer size	88dd117c92a1	
+可選	0	19ca45286669	stable	6.12.53	dm	修正	衝突需改寫	低	自動篩出，未逐項審	dm: fix NULL pointer dereference in __dm_suspend()	8d33a030c566	
+可選	0	3303e5c6501e	stable	6.12.97	dm	修正	可套用	低	自動篩出，未逐項審	dm-verity: make error counter atomic	8ec4d9c5a5cf	drivers/md/dm-verity.h: struct dm_verity（非 KMI）
+可選	0	3b59530b14fd	stable	6.12.110	dm	修正	可套用	低	自動篩出，未逐項審	dm: fix resume-vs-remove race	44b43ec132f1	
+可選	0	68860d1ade38	stable	6.12.40	dm	修正	衝突需改寫	低	自動篩出，未逐項審	dm-bufio: fix sched in atomic context	b1bf1a782fdf	
+可選	0	9b8dc1d327e2	stable	6.12.75	dm	修正	可套用	低	自動篩出，未逐項審	dm-verity: correctly handle dm_bufio_client_create() failure	119f4f04186f	
+可選	0	a1af1884c960	stable	6.12.110	dm	修正	可套用	低	自動篩出，未逐項審	dm: fix race when loading and unloading a table	5380c7f6335c	
+可選	0	c3f211b7a277	stable	6.12.109	dm	修正	可套用	低	自動篩出，未逐項審	dm-stats: fix a crash if allocation of per-cpu data fails	cc87e26d9cce	
+可選	0	cf2d06c9fd4b	stable	6.12.75	dm	修正	可套用	低	自動篩出，未逐項審	dm: remove fake timeout to avoid leak request	f3a9c95a15d2	
+可選	0	d271631023cb	stable	6.12.88	dm	修正	可套用	低	自動篩出，未逐項審	dm: fix a buffer overflow in ioctl processing	2fa49cc884f6	
+可選	0	e0f5842c4e2a	stable	6.12.97	dm	修正	可套用	低	自動篩出，未逐項審	dm-ioctl: fix a possible overflow in list_version_get_info	76c6f845dc0c	
+可選	0	e258ecf0c2a8	stable	6.12.53	dm	修正	可套用	低	自動篩出，未逐項審	dm: fix queue start/stop imbalance under suspend/load/resume races	7f597c2cdb9d	drivers/md/dm-core.h: 巨集
+可選	0	e2e738e8dfbb	stable	6.12.75	dm	修正	可套用	低	自動篩出，未逐項審	dm: clear cloned request bio pointer when last clone bio completes	fb8a6c18fb9a	
+可選	0	f8f64254bca5	stable	6.12.49	dm	修正	衝突需改寫	低	自動篩出，未逐項審	dm-stripe: fix a possible integer overflow	1071d560afb4	
+可選	0	29b65a3171a4	stable	6.12.57	dma-buf	修正	衝突需改寫	低	自動篩出，未逐項審	udmabuf: fix a buf size overflow issue during udmabuf creation	021ba7f1babd	
+可選	0	e0e4f15d4225	stable	6.12.96	dwc3	修正	可套用	低	自動篩出，未逐項審	usb: dwc3: run gadget disconnect from sleepable suspend context	010382937fb6	
+可選	0	f49697dfba29	stable	6.12.44	dwc3	修正	可套用	低	自動篩出，未逐項審	usb: dwc3: Remove WARN_ON for device endpoint command timeouts	45eae113dcca	
+可選	0	29abaf93357f	stable	6.12.108	exfat	修正	可套用	低	外接儲存才會用到	exfat: fix double free in delayed_free	1f3d9724e16d	
+可選	0	4d101016d5e5	stable	6.12.95	exfat	修正	可套用	低	外接儲存才會用到	exfat: fix potential use-after-free in exfat_find_dir_entry()	3f5f8ee9917c	
+可選	0	60ace9381160	stable	6.12.111	exfat	修正	可套用	低	外接儲存才會用到	exfat: fix handling of damaged volume in exfat_create_upcase_table()	20dd3185d138	
+可選	0	6c627bcc1896	stable	6.12.59	exfat	修正	可套用	低	外接儲存才會用到	exfat: fix improper check of dentry.stream.valid_size	82ebecdc74ff	
+可選	0	727bf7783a29	stable	6.12.96	exfat	修正	衝突需改寫	低	外接儲存才會用到	exfat: bound uniname advance in exfat_find_dir_entry()	3a1230e7b043	
+可選	0	aa8fe7b7b73d	stable	6.12.43	exfat	修正	可套用	低	外接儲存才會用到	exfat: add cluster chain loop check for dir	99f9a97dce39	
+可選	0	fc9ce762525e	stable	6.12.68	exfat	修正	衝突需改寫	低	外接儲存才會用到	exfat: fix refcount leak in exfat_find	9aee8de970f1	
+可選	0	034053378dd8	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix use-after-free in update_super_work when racing with umount	d15e4b0a4185	fs/ext4/ext4.h: struct ext4_sb_info（非 KMI）
+可選	0	08d9175578d6	stable	6.12.77	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix potential null deref in ext4_mb_init()	3c3fac6bc0a9	
+可選	0	097227f1ffe1	stable	6.12.86	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix missing brelse() in ext4_xattr_inode_dec_ref_all()	77d059519382	
+可選	0	098927a13fd9	stable	6.12.59	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix out-of-bound read in ext4_xattr_inode_dec_ref_all()	5701875f9609	fs/ext4/xattr.h: 巨集
+可選	0	14cfb25eaf79	stable	6.12.44	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: check fast symlink for ea_inode correctly	b4cc4a407726	
+可選	0	1c553d19ff28	stable	6.12.58	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: increase IO priority of fastcommit	46e75c56dfea	
+可選	0	210ac60a86a3	stable	6.12.62	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: refresh inline data size before write operations	892e1cf17555	
+可選	0	22a76b0861ae	stable	6.12.62	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: add i_data_sem protection in ext4_destroy_inline_data_nolock()	0cd8feea8777	
+可選	0	22ea3cb34dc9	stable	6.12.64	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: use a per-journal lock_class_key for jbd2_trans_commit_key	524c3853831c	include/linux/jbd2.h: inline／header 內容
+可選	0	238f7a7356c3	stable	6.12.58	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	fs: ext4: change GFP_KERNEL to GFP_NOFS to avoid deadlock	1534f72dc2a1	
+可選	0	275c88b797f2	stable	6.12.44	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix hole length calculation overflow in non-extent inodes	02c7f7219ac0	
+可選	0	3a7667595bca	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: avoid infinite loops caused by residual data	5422fe71d26d	
+可選	0	407c944f217c	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: validate p_idx bounds in ext4_ext_correct_indexes	2acb5c12ebd8	
+可選	0	429d50cbaff4	stable	6.12.44	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: prevent softlockup in jbd2_log_do_checkpoint()	9d98cf463225	
+可選	0	4450dcaadf7d	stable	6.12.97	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: fix integer underflow in jbd2_journal_initialize_fast_commit()	289a2ca0c9b7	
+可選	0	5a5314d23876	stable	6.12.86	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix bounds check in check_xattrs() to prevent out-of-bounds access	eceafc31ea7b	
+可選	0	5b154e901fda	stable	6.12.64	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: xattr: fix null pointer deref in ext4_raw_inode()	b97cb7d6a051	
+可選	0	5b7b9a17151b	stable	6.12.55	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: wait for ongoing I/O to complete before freeing blocks	328a782cb138	
+可選	0	6b879c4c6bba	stable	6.12.54	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: guard against EA inode refcount underflow in xattr update	57295e835408	
+可選	0	7206752fedb7	stable	6.12.97	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix LOGFLUSH shutdown ordering to allow ordered-mode data writeback	d99748ef1695	
+可選	0	74796e886ca3	stable	6.12.97	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: validate donor file superblock early in EXT4_IOC_MOVE_EXT	c143957520c6	
+可選	0	7920dcc571ce	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: convert inline data to extents when truncate exceeds inline size	ed9356a30e59	
+可選	0	81e7e2e7ba07	stable	6.12.43	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: do not BUG when INLINE_DATA_FL lacks system.data xattr	099b847ccc6c	
+可選	0	889ec86464d2	stable	6.12.106	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: stop retrying saturated xattr cache entries	54b6bd40898d	
+可選	0	8e8542c53992	stable	6.12.67	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix iloc.bh leak in ext4_xattr_inode_update_ref	d250bdf531d9	
+可選	0	9370207b36d2	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: avoid allocate block from corrupted group in ext4_mb_find_by_goal()	46066e3a0664	
+可選	0	9808ae9fae99	stable	6.12.97	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix kernel BUG in ext4_write_inline_data_end	ad09aa45965d	
+可選	0	9e9fb259bcdd	stable	6.12.75	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: move ext4_percpu_param_init() before ext4_mb_init()	270564513489	
+可選	0	9f5738883977	stable	6.12.55	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: ensure that all ongoing I/O complete before freeing blocks	3c652c3a71de	
+可選	0	a2a7f854d154	stable	6.12.62	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: avoid bug_on in jbd2_journal_get_create_access() when file system corrupted	986835bf4d11	
+可選	0	a4d60ba277ec	stable	6.12.41	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix out of bounds punch offset	b5e58bcd7962	
+可選	0	ada23457d474	stable	6.12.110	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix circular lock dependency in ext4_ext_migrate	a897682793eb	
+可選	0	ade5800a8d32	stable	6.12.63	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: improve integrity checking in __mb_check_buddy by enhancing order-0 validation	d9ee3ff810f1	
+可選	0	b060861f662d	stable	6.12.110	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix out-of-bounds read in ext4_read_inline_dir()	9333cc809f0a	
+可選	0	bd1aff606099	stable	6.12.64	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: use a weaker annotation in journal handling	40a71b53d5a6	
+可選	0	be9237be3f12	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: gracefully abort on checkpointing state corruptions	bac3190a8e79	
+可選	0	c05033cfc5c7	stable	6.12.75	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix e4b bitmap inconsistency reports	bdc56a9c46b2	
+可選	0	c0d7c9827239	stable	6.12.43	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix largest free orders lists corruption on mb_optimize_scan switch	7d345aa1fac4	
+可選	0	c5e6434cc55f	stable	6.12.110	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: skip extra isize expansion during mount to prevent deadlock	7461c60b9c6a	
+可選	0	c7242c71cb0f	stable	6.12.54	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: validate ea_ino and size in check_xattrs	44d2a72f4d64	
+可選	0	d47cdadd6e49	stable	6.12.110	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: drain in-flight DIO before buffered write fallback	15cdefd0c052	
+可選	0	d4b3f370c3d8	stable	6.12.80	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: replace BUG_ON with proper error handling in ext4_read_inline_folio	356227096eb6	
+可選	0	d8c184bec24b	stable	6.12.110	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: check dir entry fits before reading the hash trailer in ext4_search_dir()	c7e6b863d298	
+可選	0	db9ee13fab02	stable	6.12.64	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix string copying in parse_apply_sb_mount_options()	ee5a977b4e77	
+可選	0	de009e11f31a	stable	6.12.80	ext4	修正	可套用（3-way）	低	ext4 只用在唯讀的 apex loop 映像	ext4: fix the might_sleep() warnings in kvfree()	496bb99b7e66	
+可選	0	de985264eef6	stable	6.12.55	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: detect invalid INLINE_DATA + EXTENTS flag combination	1d3ad183943b	
+可選	0	dff07cc98fdf	stable	6.12.86	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: fix deadlock in jbd2_journal_cancel_revoke()	981fcc5674e6	
+可選	0	e767e51caef3	stable	6.12.44	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: use kmalloc_array() for array space allocation	76dba1fe277f	
+可選	0	e76bcb727e48	stable	6.12.81	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: publish jinode after initialization	1aec30021edd	
+可選	0	eddca44ddf81	stable	6.12.46	ext4	修正	衝突需改寫	低	ext4 只用在唯讀的 apex loop 映像	ext4: avoid journaling sb update on error if journal is destroying	ce2f26e73783	fs/ext4/ext4.h: inline／header 內容；fs/ext4/ext4_jbd2.h: inline／header 內容
+可選	0	edf5fcd0469b	stable	6.12.109	ext4	修正	可套用	低	ext4 只用在唯讀的 apex loop 映像	jbd2: bound shrinker scans by examined checkpoint buffers	15cb16496446	
+可選	0	f1cd271b431b	stable	6.12.75	ext4	效能	可套用	低	ext4 只用在唯讀的 apex loop 映像	ext4: use optimized mballoc scanning regardless of inode format	3574c322b1d0	
+可選	0	f83c23286e54	stable	6.12.109	ext4	修正	可套用（3-way）	低	ext4 只用在唯讀的 apex loop 映像	jbd2: check need_resched() when skipping busy checkpoint buffers	f213e12ff5c9	
+可選	0	955c5d670b5a	stable	6.12.75	fat	修正	可套用	低	外接儲存才會用到	fat: avoid parent link count underflow in rmdir	8cafcb881364	
+可選	0	58386f00af71	stable	6.12.83	hid	修正	衝突需改寫	低	自動篩出，未逐項審	HID: core: clamp report_size in s32ton() to avoid undefined shift	69c02ffde6ed	
+可選	0	d3b504146c11	stable	6.12.46	hid	修正	衝突需改寫	低	自動篩出，未逐項審	HID: core: Harden s32ton() against conversion to 0 bits	a6b87bfc2ab5	
+可選	0	edd490b8ad85	stable	6.12.110	hid	修正	可套用	低	自動篩出，未逐項審	HID: synchronize input before cleaning up a failed probe	207853d46f7e	
+可選	0	19b45c84bd9f	stable	6.12.54	kernel	修正	可套用	低	自動篩出，未逐項審	kernel/sys.c: fix the racy usage of task_lock(tsk->group_leader) in sys_prlimit64() paths	a15f37a40145	
+可選	0	2076b916bf41	stable	6.12.54	kernel	修正	可套用	低	自動篩出，未逐項審	pid: Add a judgment for ns null in pid_nr_ns	006568ab4c5c	
+可選	0	76aebd9ef200	stable	6.12.94	kernel	修正	可套用	低	自動篩出，未逐項審	signal: clear JOBCTL_PENDING_MASK for caller in zap_other_threads()	90918794a4e2	
+可選	0	7b2800ba5f5f	stable	6.12.88	kernel	修正	可套用	低	自動篩出，未逐項審	exit: prevent preemption of oopsing TASK_DEAD task	c1fa0bb633e4	
+可選	0	8f4a02716d9e	stable	6.12.110	kernel	修正	可套用	低	自動篩出，未逐項審	prctl: fix PR_SET_MM_AUXV losing the forced AT_NULL terminator	5146e0688d86	
+可選	0	9cff220ddb65	stable	6.12.97	kernel	修正	衝突需改寫	低	自動篩出，未逐項審	bpf,fork: wipe ->bpf_storage before bailouts that access it	9b51a6155d14	
+可選	0	aa9ebc084505	stable	6.12.78	kernel	修正	可套用	低	自動篩出，未逐項審	unshare: fix unshare_fs() handling	6c4b2243cb6c	
+可選	0	74c2471eb891	stable	6.12.83	kernel,perf	修正	衝突需改寫	低	自動篩出，未逐項審	kernel: be more careful about dup_mmap() failures and uprobe registering	64c37e134b12	
+可選	0	042fda5c0880	stable	6.12.103	lib	修正	可套用	低	自動篩出，未逐項審	rhashtable: clear stale iter->p on table restart	8173f7e2ce67	
+可選	0	071121381b41	stable	6.12.103	lib	修正	可套用	低	自動篩出，未逐項審	fortify: Disable -Wstringop-overread in tests	c1f3e770eec2	
+可選	0	26d3a97ad46c	stable	6.12.88	lib	修正	可套用	低	自動篩出，未逐項審	lib/crypto: mpi: Fix integer underflow in mpi_read_raw_from_sgl()	8c2f1288250a	
+可選	0	4e6ff03b0737	stable	6.12.110	lib	修正	可套用	低	自動篩出，未逐項審	maple_tree: catch race in mas_alloc_cyclic()	35f1342e5b89	
+可選	0	66355562ca4e	stable	6.12.86	lib	修正	可套用	低	自動篩出，未逐項審	lib/ts_kmp: fix integer overflow in pattern length calculation	8cdf30813ea8	
+可選	0	709eb41adaf7	stable	6.12.109	lib	修正	可套用	低	自動篩出，未逐項審	lib/ucs2_string.c: fix out-of-bounds read in ucs2_strnlen()	cec0d03fe785	
+可選	0	76ef70e768f9	stable	6.12.101	lib	修正	衝突需改寫	低	自動篩出，未逐項審	bootconfig: fix NULL-pointer arithmetic in xbc_snprint_cmdline()	dec4d8118c17	
+可選	0	78ede9ebd679	stable	6.12.69	lib	修正	可套用	低	自動篩出，未逐項審	flex_proportions: make fprop_new_period() hardirq safe	dd9e2f5b38f1	
+可選	0	ab10bf164561	stable	6.12.78	lib	修正	可套用	低	自動篩出，未逐項審	lib/bootconfig: check bounds before writing in __xbc_open_brace()	560f763baa0f	
+可選	0	b11dfb7708f2	stable	6.12.67	lib	修正	可套用	低	自動篩出，未逐項審	lib/buildid: use __kernel_read() for sleepable context	777a8560fd29	
+可選	0	ebb559028569	stable	6.12.96	lib	修正	可套用	低	自動篩出，未逐項審	tracing: Prevent out-of-bounds read in glob matching	0a6070839b1e	include/linux/glob.h: 新增宣告 glob_match_len
+可選	0	febc0b5dbabd	stable	6.12.39	lib	修正	可套用	低	自動篩出，未逐項審	lib/alloc_tag: do not acquire non-existent lock in alloc_tag_top_users()	99af22cd3468	
+可選	0	b9b97e6aeb53	stable	6.12.70	lib,vfs	修正	可套用	低	自動篩出，未逐項審	procfs: avoid fetching build ID while holding VMA lock	b5cbacd7f86f	include/linux/buildid.h: 新增宣告 build_id_parse_file
+可選	0	6d52dfcb2a5d	stable	6.12.86	locking	修正	衝突需改寫	低	自動篩出，未逐項審	rtmutex: Use waiter::task instead of current in remove_waiter()	3bfdc63936dd	
+可選	0	f6e161f3fa99	stable	6.12.49	mm	效能	可套用	低	自動篩出，未逐項審	gup: optimize longterm pin_user_pages() for large folio	a03db236aebf	
+可選	0	03e4df61415c	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net: ipv6: Clamp to IP6_MAX_MTU in ip6_dst_mtu_maybe_forward	199271ebc71c	include/net/ip6_route.h: inline／header 內容
+可選	0	0a052e0808e0	stable	6.12.101	net	修正	衝突需改寫	低	自動篩出，未逐項審	net/packet: avoid fanout hook re-registration after unregister	50aff80475ab	
+可選	0	0d330eff318c	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	ipv6: validate extension header length before copying to cmsg	dd433671fef3	
+可選	0	0eede1689610	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix fib6 walker UAF on seq stop	19b4ed644d68	
+可選	0	0f2118b75750	stable	6.12.111	net	修正	衝突需改寫	低	自動篩出，未逐項審	bpf: Reject redirect helpers without a bpf_net_context	3f4920d165b2	
+可選	0	0f7b73c34526	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix possible infinite loop in fib6_select_path()	9c7da87c2dc8	
+可選	0	107e1a469f53	stable	6.12.101	net	修正	可套用（3-way）	低	自動篩出，未逐項審	net: gro: fix double aggregation of flush-marked skbs	e751256486d0	
+可選	0	1387f252a242	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	net/sched: cls_bpf: prevent unbounded recursion in offload rollback	27db54b90bcc	
+可選	0	17b7ef6b8611	stable	6.12.101	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: Reject unhashed UDP sockets on sockmap update	66efd3368ae1	
+可選	0	17eb9832a10d	stable	6.12.97	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: fix integer overflow in bpf_msg_pop_data() bounds check	a48802fb2cd2	
+可選	0	183128da0406	stable	6.12.91	net	修正	可套用	低	自動篩出，未逐項審	net, bpf: fix null-ptr-deref in xdp_master_redirect() for down master	1921f91298d1	
+可選	0	1a59cc6b65fd	stable	6.12.91	net	修正	衝突需改寫	低	sockmap 實機未使用	bpf, sockmap: Take state lock for af_unix iter	64c2f93fc325	
+可選	0	1a8e4ffda5d1	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	net: skbuff: fix pskb_carve leaking zcopy pages	ff6e798c2eac	
+可選	0	1d56a00ec91f	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net: ipv6: Fix UDP length overflow with PMTU discover and big MTU	0ae10b6be49b	
+可選	0	1dc33ad08673	stable	6.12.64	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix a BUG in rt6_get_pcpu_route() under PREEMPT_RT	1adaea51c61b	
+可選	0	1ddedbd8087d	stable	6.12.40	net	修正	衝突需改寫	低	自動篩出，未逐項審	af_packet: fix soft lockup issue caused by tpacket_snd()	55f0bfc03705	
+可選	0	1ec48b6715c2	stable	6.12.105	net	修正	可套用	低	自動篩出，未逐項審	net/sched: act_api: fix TOCTOU NULL deref on a->goto_chain	f60b396ee174	
+可選	0	1fbc6c6efe78	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	net: fib_rules: Don't dump dying fib_rule in fib_rules_dump().	2821e85c058f	include/net/fib_rules.h: 新增宣告 fib_rule_get_safe
+可選	0	219c87aeefdc	stable	6.12.110	net	修正	衝突需改寫	低	自動篩出，未逐項審	net/sched: cls_api: fix teardown of an adopted proto on insert-race loss	d4e359b3608a	
+可選	0	27488e1a7f19	stable	6.12.97	net	修正	可套用	中	自動篩出，未逐項審	net/sched: act_pedit: fix TOCTOU heap OOB write in tc offload	8b519cbcabe8	include/net/tc_act/tc_pedit.h: 宣告 tcf_pedit_nkeys 有改
+可選	0	2775bf36be78	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	net: add missing ref_tracker_dir_exit() to alloc_netdev_mqs()	0b1c2af8a22c	
+可選	0	2803d02aa7a1	stable	6.12.75	net	修正	可套用	低	自動篩出，未逐項審	gro: change the BUG_ON() in gro_pull_from_frag0()	cbe41362be2c	
+可選	0	284f3e7a3f1a	stable	6.12.104	net	修正	可套用	低	自動篩出，未逐項審	net/packet: reset the MAC header on the packet-socket transmit path	c2707480cfbf	
+可選	0	298db6167f81	stable	6.12.94	net	修正	可套用	低	自動篩出，未逐項審	bpf: Free reuseport cBPF prog after RCU grace period.	18fc650ccd7f	
+可選	0	2a2b9d25f801	stable	6.12.68	net	修正	可套用	低	自動篩出，未逐項審	ipv6: annotate data-race in ndisc_router_discovery()	9a063f96d87e	
+可選	0	2a2c98141e0a	stable	6.12.101	net	修正	可套用	低	自動篩出，未逐項審	bpf: Fix same-register dst/src OOB read and pointer leak in sock_ops	10f86a2a5c91	
+可選	0	2c41283d94af	stable	6.12.83	net	修正	可套用	低	自動篩出，未逐項審	xfrm: account XFRMA_IF_ID in aevent size calculation	7081d46d3231	
+可選	0	2e0e74c59b27	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	net: skbuff: fix missing zerocopy reference in pskb_carve helpers	98d0912e9f84	
+可選	0	3264881431e3	stable	6.12.66	net	修正	可套用	低	自動篩出，未逐項審	net: fix memory leak in skb_segment_list for GRO packets	238e03d04662	
+可選	0	32d0f44c2f14	stable	6.12.80	net	修正	可套用	低	自動篩出，未逐項審	xfrm: Fix work re-schedule after cancel in xfrm_nat_keepalive_net_fini()	daf8e3b253aa	
+可選	0	347b94ee253e	stable	6.12.43	net	修正	可套用	低	自動篩出，未逐項審	ipv6: mcast: Check inet6_dev->dead under idev->mc_lock in __ipv6_dev_mc_inc().	dbd40f318cf2	
+可選	0	379d85c7f25f	stable	6.12.109	net	修正	可套用	低	自動篩出，未逐項審	net: tun: bound receive headroom	447c9303942c	
+可選	0	37bef86e5428	stable	6.12.78	net	修正	可套用	低	自動篩出，未逐項審	clsact: Fix use-after-free in init/destroy rollback asymmetry	a0671125d4f5	include/net/sch_generic.h: 新增宣告 mini_qdisc_pair_inited
+可選	0	3a1bf9116ea3	stable	6.12.84	net	修正	可套用	低	自動篩出，未逐項審	net/packet: fix TOCTOU race on mmap'd vnet_hdr in tpacket_snd()	2c054e17d9d4	
+可選	0	3bdc86d89fd6	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	ipv6: addrconf: bail out of dad_failure when state is no longer POSTDAD	627ac78f2741	
+可選	0	3d3c7a3df66b	stable	6.12.111	net	修正	衝突需改寫	低	自動篩出，未逐項審	af_unix: Return immediately when manage_oob() returns NULL for 0-length buffer.	6e5ee08eb585	
+可選	0	4236c30b437b	stable	6.12.94	net	修正	衝突需改寫	低	自動篩出，未逐項審	xfrm: hold dev ref until after transport_finish NF_HOOK	1c428b038400	
+可選	0	45ca9f59b6c7	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net: reject oversized tx_queue_len at netlink parse time	1aa9e143bf51	
+可選	0	479084ae0e1d	stable	6.12.92	net	修正	可套用	低	自動篩出，未逐項審	net: gro: don't merge zcopy skbs	4db79a322db8	
+可選	0	4888e1dcc341	stable	6.12.65	net	修正	可套用	中	自動篩出，未逐項審	net: Remove RTNL dance for SIOCBRADDIF and SIOCBRDELIF.	ed3ba9b6e280	include/linux/if_bridge.h: struct br_ip_list（非 KMI）；net/bridge/br_private.h: 宣告 br_ioctl_stub 有改
+可選	0	48996649222e	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	xfrm6: fix out-of-bounds write in xfrm6_input_addr() when secpath is full	5d9e3bf34fec	
+可選	0	48c41cd2e04a	stable	6.12.97	net	修正	衝突需改寫	低	sockmap 實機未使用	af_unix: Drop all SCM attributes for SOCKMAP.	965dc93481d1	
+可選	0	4913c94a3adc	stable	6.12.91	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: Fix af_unix null-ptr-deref in proto update	dca38b7734d2	
+可選	0	4a5dfbae5179	stable	6.12.104	net	修正	可套用	低	自動篩出，未逐項審	ipv4: Fix fib_nlmsg_size() for RTA_VIA nexthops	4ff9548d8494	
+可選	0	4bdc94d45d54	stable	6.12.77	net	修正	可套用	低	自動篩出，未逐項審	net: ipv4: fix ARM64 alignment fault in multipath hash seed	4ee7fa6cf78f	include/net/ip_fib.h: inline／header 內容
+可選	0	4ce6e2d2e380	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net/packet: defer vmalloc TX_RING free until skbs finish	992cc9f94ca9	
+可選	0	4edbcacca09f	stable	6.12.97	net	修正	衝突需改寫	低	自動篩出，未逐項審	net, bpf: check master for NULL in xdp_master_redirect()	e82d8cc4321c	
+可選	0	51e8531371f9	stable	6.12.44	net	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_reject: don't leak dst refcount for loopback packets	91a79b792204	
+可選	0	524ce8b4ea8f	stable	6.12.77	net	修正	可套用	低	自動篩出，未逐項審	net/sched: Only allow act_ct to bind to clsact/ingress qdiscs and shared blocks	11cb63b0d1a0	include/net/act_api.h: 巨集
+可選	0	538b19886ca0	stable	6.12.42	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: Fix psock incorrectly pointing to sk	76be5fae32fe	
+可選	0	543555954b1e	stable	6.12.93	net	修正	衝突需改寫	中	自動篩出，未逐項審	inet: frags: flush pending skbs in fqdir_pre_exit()	006a5035b495	include/net/inet_frag.h: 宣告 fqdir_pre_exit 有改；include/net/ipv6_frag.h: inline／header 內容
+可選	0	5489e7fc6f8b	stable	6.12.42	net	修正	可套用	低	自動篩出，未逐項審	ipv6: reject malicious packets in ipv6_gso_segment()	d45cf1e7d718	include/linux/skbuff.h: inline／header 內容
+可選	0	56ea2257b83e	stable	6.12.80	net	修正	可套用	低	自動篩出，未逐項審	xfrm: prevent policy_hthresh.work from racing with netns teardown	29fe3a61bcdc	
+可選	0	5aea79b91084	stable	6.12.75	net	修正	可套用	低	自動篩出，未逐項審	icmp: prevent possible overflow in icmp_global_allow()	034bbd806298	
+可選	0	5bb9fb600091	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	net: add missing ref_tracker_dir_exit() to net_passive_dec()	f85dc137aabf	
+可選	0	5bc4e69306ed	stable	6.12.77	net	修正	可套用	低	自動篩出，未逐項審	net: sched: avoid qdisc_reset_all_tx_gt() vs dequeue race for lockless qdiscs	7f083faf59d1	include/net/sch_generic.h: inline／header 內容
+可選	0	61e471b1ee7a	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net/sched: act_api: size the RTM_GETACTION reply from the actions	e9ca46ebc326	
+可選	0	68187f18a89b	stable	6.12.81	net	修正	可套用	低	sockmap 實機未使用	bpf: sockmap: Fix use-after-free of sk->sk_socket in sk_psock_verdict_data_ready().	ad8391d37f33	
+可選	0	684efb2c86c8	stable	6.12.106	net	修正	衝突需改寫	低	自動篩出，未逐項審	ipv4: start using dst_dev_rcu()	6ad8de3cefdb	
+可選	0	69863ff2720a	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	tun: free page on short-frame rejection in tun_xdp_one()	f4feb1e20058	
+可選	0	6ae407127a94	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix error handling in forwarding sysctl	058b9b19f963	
+可選	0	6be325206850	stable	6.12.83	net	修正	可套用	低	自動篩出，未逐項審	ipv4: icmp: fix null-ptr-deref in icmp_build_probe()	fde29fd93493	
+可選	0	6d6a213c3dec	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	net/sched: add get_fill_size callbacks for actions missing them	8e2efb3f45a5	
+可選	0	6e78792d8ce1	stable	6.12.110	net	修正	可套用（3-way）	低	自動篩出，未逐項審	net/sched: bound qdisc_pkt_len to prevent qdisc soft lockup	8f735d64382d	include/net/pkt_sched.h: 巨集
+可選	0	6ff8e74c8f8a	stable	6.12.57	net	修正	可套用（3-way）	中	自動篩出，未逐項審	net/sched: sch_qfq: Fix null-deref in agg_dequeue	dd831ac8221e	include/net/pkt_sched.h: 宣告 qdisc_warn_nonwc 有改；include/net/pkt_sched.h: 新增宣告 qdisc_peek_len,qdisc_warn_nonwc
+可選	0	7496786770c2	stable	6.12.97	net	修正	衝突需改寫	低	自動篩出，未逐項審	af_unix: Don't check SOCK_DEAD in unix_stream_read_skb().	772f01049c4b	
+可選	0	74e035f07f53	stable	6.12.104	net	修正	可套用	低	自動篩出，未逐項審	net: remove CAP_SYS_RAWIO zero-padding in dev_validate_header	3b9a324e646d	include/linux/netdevice.h: inline／header 內容
+可選	0	75fe6db23705	stable	6.12.80	net	修正	可套用	低	自動篩出，未逐項審	net: fix fanout UAF in packet_release() via NETDEV_UP race	42156f93d123	
+可選	0	78783fefdc8f	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	xfrm: validate selector family and prefixlen during match	40f0b1047918	include/net/xfrm.h: inline／header 內容
+可選	0	7980a13add57	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	ipv4: fib: Don't dump dying fib_info in fib_leaf_notify().	06b693d2eb66	include/net/ip_fib.h: 新增宣告 fib_info_hold_safe
+可選	0	7c8cf21bc4ef	stable	6.12.92	net	修正	衝突需改寫	低	sockmap 實機未使用	bpf, skmsg: fix verdict sk_data_ready racing with ktls rx	ddf8029623a1	
+可選	0	7d2b60a4bc04	stable	6.12.104	net	修正	衝突需改寫	低	自動篩出，未逐項審	bpf: tcp: Fix use-after-free in bpf_iter_tcp_established_batch()	e5fd3f514e27	
+可選	0	802796493178	stable	6.12.81	net	修正	可套用	低	自動篩出，未逐項審	net: ipv6: flowlabel: defer exclusive option free until RCU teardown	9ca562bb8e66	
+可選	0	81c0e0207698	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net: cap tx_queue_len at S16_MAX to prevent oversized ring allocations	66ab4c59b74d	
+可選	0	87828b380956	stable	6.12.91	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: Fix af_unix iter deadlock	4d328dd69538	
+可選	0	88697cf98022	stable	6.12.94	net	修正	可套用	低	自動篩出，未逐項審	xfrm: policy: fix use-after-free on inexact bin in xfrm_policy_bysel_ctx()	7f2d76c9c032	
+可選	0	889fc9996700	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	tcp: Add preempt_{disable,enable}_nested() in reqsk_queue_hash_req().	e10902df2448	
+可選	0	8bb73ab12d93	stable	6.12.58	net	修正	可套用	低	自動篩出，未逐項審	ipv6: np->rxpmtu race annotation	9fba1eb39e2f	
+可選	0	8c3d4dfcecf7	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net: iptunnel: fix stale transport header during tunnel decapsulation	28a57fb2c5df	include/linux/skbuff.h: 新增宣告 skb_unset_transport_header
+可選	0	8e6214a530c0	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	tcp: ipv6: clamp default adverting MSS to avoid GSO_BY_FRAGS (0xFFFF)	2bf43d0e2e6a	
+可選	0	905275629096	stable	6.12.104	net	修正	可套用	低	自動篩出，未逐項審	packet: use consistent hard_header_len in non-ring send paths	03390aa32e66	include/linux/netdevice.h: 巨集
+可選	0	90d35188aaa9	stable	6.12.94	net	修正	可套用	低	sockmap 實機未使用	udp: clear skb->dev before running a sockmap verdict	3c94f241f776	
+可選	0	94c00391a511	stable	6.12.101	net	修正	可套用	低	自動篩出，未逐項審	xfrm: policy: preallocate inexact bins before xfrm_hash_rebuild reinsert	f38f8cce2f7e	
+可選	0	95f52c9bf75b	stable	6.12.101	net	修正	可套用	低	自動篩出，未逐項審	ipv4: icmp: fill flow parameters in icmp_route_lookup decoy lookup	853e164c2b32	
+可選	0	99206ce2244f	stable	6.12.96	net	修正	可套用	低	自動篩出，未逐項審	net: ipv4: bound TCP reordering sysctl writes and MTU probe sizes	efb8763d7bbb	
+可選	0	9e636c995b7b	stable	6.12.94	net	修正	可套用	低	自動篩出，未逐項審	net: add pskb_may_pull() to skb_gro_receive_list()	f2bb34345444	
+可選	0	9f036aa0fe46	stable	6.12.78	net	修正	可套用	低	自動篩出，未逐項審	udp_tunnel: fix NULL deref caused by udp_sock_create6 when CONFIG_IPV6=n	b3a6df291fec	include/net/udp_tunnel.h: inline／header 內容
+可選	0	9fcedabaae00	stable	6.12.50	net	修正	衝突需改寫	低	自動篩出，未逐項審	xfrm: xfrm_alloc_spi shouldn't use 0 as SPI	cd8ae32e4e46	
+可選	0	a1c2840d95af	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	net/sched: cls_api: Don't replay RTM_GETCHAIN in tc_ctl_chain().	dff39930ad5e	
+可選	0	afbc79a7770b	stable	6.12.78	net	修正	可套用	低	自動篩出，未逐項審	net/sched: teql: Fix double-free in teql_master_xmit	66360460cab6	include/net/sch_generic.h: 新增宣告 dev_reset_queue
+可選	0	b04061f89ffc	stable	6.12.75	net	修正	衝突需改寫	低	自動篩出，未逐項審	xfrm: fix ip_rt_bug race in icmp_route_lookup reverse path	81b84de32bb2	
+可選	0	b648c8a56531	stable	6.12.104	net	修正	可套用	低	自動篩出，未逐項審	net/sched: cls_api: Always acquire rtnl_lock when destroying locked classifiers	a347304b2ca1	
+可選	0	b9d77f1652e7	stable	6.12.111	net	修正	衝突需改寫	低	自動篩出，未逐項審	inet: frags: invalidate queues before flushing them	b824476c56a1	
+可選	0	bb144f3edff3	stable	6.12.97	net	修正	衝突需改寫	低	自動篩出，未逐項審	udp_tunnel: fix deadlock in udp_tunnel_nic_set_port_priv()	c9e78afa688a	include/net/udp_tunnel.h: inline／header 內容
+可選	0	bc2b881a0896	stable	6.12.58	net	修正	可套用	低	自動篩出，未逐項審	tcp: use dst_dev_rcu() in tcp_fastopen_active_disable_ofo_check()	b62a59c18b69	
+可選	0	bc9297796bfd	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	xfrm: Fix skb double-free in xfrm_dev_direct_output()	2aed51fc58d9	
+可選	0	bca6386dc087	stable	6.12.93	net	修正	衝突需改寫	低	自動篩出，未逐項審	xfrm: move policy_bydst RCU sync from per-netns .exit to .pre_exit	3e5241731847	
+可選	0	bd0905e2122e	stable	6.12.78	net	修正	衝突需改寫	低	自動篩出，未逐項審	ipv6: use RCU in ip6_xmit()	9085e56501d9	
+可選	0	bf5009a06e03	stable	6.12.75	net	修正	衝突需改寫	低	自動篩出，未逐項審	ipv6: Fix out-of-bound access in fib6_add_rt2node().	8244f959e2c1	
+可選	0	c0ec2e47f1e9	stable	6.12.42	net	修正	可套用	低	自動篩出，未逐項審	net: drop UFO packets in udp_rcv_segment()	d46e51f1c78b	include/net/udp.h: inline／header 內容
+可選	0	c11ace909e87	stable	6.12.54	net	修正	可套用	低	自動篩出，未逐項審	tcp: Don't call reqsk_fastopen_remove() in tcp_conn_request().	2e7cbbbe3d61	
+可選	0	c22599cc90e1	stable	6.12.94	net	修正	衝突需改寫	低	自動篩出，未逐項審	inet: frags: fix use-after-free caused by the fqdir_pre_exit() flush	32594b098549	
+可選	0	c65b1f60237d	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix possible infinite loop in rt6_fill_node()	9f72412bcf60	
+可選	0	c6b3db727876	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	af_packet: Don't cast tpacket_hdr.tp_len to int in tpacket_parse_header().	73e594c19b4f	
+可選	0	c770217044d9	stable	6.12.95	net	修正	可套用	低	自動篩出，未逐項審	net: Drop the lock in skb_may_tx_timestamp()	983512f3a87f	include/net/sock.h: inline／header 內容
+可選	0	c816dd5c34bb	stable	6.12.92	net	修正	可套用	低	自動篩出，未逐項審	netfilter: x_tables: unregister the templates first	d338693d7785	
+可選	0	cd8d8bbd9ced	stable	6.12.42	net	修正	可套用	低	自動篩出，未逐項審	ipv6: prevent infinite loop in rt6_nlmsg_size()	54e6fe9dd3b0	
+可選	0	cdcaafeb40f9	stable	6.12.75	net	修正	可套用	低	自動篩出，未逐項審	ipv4: fib: Annotate access to struct fib_alias.fa_state.	6e84fc395e90	net/ipv4/fib_lookup.h: struct fib_alias（非 KMI）
+可選	0	cde4d6bcd9b7	stable	6.12.101	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: Fix cork use-after-free in tcp_bpf_sendmsg()	2d66a033864e	
+可選	0	ce4c8beedc19	stable	6.12.111	net	修正	可套用	低	自動篩出，未逐項審	ipv6: sr: restore network header before routing and forwarding	975b5b067f52	
+可選	0	d00705686872	stable	6.12.101	net	修正	可套用	低	自動篩出，未逐項審	ipv4: fib: free fib_alias with kfree_rcu() on insert error path	f2f152e94a67	
+可選	0	d0a4dc7efa82	stable	6.12.101	net	修正	衝突需改寫	低	自動篩出，未逐項審	xfrm: nat_keepalive: avoid double free on send error	226f4a490d1a	
+可選	0	d8143c54ceeb	stable	6.12.70	net	修正	衝突需改寫	低	自動篩出，未逐項審	ipv6: Fix ECMP sibling count mismatch when clearing RTF_ADDRCONF	bbf4a17ad9ff	
+可選	0	d8f5b285dd31	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	af_unix: Set drop reason in unix_stream_read_skb().	bace4b468049	
+可選	0	d981098b7675	stable	6.12.105	net	修正	可套用	低	自動篩出，未逐項審	net/sched: serialize qdisc_rtab_list against concurrent get/put	f43ee0c0730d	
+可選	0	daf546ab5763	stable	6.12.105	net	修正	可套用	低	自動篩出，未逐項審	net/sched: cls_bpf: reject dev-bound programs bound to a different device	120977e2c096	
+可選	0	db65739d406c	stable	6.12.42	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix possible infinite loop in fib6_info_uses_dev()	f8d8ce1b515a	
+可選	0	db77b6bb6e6e	stable	6.12.97	net	修正	可套用	低	sockmap 實機未使用	bpf, sockmap: reject overflowing copy + len in bpf_msg_push_data()	0c0a8ed85349	
+可選	0	dcefd3f0b9ed	stable	6.12.80	net	修正	可套用	低	自動篩出，未逐項審	net: add proper RCU protection to /proc/net/ptype	f613e8b4afea	
+可選	0	de02fc049352	stable	6.12.93	net	修正	可套用	低	自動篩出，未逐項審	ipv6: rpl: fix hdrlen overflow in ipv6_rpl_srh_decompress()	9d5e7a46a9f6	
+可選	0	e0dd2e972966	stable	6.12.39	net	修正	可套用	低	自動篩出，未逐項審	netfilter: flowtable: account for Ethernet header in nf_flow_pppoe_proto()	18cdb3d982da	include/net/netfilter/nf_flow_table.h: inline／header 內容
+可選	0	e1270e69dcf2	stable	6.12.97	net	修正	可套用	低	自動篩出，未逐項審	net/sched: cls_api: Handle TC_ACT_CONSUMED in tcf_qevent_handle	a8a02897f2b4	
+可選	0	e62aef7d6a5b	stable	6.12.111	net	修正	衝突需改寫	低	自動篩出，未逐項審	ip: orphan prefetched skbs before multicast forwarding	e36ce6e78fe3	
+可選	0	e7123e10c86e	stable	6.12.111	net	修正	衝突需改寫	低	自動篩出，未逐項審	ipv6: rpl: fix NULL dereference of idev in ipv6_rpl_srh_rcv()	f826df95332c	
+可選	0	ea0921046231	stable	6.12.108	net	修正	可套用	低	自動篩出，未逐項審	xfrm: avoid lock inversion in nat keepalive work	763fe700b7c5	
+可選	0	ea5d7787635e	stable	6.12.75	net	修正	可套用	低	自動篩出，未逐項審	net: consume xmit errors of GSO frames	7aa767d0d3d0	
+可選	0	ebe55406404f	stable	6.12.110	net	修正	可套用	低	自動篩出，未逐項審	tcp: fix corruption of urgent data on multi-segment retransmit	ce2b807f42ed	
+可選	0	eda56ee17713	stable	6.12.109	net	修正	可套用	低	自動篩出，未逐項審	ipv6: use RCU iterator to dump route exceptions	47cdab0d51aa	
+可選	0	ee4183501ea5	stable	6.12.64	net	修正	可套用	低	自動篩出，未逐項審	ipv4: Fix reference count leak when using error routes with nexthop objects	ac782f4e3bfc	
+可選	0	f0c1810320b0	stable	6.12.104	net	修正	衝突需改寫	低	自動篩出，未逐項審	bpf: tcp: fix double sock release on batch realloc	980a81345275	
+可選	0	f26af58f794d	stable	6.12.75	net	修正	可套用	低	自動篩出，未逐項審	ipv6: fix a race in ip6_sock_set_v6only()	452a3eee22c5	include/net/ipv6.h: inline／header 內容
+可選	0	f2e8fcfd2b1b	stable	6.12.42	net	修正	可套用	低	自動篩出，未逐項審	net/packet: fix a race in packet_set_ring() and packet_notifier()	01d3c8417b9c	
+可選	0	f7c9f8e36074	stable	6.12.77	net	修正	可套用	低	自動篩出，未逐項審	net: ipv6: fix panic when IPv4 route references loopback IPv6 nexthop	21ec92774d15	
+可選	0	fa0796cd62c2	stable	6.12.40	net	修正	可套用	低	自動篩出，未逐項審	af_packet: fix the SO_SNDTIMEO constraint not effective on tpacked_snd()	c1ba3c0cbdb5	
+可選	0	fe9d33f04703	stable	6.12.53	net	修正	可套用	低	自動篩出，未逐項審	bpf: Explicitly check accesses to bpf_sock_addr	6fabca2fc94d	
+可選	0	61eab1d0237e	stable	6.12.97	net,netfilter	修正	可套用	中	自動篩出，未逐項審	netfilter: conntrack: revert ct extension genid infrastructure	35e21a4dccc5	include/net/netfilter/nf_conntrack_extend.h: enum nf_ct_ext_id（非 KMI）；include/net/netfilter/nf_conntrack_extend.h: 宣告 nf_ct_ext_bump_genid 有改
+可選	0	f92c90a2a3e6	stable	6.12.94	net,netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_conntrack: destroy stale expectfn expectations on unregister	c3009418f9fa	include/net/netfilter/nf_conntrack_helper.h: 新增宣告 nf_ct_helper_expectfn_destroy
+可選	0	0234d7ca0317	stable	6.12.111	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nfnetlink_log: cope with concurrent instance destruction	387d744fa7e4	
+可選	0	0b88be7211d2	stable	6.12.64	netfilter	修正	衝突需改寫	低	自動篩出，未逐項審	netfilter: nf_conncount: fix leaked ct in error paths	2e2a72076688	
+可選	0	0f6c33697ccf	stable	6.12.81	netfilter	修正	衝突需改寫	低	自動篩出，未逐項審	netfilter: ctnetlink: ignore explicit helper on new expectations	917b61fa2042	
+可選	0	171fe8e6da02	stable	6.12.78	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: xt_time: use unsigned int for monthday bit shift	00050ec08cec	
+可選	0	2c16e4d64dd9	stable	6.12.81	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_conntrack_helper: pass helper to expect cleanup	a242a9ae58aa	
+可選	0	35a56e2a46b9	stable	6.12.97	netfilter	修正	衝突需改寫	低	自動篩出，未逐項審	netfilter: nf_conncount: fix zone comparison in tuple dedup	f62c41b4910e	
+可選	0	62f6175d145e	stable	6.12.42	netfilter	修正	可套用	低	自動篩出，未逐項審	bpf: Disable migration in nf_hook_run_bpf().	17ce3e5949bc	
+可選	0	a8e0a32a23d3	stable	6.12.91	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: conntrack: remove sprintf usage	6e7066bdb481	
+可選	0	c38d41134085	stable	6.12.94	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_log: validate MAC header was set before dumping it	a84b6fedbc97	
+可選	0	cb2bf5efdb02	stable	6.12.78	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: bpf: defer hook memory release until rcu readers are done	24f90fa3994b	
+可選	0	cce42014415c	stable	6.12.97	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: xt_u32: reject invalid shift counts	64cdf7d30ac1	
+可選	0	d3365731187c	stable	6.12.97	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: synproxy: protect nf_ct_seqadj_init() with conntrack lock	9e37388b8070	
+可選	0	e35c048d7511	stable	6.12.97	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: xt_nat: reject unsupported target families	5d1a2240935e	
+可選	0	e794f633021d	stable	6.12.97	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_nat: avoid invalid nat_net pointer use on failed nf_nat_init()	069cfe3de2a5	
+可選	0	e7e1b6bcb389	stable	6.12.81	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: x_tables: restrict xt_check_match/xt_check_target extensions for NFPROTO_ARP	3d5d488f1177	
+可選	0	eaec35fae8f2	stable	6.12.111	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_log: unregister loggers before per-net teardown	2c018cc4842c	
+可選	0	f025171feef2	stable	6.12.78	netfilter	修正	衝突需改寫	低	自動篩出，未逐項審	netfilter: ctnetlink: fix use-after-free in ctnetlink_dump_exp_ct()	5cb81eeda909	
+可選	0	fb0af2fcee17	stable	6.12.75	netfilter	修正	可套用	低	自動篩出，未逐項審	netfilter: nf_conntrack: Add allow_clash to generic protocol handler	8a49fc8d8a3e	
+可選	0	39358e856fb8	stable	6.12.96	perf	修正	可套用	低	自動篩出，未逐項審	perf/core: Detach event groups during remove_on_exec	037a3c43edfb	
+可選	0	5c48fdc4b462	stable	6.12.77	perf	修正	可套用	低	自動篩出，未逐項審	perf: Fix __perf_event_overflow() vs perf_remove_from_context() race	c9bc1753b3cc	
+可選	0	723e85fb2c3b	stable	6.12.111	perf	修正	衝突需改寫	低	自動篩出，未逐項審	perf/core: Allow list_del during perf_event_overflow()	59e63416f515	
+可選	0	8c67899a5295	stable	6.12.42	perf	修正	可套用	低	自動篩出，未逐項審	perf/core: Don't leak AUX buffer refcount on allocation failure	5468c0fbccbb	
+可選	0	92043120a2e9	stable	6.12.42	perf	修正	可套用	低	自動篩出，未逐項審	perf/core: Exit early on perf_mmap() fail	07091aade394	
+可選	0	945d73ef5c9f	stable	6.12.58	perf	修正	可套用	低	自動篩出，未逐項審	uprobe: Do not emulate/sstep original instruction when ip is changed	4363264111e1	
+可選	0	b42948f9e0d1	stable	6.12.105	perf	修正	衝突需改寫	低	自動篩出，未逐項審	perf/core: Fix group leader use-after-free after sibling detach	42c5ca1f0a28	
+可選	0	e529888b7e80	stable	6.12.42	perf	修正	可套用	低	自動篩出，未逐項審	perf/core: Prevent VMA split of buffer mappings	b024d7b56c77	
+可選	0	5aac392fcd3d	stable	6.12.69	perf,sched	修正	衝突需改寫	低	自動篩出，未逐項審	perf: sched: Fix perf crash with new is_user_task() helper	76ed27608f7d	include/linux/sched.h: 新增宣告 is_user_task
+可選	0	06b3e765fdc5	stable	6.12.75	pm	修正	可套用	低	自動篩出，未逐項審	PM: sleep: wakeirq: harden dev_pm_clear_wake_irq() against races	5c9ecd8e6437	
+可選	0	46cd9c3b67a1	stable	6.12.64	pm	修正	可套用（3-way）	低	自動篩出，未逐項審	PM: runtime: Do not clear needs_force_resume with enabled runtime PM	359afc8eb02a	
+可選	0	862b0e639367	stable	6.12.59	pm	修正	衝突需改寫	低	自動篩出，未逐項審	PM: hibernate: Use atomic64_t for compressed_size variable	66ededc694f1	
+可選	0	c6febaacfb8a	stable	6.12.78	pm	修正	可套用	低	自動篩出，未逐項審	PM: runtime: Fix a race condition related to device removal	29ab76827761	
+可選	0	46160d24b671	stable	6.12.111	printk	修正	可套用	低	自動篩出，未逐項審	printk/nbcon: Change nbcon_irq_work to IRQ_WORK_LAZY	560f4deda327	
+可選	0	6d85a25c1bfe	stable	6.12.43	printk	修正	可套用	低	自動篩出，未逐項審	printk: nbcon: Allow reacquire during panic	571c1ea91a73	
+可選	0	f0104a7b730d	stable	6.12.110	printk	修正	衝突需改寫	低	自動篩出，未逐項審	printk: Fix possible console use-after-free	36630cafbeed	
+可選	0	3a744838453f	stable	6.12.103	security	修正	可套用	低	自動篩出，未逐項審	keys: fix out-of-bounds read in keyring_get_key_chunk()	63918731f9ae	
+可選	0	3b2d1457d724	stable	6.12.97	security	修正	可套用	低	自動篩出，未逐項審	KEYS: Use acquire when reading state in keyring search	c1201b37f666	
+可選	0	5165f1cc727f	stable	6.12.95	security	修正	可套用	低	自動篩出，未逐項審	KEYS: fix overflow in keyctl_pkey_params_get_2()	cb481e59ea6c	
+可選	0	9124e078ea22	stable	6.12.109	security	修正	可套用	低	自動篩出，未逐項審	apparmor: fix out-of-bounds write when null terminating a label vec	9f1e40193eef	security/apparmor/include/label.h: inline／header 內容
+可選	0	f9b68632ac93	stable	6.12.95	security	修正	可套用	低	自動篩出，未逐項審	keys: Pin request_key_auth payload in instantiate paths	fd15b457a869	include/keys/request_key_auth-type.h: inline／header 內容；security/keys/internal.h: 新增宣告 request_key_auth_get,request_key_auth_put
+可選	0	42a2949e0155	stable	6.12.108	selinux	修正	衝突需改寫	低	自動篩出，未逐項審	selinux: require a class's permission values to cover its permission count	b98a8ac50775	
+可選	0	6c2ab7c4549f	stable	6.12.108	selinux	修正	衝突需改寫	低	自動篩出，未逐項審	selinux: reject a permission value exceeding the class permission count	d14b5d0e97fc	
+可選	0	a42932c6aa33	stable	6.12.105	selinux	修正	可套用	低	自動篩出，未逐項審	selinux: do not cancel a policy conversion that never started	e5c0235a3c4e	
+可選	0	a63011c009ea	stable	6.12.105	selinux	修正	可套用	低	自動篩出，未逐項審	selinux: reject a class permission count below its inherited common	9a82dcd98b6e	
+可選	0	1a6d2b001eb7	stable	6.12.83	thermal	修正	可套用（3-way）	低	自動篩出，未逐項審	thermal: core: Address thermal zone removal races with resume	45b859b07282	
+可選	0	604da9c04c21	stable	6.12.81	thermal	修正	可套用	低	自動篩出，未逐項審	thermal: core: Fix thermal zone device registration error path	9e07e3b81807	
+可選	0	e90a4edb7e6a	stable	6.12.43	thermal	修正	可套用	低	自動篩出，未逐項審	thermal: sysfs: Return ENODATA instead of EAGAIN for reads	1a4aabc27e95	
+可選	0	f412e541d25a	stable	6.12.86	thermal	修正	衝突需改寫	低	自動篩出，未逐項審	thermal: core: Fix thermal zone governor cleanup issues	41ff66baf81c	
+可選	0	a83fcddf3c75	stable	6.12.110	tty	修正	可套用	低	自動篩出，未逐項審	tty: clear cdev pointer after cdev_add() failure	6645856f0df3	
+可選	0	100454f15226	stable	6.12.103	typec	修正	衝突需改寫	低	自動篩出，未逐項審	usb: typec: ucsi: Correct teardown ordering in ucsi_init() error path	fb0bf289f5d5	
+可選	0	11483d80267d	stable	6.12.103	typec	修正	衝突需改寫	低	自動篩出，未逐項審	usb: typec: ucsi: Fix race condition and ordering in port unregistration	7aa7d4bf9d3f	
+可選	0	ac9f878c4680	stable	6.12.110	typec	修正	可套用	低	自動篩出，未逐項審	usb: typec: ucsi: displayport: Fix OOB altmode array index	04cec690b1fd	
+可選	0	bf7944b98ca1	stable	6.12.96	typec	修正	可套用	低	自動篩出，未逐項審	usb: typec: ucsi: cancel pending work on system suspend	7c4a234bd31a	drivers/usb/typec/ucsi/ucsi.h: 新增宣告 ucsi_suspend
+可選	0	f6dcbf2b024d	stable	6.12.81	typec	修正	可套用	低	自動篩出，未逐項審	usb: typec: ucsi: validate connector number in ucsi_notify_common()	d2d8c17ac01a	
+可選	0	2fcc2fc21cae	stable	6.12.78	ufs	修正	可套用	低	自動篩出，未逐項審	scsi: ufs: core: Fix SError in ufshcd_rtc_work() during UFS suspend	b0bd84c39289	
+可選	0	17b7ddee0eb4	stable	6.12.67	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: add USB_QUIRK_NO_BOS for devices that hang on BOS descriptor	2740ac33c87b	include/linux/usb/quirks.h: 巨集
+可選	0	24b31a227f67	stable	6.12.78	usb-core	修正	衝突需改寫	低	自動篩出，未逐項審	USB: core: Limit the length of unkillable synchronous timeouts	1015c27a5e1a	include/linux/usb.h: 巨集
+可選	0	3ac9c06f80ad	stable	6.12.81	usb-core	修正	可套用	低	自動篩出，未逐項審	USB: core: add NO_LPM quirk for Razer Kiyo Pro webcam	8b7a42ecdcde	
+可選	0	64320c6e721b	stable	6.12.110	usb-core	修正	衝突需改寫	低	自動篩出，未逐項審	usb: fix UAF when probe runs concurrent to dyn ID removal	ef8154d8b52d	include/linux/usb.h: inline／header 內容
+可選	0	78d361e60caf	stable	6.12.101	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: port: Deattach Type-C connector on component unbind	e0b291fe1179	
+可選	0	9512510cee7d	stable	6.12.43	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: config: Prevent OOB read in SS endpoint companion parsing	cf16f408364e	
+可選	0	ad279de5d6f1	stable	6.12.83	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: port: add delay after usb_hub_set_port_power()	b84cc80610a8	
+可選	0	b3cde26a66b0	stable	6.12.108	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: usbfs: fix use-after-free of usb_device in usbdev_release()	0dd68b5d01d0	
+可選	0	bf2288583b4e	stable	6.12.108	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: Add lock to usb_wakeup_notification()	e263e18a9e7b	
+可選	0	f640bcfa34b4	stable	6.12.93	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: Fix up Interrupt IN endpoints with bogus wBytesPerInterval	727d045d064b	
+可選	0	fff917c85d37	stable	6.12.111	usb-core	修正	可套用	低	自動篩出，未逐項審	usb: core: hcd: fix possible deadlock in rh control transfers	d5559f43d76b	
+可選	0	0326429e8ba9	stable	6.12.81	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: u_ether: Fix NULL pointer deref in eth_get_drvinfo	e002e92e88e1	
+可選	0	15b9faf53ba8	stable	6.12.55	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_ecm: Refactor bind path to use __free()	42988380ac67	
+可選	0	201a66d8e663	stable	6.12.55	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_acm: Refactor bind path to use __free()	47b2116e54b4	
+可選	0	228b37936376	stable	6.12.78	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_mass_storage: Fix potential integer overflow in check_command_size_in_blocks()	8479891d1f04	
+可選	0	2c9e0905ef7e	stable	6.12.93	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: uvc: hold opts->lock across XU walks in uvc_function_bind	68aa70648b62	
+可選	0	5b2b3a3229a3	stable	6.12.104	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: f_ncm: Use unsigned int for ndp_index	6b1c8a9403a2	
+可選	0	6ea3a073ca97	stable	6.12.110	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: fix null pointer dereference in usb_put_function_instance()	6e74ac5c596f	
+可選	0	783ea37b237a	stable	6.12.40	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: configfs: Fix OOB read on empty string write	3014168731b7	
+可選	0	7e94cb967778	stable	6.12.110	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: configfs: fix out-of-bounds read of qw_sign	f63edb54d8f7	
+可選	0	8757a2593631	stable	6.12.83	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: f_ncm: validate minimum block_len in ncm_unwrap_ntb()	8f993d30b95d	
+可選	0	87bc316dd6fc	stable	6.12.101	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_midi: cancel pending IN work before freeing the midi object	5650c18d93a1	
+可選	0	8e88ed8a374d	stable	6.12.109	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: uvc: fix dangling pointers in uvc_function_bind() and uvc_function_unbind()	bdab5605259b	
+可選	0	91b3ecd34b60	stable	6.12.96	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: composite: fix dead empty check in the USB_DT_OTG handler	f8f680609c2b	
+可選	0	93f116c3393a	stable	6.12.78	usb-gadget	修正	衝突需改寫	低	自動篩出，未逐項審	usb: gadget: f_ncm: Fix net_device lifecycle with device_move	ec35c1969650	drivers/usb/gadget/function/u_ether.h: 新增宣告 gether_attach_gadget,gether_detach_gadget；drivers/usb/gadget/function/u_ncm.h: inline／header 內容
+可選	0	b5f0e80a03e8	stable	6.12.111	usb-gadget	修正	衝突需改寫	低	自動篩出，未逐項審	usb: gadget: f_fs: Fix Use-After-Free in AIO error path	e78dcb1f7ec2	
+可選	0	b7475b2dce5e	stable	6.12.96	usb-gadget	修正	可套用（3-way）	低	自動篩出，未逐項審	usb: gadget: f_fs: Fix DMA fence leak	baa6b6068a3f	
+可選	0	bbb09bb89ffa	stable	6.12.81	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: u_ether: Fix race between gether_disconnect and eth_stop	e1eabb072c75	
+可選	0	be539138d9a1	stable	6.12.110	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: f_fs: Fix fence cleanup in ffs_dmabuf_transfer() error paths	621707dc67c9	
+可選	0	c74ff0b1a0fc	stable	6.12.109	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: u_audio: Fix use-after-free on sound card disconnect	858965947081	
+可選	0	c872d8a065b3	stable	6.12.93	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: f_fs: serialize DMABUF cancel against request completion	2796646f6d89	
+可選	0	d026f71df141	stable	6.12.96	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: udc: Fix use-after-free in gadget_match_driver	67e511d2989e	
+可選	0	d3fe7143928d	stable	6.12.55	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: f_ncm: Refactor bind path to use __free()	75a5b8d4ddd4	
+可選	0	f5869dfaa898	stable	6.12.93	usb-gadget	修正	可套用	低	自動篩出，未逐項審	usb: gadget: composite: fix integer underflow in WebUSB GET_URL handling	6c5dbc104dad	
+可選	0	f7d00ee1c808	stable	6.12.81	usb-gadget	修正	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_hid: move list and spinlock inits from bind to alloc	4e0a88254ad5	
+可選	0	029be23f553b	stable	6.12.77	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	eventpoll: Fix integer overflow in ep_loop_check_proc()	fdcfce93073d	
+可選	0	042cf48ecf67	stable	6.12.44	vfs	修正	可套用	低	自動篩出，未逐項審	fs/buffer: fix use-after-free when call bh_read() helper	7375f22495e7	
+可選	0	0d86cd6b709c	stable	6.12.111	vfs	修正	可套用	低	自動篩出，未逐項審	exec: do_close_on_exec() before taking exec_update_lock	e780259b54e6	
+可選	0	12053695c8ef	stable	6.12.64	vfs	修正	可套用	低	自動篩出，未逐項審	iomap: adjust read range correctly for non-block-aligned positions	7aa6bc3e8766	
+可選	0	1853e95c9bfe	stable	6.12.103	vfs	修正	可套用	低	自動篩出，未逐項審	binfmt_misc: reject a flag character as the field delimiter	8e85d50ba111	
+可選	0	1bee417678f1	stable	6.12.94	vfs	修正	可套用	低	自動篩出，未逐項審	fs/fcntl: fix SOFTIRQ-unsafe lock order in fasync signaling	00633c468382	
+可選	0	1cc2decee06a	stable	6.12.103	vfs	修正	可套用	低	自動篩出，未逐項審	binfmt_misc: don't let an 'F' entry pin its own instance	79055d82772b	
+可選	0	2ca7125fff6b	stable	6.12.78	vfs	修正	可套用	低	自動篩出，未逐項審	iomap: reject delalloc mappings during writeback	d320f160aa5f	
+可選	0	2dd0298905e9	stable	6.12.101	vfs	修正	可套用	低	自動篩出，未逐項審	binfmt_misc: set have_execfd only once the interpreter is opened	bbf5f639918d	
+可選	0	3eebe856d09b	stable	6.12.46	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	proc: fix missing pde_set_flags() for net proc files	2ce3d282bd50	
+可選	0	3f307a9f7a7a	stable	6.12.56	vfs	修正	可套用	低	自動篩出，未逐項審	fs/notify: call exportfs_encode_fid with s_umount	a7c4bb43bfdc	
+可選	0	503d0568a525	stable	6.12.97	vfs	修正	可套用	低	自動篩出，未逐項審	fs: refuse O_TMPFILE creation with an unmapped fsuid or fsgid	539dce114465	
+可選	0	50a25249a635	stable	6.12.101	vfs	修正	可套用	低	自動篩出，未逐項審	fs/proc/task_mmu: fix make_uffd_wp_huge_pte() prot-update race	04718f7c9290	
+可選	0	620f3b0ede9c	stable	6.12.55	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	vfs: Don't leak disconnected dentries on umount	56094ad3eaa2	
+可選	0	6482c3dccbfb	stable	6.12.46	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	fs/fhandle.c: fix a race in call of has_locked_children()	1f282cdc1d21	
+可選	0	660b40a31932	stable	6.12.54	vfs	修正	可套用	低	自動篩出，未逐項審	openat2: don't trigger automounts with RESOLVE_NO_XDEV	042a60680de4	
+可選	0	6cce7bc7fac8	stable	6.12.78	vfs	修正	可套用	低	自動篩出，未逐項審	binfmt_misc: restore write access before closing files opened by open_exec()	90f601b497d7	
+可選	0	727e5140e0cf	stable	6.12.75	vfs	修正	可套用	低	自動篩出，未逐項審	fs/buffer: add alert in try_to_free_buffers() for folios without buffers	b68f91ef3b3f	
+可選	0	777d8400abd4	stable	6.12.103	vfs	修正	可套用	低	自動篩出，未逐項審	fs/proc/task_mmu: fix PAGEMAP_SCAN written state for PMD holes	40de8160ca7f	
+可選	0	83b17872e316	stable	6.12.97	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	proc: protect ptrace_may_access() with exec_update_lock (FD links)	6255da28d4bb	fs/proc/internal.h: inline／header 內容
+可選	0	8c8afa6444e6	stable	6.12.91	vfs	修正	可套用	低	自動篩出，未逐項審	fsnotify: fix inode reference leak in fsnotify_recalc_mask()	4aca914ac152	
+可選	0	92289e66639f	stable	6.12.110	vfs	修正	可套用	低	自動篩出，未逐項審	fsnotify: Fix stale object mask after concurrent mark updates	e422777fdd47	
+可選	0	99719b5da932	stable	6.12.105	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	super: fix emergency thaw deadlock on frozen block devices	749d7aa0377a	
+可選	0	a05855302b50	stable	6.12.54	vfs	修正	可套用	低	自動篩出，未逐項審	fs: Add 'initramfs_options' to set initramfs mount options	278033a225e1	
+可選	0	a50296cca2a1	stable	6.12.105	vfs	修正	可套用	低	自動篩出，未逐項審	binfmt_misc: restore write access when removing an entry	db1856ea9196	
+可選	0	a88d39a74a20	stable	6.12.91	vfs	修正	可套用	低	自動篩出，未逐項審	fs/mbcache: cancel shrink work before destroying the cache	d227786ab111	
+可選	0	b99bc5a48ddc	stable	6.12.54	vfs	修正	可套用	低	自動篩出，未逐項審	eventpoll: Replace rwlock with spinlock	0c43094f8cc9	
+可選	0	c4ba2c33851a	stable	6.12.94	vfs	修正	可套用	低	自動篩出，未逐項審	iomap: don't revert iov_iter on partially completed buffered writes		
+可選	0	c923cc3cb5cd	stable	6.12.96	vfs	修正	衝突需改寫	低	自動篩出，未逐項審	writeback: fix race between cgroup_writeback_umount() and inode_switch_wbs()	cba38ec4cbd3	
+可選	0	ca988dcdc668	stable	6.12.50	vfs	修正	可套用	低	自動篩出，未逐項審	fs/proc/task_mmu: check p->vec_buf for NULL	28aa29986dde	
+可選	0	d133154ca39c	stable	6.12.44	vfs	修正	可套用	低	自動篩出，未逐項審	use uniform permission checks for all mount propagation changes	cffd0441872e	
+可選	0	d1398cca55cf	stable	6.12.77	vfs	修正	可套用	低	自動篩出，未逐項審	namespace: fix proc mount iteration	4a403d7aa907	
+可選	0	ddd57ebce245	stable	6.12.83	vfs	修正	可套用	低	自動篩出，未逐項審	dcache: Limit the minimal number of bucket to two	f08fe8891c3e	
+可選	0	dfc2a00742af	stable	6.12.101	vfs	修正	可套用	低	自動篩出，未逐項審	exec: fix unsigned loop counter wrap in transfer_args_to_stack()	16cc4f5c1c4b	
+可選	0	e85385d5a400	stable	6.12.54	vfs	修正	可套用	低	自動篩出，未逐項審	copy_file_range: limit size if in compat mode	f8f59a2c05dc	
+可選	0	fb4fad9105c8	stable	6.12.101	vfs	修正	可套用	低	自動篩出，未逐項審	iomap: fix out-of-bounds bitmap_set() with zero-length range	9c7d8f7c8994	
+可選	0	fc1072d934f6	stable	6.12.42	vfs	修正	可套用	低	自動篩出，未逐項審	proc: use the same treatment to check proc_lseek as ones for proc_read_iter et.al	ff7ec8dc1b64	fs/proc/internal.h: 新增宣告 pde_has_proc_lseek；include/linux/proc_fs.h: inline／header 內容
+可選	0	00b16c7b17b4	stable	6.12.75	workqueue	修正	衝突需改寫	低	自動篩出，未逐項審	workqueue: Process rescuer work items one-by-one using a cursor	e5a30c303b07	
+可選	0	0fd5ff546a97	stable	6.12.111	workqueue	修正	衝突需改寫	低	自動篩出，未逐項審	workqueue: reject watchdog thresholds that overflow jiffies	068c35b5d054	
+不建議	1	0a65cac1d86e	stable	6.12.64	block	修正	可套用	低	只是調整 log 頻率	block: rate-limit capacity change info log	3179a5f7f86b	
+不建議	1	866efe8ae8b8	stable	6.12.101	scsi	修正	可套用	高	改到 KMI 型別 struct Scsi_Host	scsi: core: wake eh reliably when using scsi_schedule_eh	dccf3b1798b7	drivers/scsi/scsi_priv.h: 新增宣告 scsi_rcu_eh_wakeup；include/scsi/scsi_host.h: struct Scsi_Host（KMI 型別）
+不建議	2	397209d78	ACK android16-6.12		binder	修正	衝突需改寫	低	binder per-VMA lock 系列是效能改動，衝突且改到 KMI 型別 struct binder_lru_page	UPSTREAM: binder: use per-vma lock in page installation	9e2aa76549b9	
+不建議	2	3fb6436fa	ACK android16-6.12		binder	修正	衝突需改寫	高	binder per-VMA lock 系列是效能改動，衝突且改到 KMI 型別 struct binder_lru_page	BACKPORT: Revert "binder: switch alloc->mutex to spinlock_t"	8b52c7261e04	drivers/android/binder_alloc.h: inline／header 內容；drivers/android/binder_alloc.h: struct binder_lru_page（KMI 型別）
+不建議	2	658b9fc00	ACK android16-6.12		binder	修正	衝突需改寫	低	binder per-VMA lock 系列是效能改動，衝突且改到 KMI 型別 struct binder_lru_page	BACKPORT: binder: concurrent page installation	d1716b4b78fb	
+不建議	2	ee25d80f0	ACK android16-6.12		binder	修正	衝突需改寫	低	binder per-VMA lock 系列是效能改動，衝突且改到 KMI 型別 struct binder_lru_page	UPSTREAM: binder: use per-vma lock in page reclaiming	95bc2d4a9020	
+不建議	2	1eb0b130196b	stable	6.12.64	f2fs	修正	可套用	高	改到 KMI 型別 struct f2fs_sb_info	f2fs: use global inline_xattr_slab instead of per-sb slab cache	1f27ef42bb0b	fs/f2fs/f2fs.h: struct f2fs_sb_info（KMI 型別）；fs/f2fs/xattr.h: 宣告 f2fs_destroy_xattr_caches 有改；fs/f2fs/xattr.h: 宣告 f2fs_init_xattr_caches 有改；fs/f2fs/xattr.h: 巨集
+不建議	2	67c51f025	ACK android16-6.12		f2fs	修正	衝突需改寫	高	改到 KMI 型別 struct f2fs_bio_info／f2fs_sb_info	BACKPORT: UPSTREAM: f2fs: fix lock priority inversion issue	07de55cbf576	fs/f2fs/f2fs.h: enum f2fs_lock_name（非 KMI）；fs/f2fs/f2fs.h: struct f2fs_sb_info（KMI 型別）；fs/f2fs/f2fs.h: struct f2fs_time_stat（非 KMI）；fs/f2fs/f2fs.h: 巨集
+不建議	2	ac7e7d18816e	stable	6.12.91	f2fs	修正	可套用	高	改到 KMI 型別 struct f2fs_sb_info	f2fs: fix false alarm of lockdep on cp_global_sem lock	6a5e3de9c2bb	fs/f2fs/f2fs.h: struct f2fs_sb_info（KMI 型別）
+不建議	2	d762e881e	ACK android16-6.12		f2fs	修正	可套用	高	改到 KMI 型別 struct f2fs_bio_info／f2fs_sb_info	UPSTREAM: f2fs: fix to avoid out-of-boundary access in devs.path	70849d33130a	fs/f2fs/f2fs.h: struct f2fs_bio_info（KMI 型別）
+不建議	2	ed9f54727ab3	LunaKernel／ACK		f2fs	修正	可套用	高	改到 KMI 型別 struct fscrypt_operations	BACKPORT: fscrypt: Avoid dynamic allocation in		include/linux/fscrypt.h: struct fscrypt_operations（KMI 型別）；include/linux/fscrypt.h: 巨集
+不建議	2	97a688563be7	stable	6.12.101	f2fs,fscrypt	修正	衝突需改寫	高	改到 KMI 型別 struct fscrypt_operations	fscrypt: Avoid dynamic allocation in fscrypt_get_devices()	6fe4e4b8259e	include/linux/fscrypt.h: struct fscrypt_operations（KMI 型別）；include/linux/fscrypt.h: 巨集
+不建議	2	6a379f037	ACK android16-6.12		fscrypt	修正	可套用	高	改到 KMI 型別 struct fscrypt_master_key／fscrypt_prepared_key	BACKPORT: fscrypt: Fix key setup in edge case with multiple data unit sizes	dd015b566d50	fs/crypto/fscrypt_private.h: inline／header 內容；fs/crypto/fscrypt_private.h: struct fscrypt_master_key（KMI 型別）；fs/crypto/fscrypt_private.h: struct fscrypt_prepared_key（KMI 型別）；fs/crypto/fscrypt_private.h: 巨集
+不建議	3	e422b32e6a57	stable	6.12.110	cgroup	修正	可套用	高	改到 KMI 型別 struct cpuset	cgroup/cpuset: Make nr_deadline_tasks an atomic_t	95220e1f18f6	kernel/cgroup/cpuset-internal.h: struct cpuset（KMI 型別）
+不建議	3	77752fe6d993	stable	6.12.68	mm	修正	可套用	低	只改註解	mm/rmap: fix two comments related to huge_pmd_unshare()	a8682d500f69	
+不建議	3	7fc808d98215	stable	6.12.40	sched	修正	可套用（3-way）	高	改到 KMI 型別 struct rq	sched: Change nr_uninterruptible type to unsigned long	36569780b0d6	kernel/sched/sched.h: struct rq（KMI 型別）
+不建議	3	c1cbee3aae2a	stable	6.12.42	sched	效能	可套用	高	改到 KMI 型別 enum psi_aggregators	sched/psi: Optimize psi_group_change() cpu_clock() usage	570c8efd5eb7	include/linux/psi_types.h: enum psi_aggregators（KMI 型別）
+不建議	3	dbfc1413a	ACK android16-6.12		sched	效能	可套用	高	psi 最佳化改到 KMI 型別 enum psi_aggregators	UPSTREAM: sched/psi: Optimize psi_group_change() cpu_clock() usage	570c8efd5eb7	include/linux/psi_types.h: enum psi_aggregators（KMI 型別）
+不建議	3	15ea8dc42a02	stable	6.12.95	vfs	修正	可套用	高	改到 KMI 型別 struct mount	fhandle: fix UAF due to unlocked ->mnt_ns read in may_decode_fh()	40ab6644b996	fs/mount.h: struct mount（KMI 型別）
+不建議	4	16852eccbdfa	stable	6.12.42	net	修正	衝突需改寫	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	Bluetooth: hci_sync: fix double free in 'hci_discovery_filter_clear()'	2935e556850e	include/net/bluetooth/hci_core.h: inline／header 內容；include/net/bluetooth/hci_core.h: struct discovery_state（KMI 型別）
+不建議	4	5dd51e09020c	stable	6.12.94	net	修正	可套用	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	net/sched: act_api: use RCU with deferred freeing for action lifecycle	5057e1aca011	include/net/act_api.h: struct tc_action（KMI 型別）
+不建議	4	70debb2b34a2	stable	6.12.75	net	修正	可套用	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	ipv4: igmp: annotate data-races around idev->mr_maxdelay	e4faaf65a75f	include/linux/inetdevice.h: struct in_device（KMI 型別）
+不建議	4	834c4f645726	stable	6.12.78	net	修正	可套用（3-way）	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	net: add xmit recursion limit to tunnel xmit functions	6f1a9140ecda	include/linux/netdevice.h: struct softnet_data（KMI 型別）；include/net/ip6_tunnel.h: inline／header 內容；include/net/ip_tunnels.h: 巨集；net/core/dev.h: 宣告 dev_xmit_recursion 有改；net/core/dev.h: 宣告 dev_xmit_recursion_dec 有改；net/core/dev.h: 宣告 dev_xmit_recursion_inc 有改
+不建議	4	b1fcc7888035	stable	6.12.97	net	修正	衝突需改寫	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	af_unix: Set drop reason in unix_release_sock().	c32f0bd7d483	include/net/dropreason-core.h: enum skb_drop_reason（KMI 型別）；include/net/dropreason-core.h: inline／header 內容
+不建議	4	b712da45bd9b	stable	6.12.103	net	修正	衝突需改寫	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	net: udp_tunnel: fix memory leak in udp_tunnel_nic_unregister()	080695e6f005	net/ipv4/udp_tunnel_nic.c: struct udp_tunnel_nic（KMI 型別）
+不建議	4	cc8ddf303397	stable	6.12.97	net	修正	衝突需改寫	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	af_unix: Set drop reason in manage_oob().	533643b091dd	include/net/dropreason-core.h: enum skb_drop_reason（KMI 型別）；include/net/dropreason-core.h: inline／header 內容
+不建議	4	e40e2d11ced8	stable	6.12.105	net	修正	可套用	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	ip_tunnel: adapt iptunnel_xmit_stats() to NETDEV_PCPU_STAT_DSTATS	8431c602f551	include/linux/netdevice.h: struct net_device（KMI 型別）；include/net/ip_tunnels.h: inline／header 內容
+不建議	4	f5182dfad542	stable	6.12.111	net	修正	可套用	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	igmp: convert struct ip_sf_list to RCU	2987ee196c88	include/linux/igmp.h: struct ip_mc_socklist（KMI 型別）
+不建議	4	f08c80af3c9a	stable	6.12.44	vfs	修正	可套用	高	改到 KMI 型別（struct ip_mc_socklist、net_device、softnet_data、in_device、tc_action、enum skb_drop_reason 等）	netfs: Fix unbuffered write error handling	a3de58b12ce0	include/linux/netfs.h: struct netfs_io_stream（KMI 型別）
+不建議	5	a7a80c25b651	stable	6.12.75	dwc3	修正	可套用	低	改到 struct dwc3，原廠 dwc3_msm 會存取	usb: dwc3: gadget: Move vbus draw to workqueue context	54aaa3b387c2	drivers/usb/dwc3/core.h: struct dwc3（非 KMI）
+不建議	5	6be62c78aed5	stable	6.12.64	tty	修正	衝突需改寫	低	只改 kernel-doc	tty: fix tty_port_tty_*hangup() kernel-doc	6241b49540a6	include/linux/tty_port.h: inline／header 內容
+不建議	5	10014310193c	stable	6.12.61	usb-gadget	修正	衝突需改寫	高	改到 KMI 型別 struct usb_gadget	usb: gadget: udc: fix use-after-free in usb_gadget_state_work	baeb66fbd420	include/linux/usb/gadget.h: struct usb_gadget（KMI 型別）
+不建議	5	74bd9a178	ACK android16-6.12		xhci	修正	衝突需改寫	高	改到 KMI 型別 struct usb_device	BACKPORT: usb: core: use dedicated spinlock for offload state	bd3d245b0fef	include/linux/usb.h: inline／header 內容；include/linux/usb.h: struct usb_device（KMI 型別）；include/linux/usb.h: 新增宣告 usb_offload_set_pm_locked
+不建議	0	dc518afa8eb7	stable	6.12.93	arm64	修正	可套用	高	改到 KMI 型別：kernel/trace/ring_buffer.c: struct trace_buffer（KMI 型別）	ring-buffer: Flush and stop persistent ring buffer on panic	a494d3c8d539	arch/arm64/include/asm/ring_buffer.h: 巨集；include/asm-generic/ring_buffer.h: 巨集；kernel/trace/ring_buffer.c: struct trace_buffer（KMI 型別）
+不建議	0	656d40d1ca22	stable	6.12.111	bpf	修正	可套用	高	改到 KMI 型別：include/linux/bpf.h: enum bpf_arg_type（KMI 型別）	bpf: Reject non-scalar bpf_loop iteration counts	c3fd8e5fd100	include/linux/bpf.h: enum bpf_arg_type（KMI 型別）
+不建議	0	85e0019c0	ACK android16-6.12		f2fs	修正	基底已有	高	改到 KMI 型別：fs/f2fs/f2fs.h: struct f2fs_sb_info（KMI 型別）	UPSTREAM: f2fs: quota: fix to avoid warning in dquot_writeback_dquots()	eb85c2410d6f	fs/f2fs/f2fs.h: struct f2fs_sb_info（KMI 型別）；fs/f2fs/f2fs.h: 宣告 f2fs_quota_sync 有改
+不建議	0	002bb5722d7e	stable	6.12.42	net	修正	可套用（3-way）	低	只是 KCSAN 標註	net: dst: annotate data-races around dst->input	f1c5fd34891a	include/net/dst.h: inline／header 內容；include/net/lwtunnel.h: inline／header 內容
+不建議	0	0c58f74f8aa9	stable	6.12.42	net	修正	衝突需改寫	低	只是 KCSAN 標註	ipv6: annotate data-races around rt->fib6_nsiblings	31d7d67ba127	
+不建議	0	1ec0d56a8467	stable	6.12.75	net	修正	衝突需改寫	低	只是 KCSAN 標註	ping: annotate data-races in ping_lookup()	ad5dfde2a573	
+不建議	0	296357dcdc4b	stable	6.12.58	net	修正	可套用	低	只是 KCSAN 標註	inet_diag: annotate data-races in inet_diag_bc_sk()	4fd84a0aaf2b	
+不建議	0	45e2b1cf2689	stable	6.12.75	net	修正	可套用	低	只是 KCSAN 標註	ipv6: annotate data-races in ip6_multipath_hash_{policy,fields}()	03e9d91dd64e	include/net/ipv6.h: inline／header 內容
+不建議	0	5a825c9b1ba3	stable	6.12.97	net	修正	可套用	低	只是 KCSAN 標註	xfrm: annotate data-races around xfrm_policy_count[] and xfrm_policy_default[]	68de007d5ac9	include/net/xfrm.h: inline／header 內容
+不建議	0	5e7390ef6fa5	stable	6.12.91	net	修正	衝突需改寫	低	只是 KCSAN 標註	tcp: annotate data-races around tp->bytes_sent	ee43e957ce2e	
+不建議	0	6dabb5b89cce	stable	6.12.67	net	修正	可套用	低	只是 KCSAN 標註	net: bridge: annotate data-races around fdb->{updated,used}	b25a0b4a2193	
+不建議	0	73f7c6193589	stable	6.12.91	net	修正	可套用	低	只是 KCSAN 標註	tcp: annotate data-races around tp->plb_rehash	9e89b9d03a2d	
+不建議	0	762e76c93823	stable	6.12.75	net	修正	可套用	低	只是 KCSAN 標註	ipv6: annotate data-races over sysctl.flowlabel_reflect	5ade47c974b4	
+不建議	0	8bd4ce7e91ba	stable	6.12.91	net	修正	衝突需改寫	低	只是 KCSAN 標註	tcp: annotate data-races around tp->bytes_retrans	5efc7b9f7cbd	
+不建議	0	8f424f8ac821	stable	6.12.97	net	修正	衝突需改寫	低	只是 KCSAN 標註	net/sched: sch_htb: annotate data-races (I)	e54c33503bf7	
+不建議	0	939135ddeae2	stable	6.12.42	net	修正	衝突需改寫	低	只是 KCSAN 標註	net: dst: annotate data-races around dst->output	2dce8c52a989	include/net/dst.h: inline／header 內容；include/net/lwtunnel.h: inline／header 內容
+不建議	0	a0f50c706ed9	stable	6.12.91	net	修正	可套用	低	只是 KCSAN 標註	net/sched: sch_fq_codel: remove data-races from fq_codel_dump_stats()	bbfaa73ea687	
+不建議	0	bd463fcd7f0c	stable	6.12.75	net	修正	可套用	低	只是 KCSAN 標註	ipv6: exthdrs: annotate data-race over multiple sysctl	978b67d28358	
+不建議	0	c2f081323c25	stable	6.12.94	net	修正	可套用	低	只是 KCSAN 標註	net: Annotate sk->sk_write_space() for UDP SOCKMAP.	b748765019fe	
+不建議	0	c494448bb522	stable	6.12.82	net	修正	可套用	低	只是 KCSAN 標註	net: annotate data-races around sk->sk_{data_ready,write_space}	2ef2b20cf4e0	
+不建議	0	c6e108c13ceb	stable	6.12.91	net	修正	衝突需改寫	低	只是 KCSAN 標註	tcp: annotate data-races around tp->dsack_dups	a984705ca88b	
+不建議	0	f597c36cc035	stable	6.12.91	net	修正	可套用	低	只是 KCSAN 標註	tcp: annotate data-races around (tp->write_seq - tp->snd_nxt)	3a63b3d16056	
+不建議	0	f9f941c5bcec	stable	6.12.91	net	修正	可套用	低	只是 KCSAN 標註	tcp: add data-race annotations around tp->data_segs_out and tp->total_retrans	21e92a38cfd8	
+不建議	0	fce54df0a0e7	stable	6.12.91	net	修正	可套用	低	只是 KCSAN 標註	tcp: add data-race annotations for TCP_NLA_SNDQ_SIZE	124199444de4	
+不建議	0	778fdda45307	stable	6.12.108	selinux	效能	可套用	高	改到 KMI 型別：security/selinux/ss/policydb.h: struct user_datum（KMI 型別）	selinux: avoid unnecessary indirection in struct level_datum	749153636643	security/selinux/ss/policydb.h: struct user_datum（KMI 型別）
+不適用	1	08bad878478d	stable	6.12.86	block	修正	可套用	低	zoned block，手機的 UFS 不是 zoned	block: fix zone write plugs refcount handling in disk_zone_wplug_schedule_bio_work()	0a8b8af896e0	
+不適用	1	2e5e20566ff2	stable	6.12.90	block	修正	可套用	低	zoned block，手機的 UFS 不是 zoned	block: fix zone write plug removal	b7d4ffb51037	
+不適用	1	53a01bcc0242	stable	6.12.92	block	修正	可套用	低	block integrity 未使用	block: recompute nr_integrity_segments in blk_insert_cloned_request	2c6e6a18a37b	
+不適用	1	777a1ddeb915	stable	6.12.64	block	修正	可套用	低	zoned block，手機的 UFS 不是 zoned	block: Clear BLK_ZONE_WPLUG_PLUGGED when aborting plugged BIOs	552c1149af7a	
+不適用	1	7b4bfd02c934	stable	6.12.78	block	修正	可套用	低	blk-throttle 未啟用（BLK_DEV_THROTTLING 未設定）	blk-throttle: fix access race during throttle policy activation	bd9fd5be6bc0	block/blk-cgroup.h: 新增宣告 blkcg_policy_enabled；block/blk-throttle.h: inline／header 內容
+不適用	1	aa85f48dfc55	stable	6.12.64	block	修正	可套用	低	zoned block，手機的 UFS 不是 zoned	block: freeze queue when updating zone resources	bba4322e3f30	
+不適用	1	c50747a963c4	stable	6.12.45	block	修正	可套用	低	zoned block，手機的 UFS 不是 zoned	blk-zoned: Fix a lockdep complaint about recursive locking	198f36f902ec	
+不適用	1	c8cdc025a6d2	stable	6.12.64	block	修正	衝突需改寫	低	zoned block，手機的 UFS 不是 zoned	block: fix NULL pointer dereference in blk_zone_reset_all_bio_endio()	c2b8d20628ca	
+不適用	1	261c80a6b23e	stable	6.12.111	scsi	修正	可套用	低	只影響有門鎖的可移除裝置	scsi: core: Do not block on tag allocation in scsi_eh_lock_door()	732cb6bb37fd	
+不適用	1	a4353ec7742b	stable	6.12.109	scsi	修正	可套用	低	DMA padding 只用在 ATAPI	scsi: core: Fill in DMA padding bytes in scsi_alloc_sgtables()	626147717bea	
+不適用	1	0267a9417dfe	LunaKernel／stable、stable	6.12.103	ufs	修正	衝突需改寫	低	active-active suspend 分支在 6.12.38 不存在（v8 已確認）	scsi: ufs: core: Cancel RTC work in active-active suspend		
+不適用	1	aac2fee7513d	stable	6.12.75	ufs	修正	可套用	低	只在 rpm_lvl=0 時有作用，實機 rpm_lvl=1	scsi: ufs: core: Flush exception handling work when RPM level is zero	f8ef441811ec	
+不適用	2	34447aeedbae	stable	6.12.63	erofs	修正	可套用	低	erofs file-backed mount 未使用	erofs: limit the level of fs stacking for file-backed mounts	d53cd891f0e4	
+不適用	2	ae385826840a	stable	6.12.72	erofs	修正	可套用（3-way）	低	erofs file-backed mount 未使用	erofs: fix UAF issue for file-backed mounts w/ directio option	1caf50ce4af0	
+不適用	2	d47b03775d55	stable	6.12.66	erofs	修正	衝突需改寫	低	erofs file-backed mount 未使用	erofs: don't bother with s_stack_depth increasing for now	072a7c7cdbea	
+不適用	2	0a08bd027	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	FROMGIT: f2fs: fix to unlock folio in f2fs_read_data_large_folio()	a5d8b9d94e18	
+不適用	2	0bf1a02494c7	stable	6.12.64	f2fs	修正	可套用	低	f2fs 壓縮未使用（實機 compr_written_block=0）	f2fs: fix to avoid updating compression context during writeback	10b591e7fb7c	fs/f2fs/f2fs.h: inline／header 內容；fs/f2fs/f2fs.h: struct f2fs_inode_info（非 KMI）
+不適用	2	0fe7976b6254	stable	6.12.42	f2fs	修正	可套用	低	f2fs 壓縮未使用（實機 compr_written_block=0）	f2fs: vm_unmap_ram() may be called from an invalid context	08a7efc5b02a	
+不適用	2	1ff415eef513	stable	6.12.74	f2fs	修正	可套用	低	swapfile；實機只用 zram	f2fs: fix to avoid mapping wrong physical block for swapfile	5c145c03188b	
+不適用	2	285c84322	ACK android16-6.12		f2fs	修正	可套用	低	單一裝置，multi-device 路徑不會走	UPSTREAM: f2fs: fix wrong block mapping for multi-devices	9d5c4f5c7a2c	
+不適用	2	3b85edf3391f	stable	6.12.110	f2fs	修正	可套用	低	只在 resize	f2fs: fix to migrate all curseg types during free_segment_range	8ec06f50ddd8	
+不適用	2	82765ce5c7a5	stable	6.12.42	f2fs	修正	可套用	低	只在 lfs 模式；實機 mode=adaptive	f2fs: fix to trigger foreground gc during f2fs_map_blocks() in lfs mode	1005a3ca28e9	
+不適用	2	84b5a9e56	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	UPSTREAM: f2fs: compress: fix UAF of f2fs_inode_info in f2fs_free_dic	cc81768212cd	fs/f2fs/f2fs.h: struct compress_io_ctx（非 KMI）；fs/f2fs/f2fs.h: struct decompress_io_ctx（非 KMI）
+不適用	2	b885c7783c19	stable	6.12.96	f2fs	修正	衝突需改寫	低	只在 gc_merge；實機 nogc_merge	f2fs: fix potential deadlock in gc_merge path of f2fs_balance_fs()	8b4468ec023d	
+不適用	2	cc81768212cd	stable	6.12.78	f2fs	修正	可套用（3-way）	低	f2fs 壓縮未使用（實機 compr_written_block=0）	f2fs: compress: fix UAF of f2fs_inode_info in f2fs_free_dic	39868685c2a9	fs/f2fs/f2fs.h: struct compress_io_ctx（非 KMI）；fs/f2fs/f2fs.h: struct decompress_io_ctx（非 KMI）
+不適用	2	e4b70b22d	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	BACKPORT: FROMGIT: f2fs: fix folio_nr_pages() race after put in large folio invalidate	0dab71381f1b	
+不適用	2	e6a38c6e0	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	UPSTREAM: f2fs: fix to zero data after EOF for compressed file correctly	0b2cd5092139	
+不適用	2	eb95d43ef	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	UPSTREAM: f2fs: compress: change the first parameter of page_array_{alloc,free} to sbi	7c002e242ddd	
+不適用	2	f0db034d6	ACK android16-6.12		f2fs	修正	衝突需改寫	低	large folio 讀取或 f2fs 壓縮，6.12.38 沒有或實機未用	FROMGIT: f2fs: fix error path handling in f2fs_read_data_large_folio()	fe15bc3d447c	
+不適用	2	f5154cf3ce1c	LunaKernel／stable、stable	6.12.84	f2fs	修正	可套用	低	f2fs 壓縮未使用（實機 compr_written_block=0）	f2fs: fix use-after-free of sbi in		
+不適用	2	3493f4de79f6	stable	6.12.110	fscrypt	修正	可套用	低	只在 i_blkbits > PAGE_SHIFT	fscrypt: fix left shift underflow when inode->i_blkbits > PAGE_SHIFT	1e39da974ce6	
+不適用	2	cfe27f8aff2e	stable	6.12.43	fscrypt	修正	衝突需改寫	低	只影響非 inline 的加密引擎；實機用 UFS inline crypto	fscrypt: Don't use problematic non-inline crypto engines	b41c1d8d0790	fs/crypto/fscrypt_private.h: 巨集
+不適用	2	3fbc5ee776fe	stable	6.12.111	fuse	修正	可套用	低	fuseblk、virtiofs、submount 未使用	virtio-fs: avoid double-free on failed queue setup	6af3330ec5d5	
+不適用	2	97c4691653d1	stable	6.12.95	fuse	修正	衝突需改寫	低	fuseblk、virtiofs、submount 未使用	virtiofs: fix UAF on submount umount	06b41351779e	
+不適用	2	b26923512dbe	stable	6.12.54	fuse	修正	衝突需改寫	低	fuseblk、virtiofs、submount 未使用	fuse: fix livelock in synchronous file put from fuseblk workers	26e5c67deb2e	
+不適用	2	e0b7f2922f6b	stable	6.12.110	fuse	修正	衝突需改寫	低	fuseblk、virtiofs、submount 未使用	fuse: check for NULL root inode in fuse_fill_super_submount	928f659a3e36	
+不適用	3	ff40839e018b	stable	6.12.43	arm64,mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	mm/ptdump: take the memory hotplug lock inside ptdump_walk_pgd()	59305202c67f	
+不適用	3	11f2826e9ee6	stable	6.12.97	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/mm_init: fix uninitialized struct pages for ZONE_DEVICE	cd681403a870	
+不適用	3	19999e479c2a	LunaKernel／mainline		mm	修正	衝突需改寫（LunaKernel 改寫版：衝突需改寫）	低	MGLRU 實機關閉（lru_gen/enabled=0x0000）	mm: remove '!root_reclaim' checking in should_abort_scan()		
+不適用	3	27e740614df8	stable	6.12.41	mm	修正	衝突需改寫	低	KASAN 實機關閉（kasan=off）或只是除錯	kasan: use vmalloc_dump_obj() for vmalloc error reports	6ade153349c6	
+不適用	3	2c09f27232e7	stable	6.12.101	mm	修正	衝突需改寫	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/sparse-vmemmap: fix vmemmap accounting underflow	c373f7f98e6a	
+不適用	3	2d89dab1ea60	stable	6.12.39	mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	kasan: remove kasan_find_vm_area() to prevent possible deadlock	6ee9b3d84775	
+不適用	3	2efa9c02c9b4	stable	6.12.75	mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	mm/vmalloc: prevent RCU stalls in kasan_release_vmalloc_node	5747435e0fd4	
+不適用	3	365178de51ac	stable	6.12.64	mm	修正	衝突需改寫	低	KASAN 實機關閉（kasan=off）或只是除錯	kasan: unpoison vms[area] addresses with a common tag	6a0e5b333842	
+不適用	3	3833e6abdbbf	stable	6.12.97	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/memory_hotplug: fix incorrect altmap passing in error path	2fac4afa0e2e	
+不適用	3	450f35f4d5a6	stable	6.12.103	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/page_reporting: use system_freezable_wq to fix UAF during suspend	0b45f6927a14	
+不適用	3	4cc5caef9a8d	stable	6.12.110	mm	修正	衝突需改寫	中	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/mm_init: handle alloc_percpu failure in free_area_init_core_hotplug	2ebce860bdd7	include/linux/memory_hotplug.h: 宣告 free_area_init_core_hotplug 有改
+不適用	3	656eaddbc952	stable	6.12.41	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/vmscan: fix hwpoisoned large folio handling in shrink_folio_list	9f1e8cd0b7c4	
+不適用	3	69676792c23f	stable	6.12.64	mm	修正	衝突需改寫	低	KASAN 實機關閉（kasan=off）或只是除錯	mm/kasan: fix incorrect unpoisoning in vrealloc for KASAN	007f5da43b3d	include/linux/kasan.h: 巨集
+不適用	3	6a13b56537e7	stable	6.12.60	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/mempool: fix poisoning order>0 pages with HIGHMEM	ec33b59542d9	
+不適用	3	6fc0a7c99e97	stable	6.12.56	mm	修正	可套用（3-way）	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm: prevent poison consumption when splitting THP	841a8bfcbad9	
+不適用	3	818416fef387	stable	6.12.97	mm	修正	可套用	低	交換裝置存在，swapless 路徑不會走	mm: swap_cgroup: fix NULL deref in lookup_swap_cgroup_id on swapless host	63b02a9409cb	
+不適用	3	a6940b84c8c0	stable	6.12.103	mm	修正	可套用	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/percpu-km: fix bitmap overflow and accounting in pcpu_create_chunk()	89b1b79c3088	
+不適用	3	a99f9a4669a0	stable	6.12.69	mm	修正	可套用	低	shmem THP 實機為 never	mm/shmem, swap: fix race of truncate and swap entry split	8a1968bd997f	
+不適用	3	b9c6d048bdfa	stable	6.12.105	mm	修正	衝突需改寫	低	KASAN 實機關閉（kasan=off）或只是除錯	mm/ptdump: always stabilise against page table freeing using init_mm	27c32e553834	
+不適用	3	c00ca876e073	stable	6.12.64	mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	kasan: refactor pcpu kasan vmalloc unpoison	6f13db031e27	include/linux/kasan.h: inline／header 內容；include/linux/kasan.h: 新增宣告 __kasan_unpoison_vmap_areas
+不適用	3	dd853cf1da2e	stable	6.12.59	mm	修正	可套用	低	shmem THP 實機為 never	mm/shmem: fix THP allocation and fallback loop	fc745ff31756	
+不適用	3	dda6ec365ab0	stable	6.12.46	mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	mm/slub: avoid accessing metadata when pointer is invalid in object_err()	b4efccec8d06	
+不適用	3	df63d31e9ae0	stable	6.12.67	mm	修正	衝突需改寫	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm/page_alloc: prevent pcp corruption with SMP=n	038a102535eb	
+不適用	3	e3253bab3c4a	stable	6.12.48	mm	修正	衝突需改寫	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	mm: introduce and use {pgd,p4d}_populate_kernel()	f2d2f9598ebb	include/linux/pgalloc.h: 巨集
+不適用	3	f3886f075c1f	stable	6.12.56	mm	修正	衝突需改寫	低	race 由 f7381b911640（無條件標記配置失敗）引入，不在基底；基底只在 new_slab 時標記	slab: Fix obj_ext mistakenly considered NULL due to race condition	7f434e1d9a17	
+不適用	3	fc6acd4cddf7	stable	6.12.59	mm	修正	可套用	低	KASAN 實機關閉（kasan=off）或只是除錯	codetag: debug: handle existing CODETAG_EMPTY in mark_objexts_empty for slabobj_ext	1abbdf3d57aa	
+不適用	3	15b8a5b4cdc1	stable	6.12.54	mm,net	修正	衝突需改寫	低	memory hotplug、ZONE_DEVICE、page reporting、hwpoison、percpu-km、HIGHMEM、SMP=n	page_pool: Fix PP_MAGIC_MASK to avoid crashing on some 32-bit arches	95920c2ed02b	include/linux/mm.h: 巨集
+不適用	3	0504d52d0529	LunaKernel／stable、stable	6.12.103	sched	修正	可套用	低	governor 是 WALT，schedutil 不會執行	cpufreq: schedutil: Publish util hooks only after all sg_cpu		
+不適用	3	6937d853e1fe	stable	6.12.109	sched	修正	可套用	低	governor 是 WALT，schedutil 不會執行	cpufreq: schedutil: Fix rate limit overflow	3bff8f8e95fd	
+不適用	3	806fcff98c1d	LunaKernel／stable、stable	6.12.104	sched	修正	可套用	低	cgroup PSI 已停用（cgroup_disable=pressure）	sched/psi: Shut down rtpoll_timer in psi_cgroup_free()		
+不適用	3	156cc63691c1	stable	6.12.94	vfs	修正	衝突需改寫	低	bug 由 stable 的前置 commit fabfc1fcd（llist 迴圈）引入；基底仍是每個 isw 一個 RCU work	writeback: Fix use after free in inode_switch_wbs_work_fn()	6689f01d6740	
+不適用	4	02f75f041a93	LunaKernel／stable	6.12.92	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: stop hash:* range iteration at end		
+不適用	4	157c0a896127	LunaKernel／stable	6.12.97	netfilter	修正	衝突需改寫	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: annotate "pos" for concurrent		net/netfilter/ipset/ip_set_hash_gen.h: inline／header 內容
+不適用	4	20cb13a523f0	LunaKernel／stable	6.12.105	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: fix refcount race between list:set GC and		
+不適用	4	7445fe965b7d	LunaKernel／stable	6.12.97	netfilter	修正	衝突需改寫	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: Don't use test_bit() in lockless RCU		net/netfilter/ipset/ip_set_hash_gen.h: inline／header 內容
+不適用	4	7e06a41b3663	LunaKernel／stable	6.12.97	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: Fix data race between add and dump in all		net/netfilter/ipset/ip_set_hash_gen.h: inline／header 內容
+不適用	4	9eda5478746e	LunaKernel／stable	6.12.83	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ip6t_eui64: reject invalid MAC header for all		
+不適用	4	a12c0025080e	LunaKernel／stable	6.12.105	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: fix list type element drift bug		
+不適用	4	c710e9bf38e4	LunaKernel／stable、stable	6.12.103	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: do not update comments from kernel-side		net/netfilter/ipset/ip_set_hash_gen.h: inline／header 內容
+不適用	4	c940d1b96248	LunaKernel／stable、stable	6.12.97	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: make sure gc is properly stopped		net/netfilter/ipset/ip_set_hash_gen.h: inline／header 內容
+不適用	4	fcb565966534	LunaKernel／stable	6.12.97	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: fix order of kfree_rcu() and		
+不適用	4	ff86ea9b7fdf	LunaKernel／stable	6.12.96	netfilter	修正	可套用	低	ipset、ip6t_eui64 未編進核心（IP_SET、IP6_NF_MATCH_EUI64 未設定）	netfilter: ipset: fix race between dump and ip_set_list		
+不適用	5	21476f4b509b	stable	6.12.110	arm64	修正	可套用	低	KCSAN 未啟用	arm64: Disable KCSAN instrumentation in delay.o	5eaec4cf41a8	
+不適用	5	290c5b0c9fc0	stable	6.12.110	arm64	修正	可套用	低	MTE 未啟用、hibernate 未使用	arm64: hibernate: mask DAIF before restoring hibernated kernel	684bde100117	
+不適用	5	423eba50f833	stable	6.12.54	arm64	修正	可套用	低	MTE 未啟用、hibernate 未使用	arm64: mte: Do not flag the zero page as PG_mte_tagged	f620d66af316	
+不適用	5	9773a886f267	stable	6.12.68	arm64	修正	可套用	低	MTE 未啟用、hibernate 未使用	arm64: Set __nocfi on swsusp_arch_resume()	e2f8216ca2d8	
+不適用	5	a9fce61d1	ACK android16-6.12		dma-buf	修正	衝突需改寫	低	task_dma_buf_info 是 2025-09 之後才加的 Android 功能	ANDROID: dmabuf: Fix task_dma_buf_info refcount and memory leaks		
+不適用	5	f118039cc	ACK android16-6.12		dma-buf	修正	衝突需改寫	低	task_dma_buf_info 是 2025-09 之後才加的 Android 功能	ANDROID: read task_dma_buf_info under task lock and pin it		
+不適用	5	81472f8e87f8	stable	6.12.88	mm	效能	可套用	低	eMMC 最佳化，手機是 UFS	mmc: core: Optimize time for secure erase/trim for some Kingston eMMCs	d6bf2e64dec8	drivers/mmc/core/card.h: 新增宣告 mmc_card_fixed_secure_erase_trim_time；drivers/mmc/core/quirks.h: inline／header 內容；include/linux/mmc/card.h: 巨集
+不適用	5	01a5378f19e1	stable	6.12.110	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	tty: hvc: restrict HVC_DCC to ARMv6+ and ARM64	782f4dbd1794	
+不適用	5	07ffe414a708	stable	6.12.95	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_dw: unregister 8250 port if clk_notifier_register() fails	10fc708b4de7	
+不適用	5	2881b2e6da02	stable	6.12.111	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: fix possible ISR soft lockup	0c6bf45e5a34	
+不適用	5	2a72403b985a	stable	6.12.78	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: Fix TX deadlock when using DMA	a424a34b8fad	
+不適用	5	313ae287442e	stable	6.12.104	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom-geni: fix TX DMA buffer flush	e3c04834ae1a	
+不適用	5	460e0dc9af2d	stable	6.12.58	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	tty: serial: ip22zilog: Use platform device for probing	3fc36ae6abd2	
+不適用	5	4f07d8839327	stable	6.12.95	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom_geni: Fix RX DMA stall when SE_DMA_RX_LEN_IN is zero	b93062b6d8a1	
+不適用	5	6a83d5e24a84	stable	6.12.93	tty	修正	衝突需改寫	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: zs: Convert to use a platform device	7cac59d08a73	drivers/tty/serial/zs.h: inline／header 內容
+不適用	5	6f5964622949	stable	6.12.93	tty	修正	衝突需改寫	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: dz: Convert to use a platform device	5d7a49d60b8f	
+不適用	5	8e2739478c16	stable	6.12.44	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: fix panic due to PSLVERR	7f8fdd4dbffc	
+不適用	5	9f2444f4c0e4	stable	6.12.104	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_dma: Clear stale RX state on shutdown	e2fe6a0efecb	
+不適用	5	b1159dce10b3	stable	6.12.93	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom_geni: fix kfifo underflow when flush precedes DMA completion IRQ	452d6fa37ae9	
+不適用	5	c321dc5172c8	stable	6.12.106	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_of: clear stuck empty-FIFO RX-timeout on LPC32xx	142341547127	
+不適用	5	533b917e065f	stable	6.12.56	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbc: fix bogus 1024 byte prefix if ttyDBC read races with stall event	f3d12ec847b9	
+不適用	5	943f976c93e7	stable	6.12.108	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbgtty: Fix unregister on tty_register_driver() failure	a916fa66a43e	
+不適用	5	aa55e09cfc4b	stable	6.12.61	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbgtty: Fix data corruption when transmitting data form DbC to host	f6bb3b67be9a	drivers/usb/host/xhci-dbgcap.h: struct dbc_port（非 KMI）
+不適用	5	e750e2f2a2dd	stable	6.12.64	xhci	修正	衝突需改寫	低	xhci DbC 未啟用	xhci: dbgtty: fix device unregister: fixup	74098cc06e75	
+不適用	0	efad4e2a0fa7	stable	6.12.40	loop	修正	可套用	低	除錯或標註用途，正式核心不會走到	loop: use kiocb helpers to fix lockdep warning	c4706c5058a7	
+不適用	0	015cebdfcb97	stable	6.12.75	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: act_skbedit: fix divide-by-zero in tcf_skbedit_hash()	be054cc66f73	
+不適用	0	13a66ca1e235	stable	6.12.81	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sch_netem: fix out-of-bounds access in packet corruption	d64cb81dcbd5	
+不適用	0	1ecc39dc8cdc	stable	6.12.78	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: prevent NULL deref in ip[6]tunnel_xmit()	c38b8f5f791e	include/net/ip6_tunnel.h: inline／header 內容
+不適用	0	25fc9352590f	stable	6.12.93	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: act_mirred: Fix blockcast recursion bypass leading to stack overflow	a005fa5d7502	
+不適用	0	3081702ea5ac	stable	6.12.101	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	nexthop: initialize extack in nh_res_bucket_migrate()	6347c5314cee	
+不適用	0	324f86806673	stable	6.12.110	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: fq_codel: clamp default quantum and mtu	d9ebd8f9aa8b	
+不適用	0	39283907a25e	stable	6.12.97	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	bridge: stp: Fix a potential use-after-free when deleting a bridge	2a00517db8de	
+不適用	0	3a0ad4fcdfa0	stable	6.12.108	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: bridge: mcast: fix use-after-free of a master VLAN's multicast context	50e5c6605cc9	
+不適用	0	484134e1eb07	stable	6.12.104	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	ip6_tunnel: clear skb2->cb[] in ip6ip6_err()	f803c086399d	
+不適用	0	50750d86a2e5	stable	6.12.93	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	tunnels: load network headers after skb_cow() in iptunnel_pmtud_build_icmp[v6]()	b4bc94353050	
+不適用	0	594a064d6032	stable	6.12.105	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_u32: skip hash tables in u32_bind_class()	6d3724e616fa	
+不適用	0	5cf41031922c	stable	6.12.81	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_fw: fix NULL pointer dereference on shared blocks	faeea8bbf6e9	
+不適用	0	63f3d08a7b57	stable	6.12.110	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sch_codel: clamp default mtu to avoid disabling CoDel	6439461f1618	
+不適用	0	6890e28840ba	stable	6.12.111	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_u32: fix duplicate handle when node ID pool is exhausted	d7e7e98d23f4	
+不適用	0	6de2a650917b	stable	6.12.96	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: af_key: initialize alg_key_len for IPComp states	d129c3177d7b	
+不適用	0	795cb393e389	stable	6.12.42	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: Restrict conditions for adding duplicating netems to qdisc tree	ec8e0e3d7ade	
+不適用	0	7b18692c59af	stable	6.12.80	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	af_key: validate families in pfkey_send_migrate()	eb2d16a7d599	
+不適用	0	7c09843fd2b4	stable	6.12.97	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sch_fq_codel: Do not call qdisc_tree_reduce_backlog during peek before restoring qlen	097f6fc7b1ae	
+不適用	0	81af4137a30c	stable	6.12.86	net	修正	可套用（3-way）	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: bridge: use a stable FDB dst snapshot in RCU readers	df4601653201	
+不適用	0	829808cbf8cf	stable	6.12.93	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_fw: fix NULL dereference of "old" filters before change()	65782b2db732	
+不適用	0	8c9611f7ba3e	stable	6.12.110	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sch_htb: limit htb_classify inner-class filter hops	729c4896ab82	
+不適用	0	8fda51742861	stable	6.12.91	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: act_mirred: fix wrong device for mac_header_xmit check in tcf_blockcast_redir	4510d140524c	
+不適用	0	94c900a2010b	stable	6.12.91	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: netem: validate slot configuration	01801c359a74	
+不適用	0	9bf5fc36a43f	stable	6.12.81	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_flow: fix NULL pointer dereference on shared blocks	1a280dd4bd1d	
+不適用	0	a27498d34c3f	stable	6.12.110	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: fq: clamp quantum and initial_quantum in change path	094cc07f98df	
+不適用	0	aa73deb3b6b7	stable	6.12.77	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: bridge: fix nd_tbl NULL dereference when IPv6 is disabled	e5e890630533	
+不適用	0	abf4feaee640	stable	6.12.78	net	修正	可套用（3-way）	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: nexthop: fix percpu use-after-free in remove_nh_grp_entry	b2662e7593e9	
+不適用	0	ad85961004fd	stable	6.12.91	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	nexthop: fix IPv6 route referencing IPv4 nexthop	29c95185ba32	
+不適用	0	bbfef303f980	stable	6.12.110	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: page_pool: fix UAF in __page_pool_release_netmem_dma on xa_cmpxchg race	24ef02f934ee	
+不適用	0	bdb19cd0de73	stable	6.12.44	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: bridge: fix soft lockup in br_multicast_query_expired()	d1547bf460ba	net/bridge/br_private.h: 巨集
+不適用	0	bdced577da71	stable	6.12.67	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	bridge: mcast: Fix use-after-free during router port configuration	7544f3f5b0b5	
+不適用	0	bf3843183bc3	stable	6.12.58	net	修正	可套用	中	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: bridge: fix use-after-free due to MST port state bypass	8dca36978aa8	net/bridge/br_private.h: 宣告 br_mst_is_enabled 有改
+不適用	0	cee6688e5731	stable	6.12.97	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net: udp_tunnel: prevent double queueing in udp_tunnel_nic_device_sync	ecf69d4b4337	
+不適用	0	d16dac3925be	stable	6.12.110	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: fq: add overflow bounds to quantum and initial quantum	709f34f7c28d	
+不適用	0	d72dbdfaeb5b	stable	6.12.110	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sfq: clamp quantum to avoid signed overflow soft lockup	816e90057ab1	
+不適用	0	df5ffde96693	stable	6.12.67	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	ip6_tunnel: use skb_vlan_inet_prepare() in __ip6_tnl_rcv()	81c734dae203	
+不適用	0	e055ca9205d3	stable	6.12.94	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	netdev: fix double-free in netdev_nl_bind_rx_doit()	c849de7d8757	
+不適用	0	e41a23e61259	stable	6.12.70	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: cls_u32: use skb_header_pointer_careful()	cabd1a976375	
+不適用	0	e4615aa6bb78	stable	6.12.97	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sch_codel: Do not call qdisc_tree_reduce_backlog during peek before restoring qlen	52f1da34c9f4	
+不適用	0	e5c480dc62a3	stable	6.12.40	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: Return NULL when htb_lookup_leaf encounters an empty rbtree	0e1d5d9b5c59	
+不適用	0	ebe5561154c8	stable	6.12.92	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	bridge: mcast: Fix a possible use-after-free when removing a bridge port	4df78ff02629	
+不適用	0	f0e49fd13afe	stable	6.12.50	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	nexthop: Forbid FDB status change while nexthop is in a group	390b3a300d78	
+不適用	0	f3820dce042a	stable	6.12.111	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: sfq: clamp quantum in change path	fb9f88a33c51	
+不適用	0	fbe4adfe0834	stable	6.12.91	net	修正	衝突需改寫	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	page_pool: fix memory-provider leak in page_pool_create_percpu() error path	5ef343614db7	
+不適用	0	ffb40e6e6c0b	stable	6.12.91	net	修正	可套用	低	實機沒用到（qdisc 只有 pfifo_fast／mq／clsact，沒有 bridge、pfkey、tunnel、nexthop、XDP）	net/sched: netem: fix slot delay calculation overflow	51e94e1e2fef	
+不適用	0	c6d2af3b217a	stable	6.12.96	typec	修正	可套用（3-way）	低	高通用 ucsi_glink，不走 tcpm	usb: typec: tcpm: Validate SVID index in svdm_consume_modes()	7b681dd5fbf6	
+不適用	0	d731216d1e2b	stable	6.12.96	typec	修正	可套用	低	高通用 ucsi_glink，不走 tcpm	usb: typec: tcpm: Fix VDM type for Enter Mode commands	9cff680e4763	
+基底已有	1	459c818f8	ACK android16-6.12		ufs	修正	衝突需改寫	低	v8 的 0007 就是這三個 upstream patch 合併後的結果	UPSTREAM: scsi: ufs: core: Fix error handler host_sem issue	e23ef4f22db3	
+基底已有	1	7ef00d345	ACK android16-6.12		ufs	修正	可套用	低	v8 的 0007 就是這三個 upstream patch 合併後的結果	UPSTREAM: scsi: ufs: core: Fix runtime suspend error deadlock	f966e02ae521	
+基底已有	1	a460b437a	ACK android16-6.12		ufs	修正	基底已有	低	v8 的 0007 就是這三個 upstream patch 合併後的結果	UPSTREAM: scsi: ufs: core: Fix an error handler crash	14be351e5cd0	
+基底已有	2	e63032dc7150	stable	6.12.96	binder	修正	衝突需改寫	低	基底已有更完整的 2df1e89cb：binder_free_transaction() 在 t->lock 底下讀 to_proc，並 pin target_thread	binder: fix UAF in binder_thread_release()	114a116aaa5f	
+基底已有	2	5f93a67a7	ACK android16-6.12		f2fs	修正	衝突需改寫	低	基底已有，且含後續的 FI_ATOMIC_COMMITTED 判斷（70bc670f4）	UPSTREAM: f2fs: fix to avoid atomicity corruption of atomic file	f098aeba04c9	
+基底已有	4	db81ad20fd8a	stable	6.12.59	net	修正	衝突需改寫	低	Google 已以 UPSTREAM 0de7c0db0 補進 2025-09；後續 commit 改了上下文，反向套用沒偵測到	af_unix: Initialise scc_index in unix_add_edge().	60e6489f8e3b	
+基底已有	0	1c8fffa12	ACK android16-6.12		binder	修正	基底已有	低	自動篩出，未逐項審	BACKPORT: FROMGIT: binder: fix UAF in binder_netlink_report()	5e8a3d015442	
+基底已有	0	2df1e89cb	ACK android16-6.12		binder	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: binder: fix UAF in binder_free_transaction()	d45ef513eed1	
+基底已有	0	e7a034a56	ACK android16-6.12		binder	修正	基底已有	低	自動篩出，未逐項審	ANDROID: binder: fix minimum node priority comparison		
+基底已有	0	030ed2af4	ACK android16-6.12		dm	修正	基底已有	低	自動篩出，未逐項審	ANDROID: dm-bow: Fix Use-After-free in dm_bow_dtr()		
+基底已有	0	03dc06797	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to detect gcing page in f2fs_is_cp_guaranteed()	aa1be8dd6416	
+基底已有	0	44c66f24d	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to do sanity check on sit_bitmap_size	5db0d252c64e	
+基底已有	0	46cffed3c	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: don't retry IO for corrupted data scenario	1534747d3170	
+基底已有	0	5161413c6	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to correct check conditions in f2fs_cross_rename	9883494c45a1	
+基底已有	0	5f937a44f	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to return SHRINK_EMPTY if no objects to free	bd409934c061	
+基底已有	0	63352a68f	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to skip f2fs_balance_fs() if checkpoint is disabled	c836d3b8d94e	
+基底已有	0	6ffe70953	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix missing discard for active segments	21263d035ff2	
+基底已有	0	74d87b5fd	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to do sanity check on sbi->total_valid_block_count	05872a167c2c	fs/f2fs/f2fs.h: inline／header 內容
+基底已有	0	91fe72852	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to avoid out-of-bounds access in f2fs_truncate_inode_blocks()	e6494977bd4a	
+基底已有	0	a1bbe89ff	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix potential deadloop in prepare_compress_overwrite()	3147ee567dd9	
+基底已有	0	ad5197b05	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to call f2fs_recover_quota_end() correctly	d8f5b91d77a6	
+基底已有	0	afb757a93	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to bail out in get_new_segment()	bb5eb8a5b222	include/linux/f2fs_fs.h: enum stop_cp_reason（非 KMI）
+基底已有	0	c5148581b	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	FROMGIT: f2fs: fix infinite loop in __insert_extent_tree()	23361bd54966	
+基底已有	0	ea4956ef3	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: f2fs: fix to avoid UAF in f2fs_sync_inode_meta()		
+基底已有	0	fc2f50b65	ACK android16-6.12		f2fs	修正	基底已有	低	自動篩出，未逐項審	BACKPORT: f2fs: fix UAF issue in f2fs_merge_page_bio()	edf7e9040fc5	
+基底已有	0	39bb8df5b	ACK android16-6.12		fuse	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fuse-bpf: Fix the issue of abnormal lseek system calls		
+基底已有	0	88680fe19	ACK android16-6.12		fuse	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fuse-bpf: Fix recursion in fuse_copy_file_range		
+基底已有	0	a1ffef555	ACK android16-6.12		fuse	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fuse-bpf: Fix VFS locking in file creation		
+基底已有	0	a56cf2e25	ACK android16-6.12		fuse	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fuse-bpf: atomic backing inode swap and refcount fix		
+基底已有	0	da324a107	ACK android16-6.12		fuse	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fuse-bpf: Fix readdir for getdents		
+基底已有	0	e74443f5db00	LunaKernel／stable	6.12.100	time	修正	基底已有	低	自動篩出，未逐項審	posix-cpu-timers: Prevent UAF caused by non-leader exec()		
+基底已有	0	12cbb992b	ACK android16-6.12		ufs	修正	基底已有	低	自動篩出，未逐項審	UPSTREAM: scsi: ufs: core: Fix error return with query response	1a78a56ea652	
+基底已有	0	32d79853e	ACK android16-6.12		ufs	修正	基底已有	低	自動篩出，未逐項審	FROMGIT: scsi: core: ufs: Fix a hang in the error handler	8a3514d348de	
+基底已有	0	8ff877aa6	ACK android16-6.12		ufs	修正	基底已有	低	自動篩出，未逐項審	ANDROID: fix android-specific bug in ufshcd.c		
+基底已有	0	21ed84930	ACK android16-6.12		xhci	修正	基底已有	中	自動篩出，未逐項審	UPSTREAM: Revert "usb: xhci: Implement xhci_handshake_check_state() helper"	7aed15379db9	drivers/usb/host/xhci.h: 宣告 xhci_handshake_check_state 有改
+重複	0	1ac5be05b	ACK android16-6.12		binder	修正	衝突需改寫	低	同一個修正已列為 e63032dc7150	UPSTREAM: binder: fix UAF in binder_thread_release()	e63032dc7150	
+重複	0	abdb3eb9a	ACK android16-6.12		binder	修正	可套用	低	同一個修正已列為 c301ec61ce6f	FROMGIT: binder: fix double-free in dbitmap	3ebcd3460cad	drivers/android/dbitmap.h: inline／header 內容
+重複	0	2d9c4a4ed4ee	LunaKernel／mainline		f2fs	修正	衝突需改寫	低	同一個修正已列為 7be222de96c0	f2fs: fix UAF caused by decrementing sbi->nr_pages[] in		
+重複	0	64d481b3e	ACK android16-6.12		f2fs	修正	衝突需改寫	低	同一個修正已列為 58a5deb220bc	UPSTREAM: f2fs: fix incorrect FI_NO_EXTENT handling in __destroy_extent_node()	1f70ddb28a3c	
+重複	0	abcdfdd5e	ACK android16-6.12		f2fs	修正	衝突需改寫	低	同一個修正已列為 2dda0930fb79	UPSTREAM: f2fs: fix to avoid panic once fallocation fails for pinfile	48ea8b200414	
+重複	0	ec806d3e1	ACK android16-6.12		f2fs	修正	可套用	低	同一個修正已列為 25d2dc669f2a	BACKPORT: f2fs: fix to avoid migrating empty section	d625a2b08c08	
+重複	0	f222c1f72	ACK android16-6.12		f2fs	修正	可套用	低	同一個修正已列為 56038756aae6	BACKPORT: FROMGIT: f2fs: atomic: fix UAF issue on f2fs_inode_info.atomic_inode	58b17244049f	
+重複	0	a3d06921c	ACK android16-6.12		fuse	修正	可套用	低	同一個修正已列為 a3d06921ce75	ANDROID: fuse-bpf: fix verifier bypass in fuse_prog_is_valid_access		
+重複	0	7ee04de32	ACK android16-6.12		xhci	修正	可套用	中	同一個修正已列為 7ee04de323f7	BACKPORT: Revert "usb: xhci: remove option to change a default ring's TRB cycle bit"	cbfd3c7d4ed2	drivers/usb/host/xhci.h: 宣告 xhci_ring_alloc 有改

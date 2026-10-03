@@ -1,0 +1,30 @@
+# 來源：linux-6.12.y stable a170b9c0dde8（upstream b549113738e8，6.12.50）
+# futex: Prevent use-after-free during requeue-PI
+# futex PI／robust list 的 UAF 與 race
+diff --git a/kernel/futex/requeue.c b/kernel/futex/requeue.c
+index b26a87ff93..f4a6994278 100644
+--- a/kernel/futex/requeue.c
++++ b/kernel/futex/requeue.c
+@@ -225,18 +225,20 @@ static inline
+ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
+ 			   struct futex_hash_bucket *hb)
+ {
+-	q->key = *key;
++	struct task_struct *task;
+ 
++	q->key = *key;
+ 	__futex_unqueue(q);
+ 
+ 	WARN_ON(!q->rt_waiter);
+ 	q->rt_waiter = NULL;
+ 
+ 	q->lock_ptr = &hb->lock;
++	task = READ_ONCE(q->task);
+ 
+ 	/* Signal locked state to the waiter */
+ 	futex_requeue_pi_complete(q, 1);
+-	wake_up_state(q->task, TASK_NORMAL);
++	wake_up_state(task, TASK_NORMAL);
+ }
+ 
+ /**

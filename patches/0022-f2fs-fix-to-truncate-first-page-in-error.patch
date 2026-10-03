@@ -1,0 +1,25 @@
+# 來源：linux-6.12.y stable a7b7ebdd7045（upstream 9251a9e6e871，6.12.53）
+# f2fs: fix to truncate first page in error path of f2fs_truncate()
+# f2fs_truncate() 錯誤路徑沒截掉第一頁
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index f7ff11d71b..950acbb468 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -908,8 +908,16 @@ int f2fs_truncate(struct inode *inode)
+ 	/* we should check inline_data size */
+ 	if (!f2fs_may_inline_data(inode)) {
+ 		err = f2fs_convert_inline_inode(inode);
+-		if (err)
++		if (err) {
++			/*
++			 * Always truncate page #0 to avoid page cache
++			 * leak in evict() path.
++			 */
++			truncate_inode_pages_range(inode->i_mapping,
++					F2FS_BLK_TO_BYTES(0),
++					F2FS_BLK_END_BYTES(0));
+ 			return err;
++		}
+ 	}
+ 
+ 	err = f2fs_truncate_blocks(inode, i_size_read(inode), true);

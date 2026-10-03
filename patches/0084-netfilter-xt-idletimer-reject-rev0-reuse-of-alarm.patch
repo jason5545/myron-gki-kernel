@@ -1,0 +1,21 @@
+# 來源：linux-6.12.y stable 5e7ece24c5cb（upstream 329f0b9b48ee，6.12.78）
+# netfilter: xt_IDLETIMER: reject rev0 reuse of ALARM timer labels
+# xt_IDLETIMER 重用 ALARM 標籤；Android 用它追蹤網路介面閒置
+# 以 3-way 合併套到 v8，內容與原 commit 相同，只有上下文不同
+diff --git a/net/netfilter/xt_IDLETIMER.c b/net/netfilter/xt_IDLETIMER.c
+index 2157f77173..3b6830d89f 100644
+--- a/net/netfilter/xt_IDLETIMER.c
++++ b/net/netfilter/xt_IDLETIMER.c
+@@ -571,6 +571,12 @@ static int idletimer_tg_checkentry(const struct xt_tgchk_param *par)
+ 
+ 	info->timer = __idletimer_tg_find_by_label(info->label);
+ 	if (info->timer) {
++		if (info->timer->timer_type & XT_IDLETIMER_ALARM) {
++			pr_debug("Adding/Replacing rule with same label and different timer type is not allowed\n");
++			mutex_unlock(&list_mutex);
++			return -EINVAL;
++		}
++
+ 		info->timer->refcnt++;
+ 		reset_timer(info->timer, info->timeout, NULL);
+ 		pr_debug("increased refcnt of timer %s to %u\n",

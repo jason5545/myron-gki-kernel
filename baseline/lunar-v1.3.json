@@ -1,0 +1,20 @@
+{
+  "size": 41110016,
+  "sha256": "65412d32d3d9fdb3a8e0865528198a582cf7902d53cbddaaec4eafead2b4e4b0",
+  "kind": "kernel",
+  "image_sha256": "65412d32d3d9fdb3a8e0865528198a582cf7902d53cbddaaec4eafead2b4e4b0",
+  "image_size": 41110016,
+  "release": "6.12.23-gb050bfa1f91e-LunarKernel-V1.3",
+  "kmi": null,
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG_PROTECT": "n",
+    "CONFIG_KSU": "y"
+  },
+  "package_sha256": "ba41a8560ab2af1f419f83718f97ef513fe5c19a17cecb800b612842f50d1728",
+  "package_version": "LunarKernel 6.12 bootstrap V1.3\n6.12.23-gb050bfa1f91e-LunarKernel-V1.3\nSource: b050bfa1f91e740de561ea118b36106d72ed6ff8\nDirty files: 3\nBuilt: Sat Jul 25 21:35:49 UTC 2026",
+  "supported_android_versions": "",
+  "file": "LunarKernel-v1.3.zip"
+}

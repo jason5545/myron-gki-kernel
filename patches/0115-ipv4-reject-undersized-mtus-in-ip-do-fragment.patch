@@ -1,0 +1,18 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 36e0741833bd（upstream c0726f0caf8c，6.12.106）
+# ipv4: reject undersized MTUs in ip_do_fragment()
+# 分片與 MTU 檢查（LunaKernel 已採用）
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index ba51fc4253..3dec9d0dba 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -798,6 +798,10 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 	 */
+ 
+ 	hlen = iph->ihl * 4;
++	if (mtu < hlen + 8) {
++		err = -EMSGSIZE;
++		goto fail;
++	}
+ 	mtu = mtu - hlen;	/* Size of data space */
+ 	IPCB(skb)->flags |= IPSKB_FRAG_COMPLETE;
+ 	ll_rs = LL_RESERVED_SPACE(rt->dst.dev);

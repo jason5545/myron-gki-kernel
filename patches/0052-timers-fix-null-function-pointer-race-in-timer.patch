@@ -1,0 +1,22 @@
+# 來源：linux-6.12.y stable 176725f48483（upstream 20739af07383，6.12.60）
+# timers: Fix NULL function pointer race in timer_shutdown_sync()
+# timer_shutdown_sync() 的 NULL 函式指標 race
+diff --git a/kernel/time/timer.c b/kernel/time/timer.c
+index af47680799..9c58240f02 100644
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1508,10 +1508,11 @@ static int __try_to_del_timer_sync(struct timer_list *timer, bool shutdown)
+ 
+ 	base = lock_timer_base(timer, &flags);
+ 
+-	if (base->running_timer != timer)
++	if (base->running_timer != timer) {
+ 		ret = detach_if_pending(timer, base, true);
+-	if (shutdown)
+-		timer->function = NULL;
++		if (shutdown)
++			timer->function = NULL;
++	}
+ 
+ 	raw_spin_unlock_irqrestore(&base->lock, flags);
+ 

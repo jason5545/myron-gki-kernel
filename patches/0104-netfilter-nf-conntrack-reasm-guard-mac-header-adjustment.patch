@@ -1,0 +1,17 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 53ef70a31542（upstream 3b08fed5b7e0，6.12.97）
+# netfilter: nf_conntrack_reasm: guard mac_header adjustment
+# conntrack 修正（LunaKernel 已採用）
+diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
+index 4120e67a8c..071090c6ad 100644
+--- a/net/ipv6/netfilter/nf_conntrack_reasm.c
++++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
+@@ -345,7 +345,8 @@ static int nf_ct_frag6_reasm(struct frag_queue *fq, struct sk_buff *skb,
+ 	skb_network_header(skb)[fq->nhoffset] = skb_transport_header(skb)[0];
+ 	memmove(skb->head + sizeof(struct frag_hdr), skb->head,
+ 		(skb->data - skb->head) - sizeof(struct frag_hdr));
+-	skb->mac_header += sizeof(struct frag_hdr);
++	if (skb_mac_header_was_set(skb))
++		skb->mac_header += sizeof(struct frag_hdr);
+ 	skb->network_header += sizeof(struct frag_hdr);
+ 
+ 	skb_reset_transport_header(skb);

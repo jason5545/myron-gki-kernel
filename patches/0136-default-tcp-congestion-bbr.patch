@@ -1,0 +1,17 @@
+# 來源：本專案，Jason 2026/10/3 指定
+# 預設 TCP 擁塞控制改為 BBR，開機就套用
+# 只改 0005 建立的 myron_tuning.fragment：CONFIG_DEFAULT_CUBIC 換成 CONFIG_DEFAULT_BBR；BBR 本身 0005 已內建。
+diff --git a/arch/arm64/configs/myron_tuning.fragment b/arch/arm64/configs/myron_tuning.fragment
+index 0a3824abb8..e4150be3b6 100644
+--- a/arch/arm64/configs/myron_tuning.fragment
++++ b/arch/arm64/configs/myron_tuning.fragment
+@@ -1,7 +1,7 @@
+-# 取自 LunarKernel v1.8.1、ACK 已有實作的設定；預設擁塞控制維持 cubic。
++# 取自 LunarKernel v1.8.1、ACK 已有實作的設定；預設擁塞控制依 Jason 2026/10/3 指定改為 BBR。
+ CONFIG_TCP_CONG_ADVANCED=y
+ CONFIG_TCP_CONG_BBR=y
+-CONFIG_DEFAULT_CUBIC=y
++CONFIG_DEFAULT_BBR=y
+ # 其餘擁塞控制預設會編成模組，GKI 模組清單沒有它們。
+ # CONFIG_TCP_CONG_BIC is not set
+ # CONFIG_TCP_CONG_WESTWOOD is not set

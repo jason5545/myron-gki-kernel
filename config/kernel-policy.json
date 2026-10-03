@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "description": "沿用原廠模組，保留 CRC 與 CFI，採用 LK 的匯出相容策略。",
+  "required": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG": "y",
+    "CONFIG_MODULE_SIG_ALL": "y",
+    "CONFIG_MODULE_SIG_FORCE": "n",
+    "CONFIG_MODULE_SIG_PROTECT_LIST": "\"\"",
+    "CONFIG_MODULE_SIG_PROTECT": "n",
+    "CONFIG_TRIM_UNUSED_KSYMS": "n",
+    "CONFIG_MODULE_FORCE_LOAD": "n",
+    "CONFIG_ANDROID_BINDER_IPC_RUST": "m",
+    "CONFIG_ZRAM": "m",
+    "CONFIG_ZSMALLOC": "m",
+    "CONFIG_KSU": "y",
+    "CONFIG_KSU_SUSFS": "y",
+    "CONFIG_KSU_MULTI_MANAGER_SUPPORT": "y",
+    "CONFIG_KALLSYMS_ALL": "y",
+    "CONFIG_KSU_DISABLE_MANAGER": "n",
+    "CONFIG_KSU_DISABLE_POLICY": "n",
+    "CONFIG_KSU_DEBUG": "n",
+    "CONFIG_KSU_TOOLKIT_SUPPORT": "n",
+    "CONFIG_TCP_CONG_BBR": "y",
+    "CONFIG_DEFAULT_TCP_CONG": "\"bbr\"",
+    "CONFIG_WQ_POWER_EFFICIENT_DEFAULT": "y",
+    "CONFIG_TMPFS_XATTR": "y",
+    "CONFIG_TMPFS_POSIX_ACL": "y"
+  },
+  "standby": {
+    "requested_default": false,
+    "implemented": false,
+    "status": "skipped_by_user",
+    "reason": "Jason 確認沒有 LK 待機功能的來源，已指示跳過。"
+  },
+  "abi_exceptions": {
+    "rust_binder.ko": "手機使用 C binder（kcmdline.binder=c，rust_binder 引用數 0、沒有依賴模組）。它由 /vendor/bin/system_dlkm_modprobe.sh 第二階段逐一載入，失敗不影響其他模組；該目錄第一個模組是 gzvm.ko。Rust kernel crate 符號不在 KMI 保證內，6.12.38 與原廠 6.12.23 不同。Jason 2026/10/2 同意。"
+  }
+}

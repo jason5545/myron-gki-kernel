@@ -1,0 +1,37 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 5b029dd854f8（upstream 691b052139c9，6.12.97）
+# block: fix race in blk_time_get_ns() returning 0
+# blk_time_get_ns() 被搶占時回傳 0（LunaKernel 已採用）
+diff --git a/block/blk.h b/block/blk.h
+index f252a9056b..1c881adfc5 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -657,6 +657,7 @@ static inline int req_ref_read(struct request *req)
+ static inline u64 blk_time_get_ns(void)
+ {
+ 	struct blk_plug *plug = current->plug;
++	u64 now;
+ 
+ 	if (!plug || !in_task())
+ 		return ktime_get_ns();
+@@ -665,12 +666,18 @@ static inline u64 blk_time_get_ns(void)
+ 	 * 0 could very well be a valid time, but rather than flag "this is
+ 	 * a valid timestamp" separately, just accept that we'll do an extra
+ 	 * ktime_get_ns() if we just happen to get 0 as the current time.
++	 *
++	 * cur_ktime can be zeroed by pre-emption the moment PF_BLOCK_TS is set.
+ 	 */
+-	if (!plug->cur_ktime) {
+-		plug->cur_ktime = ktime_get_ns();
++	now = READ_ONCE(plug->cur_ktime);
++	if (!now) {
++		now = ktime_get_ns();
++		WRITE_ONCE(plug->cur_ktime, now);
++		/* Ensure PF_BLOCK_TS is set after cur_ktime. */
++		barrier();
+ 		current->flags |= PF_BLOCK_TS;
+ 	}
+-	return plug->cur_ktime;
++	return now;
+ }
+ 
+ static inline ktime_t blk_time_get(void)

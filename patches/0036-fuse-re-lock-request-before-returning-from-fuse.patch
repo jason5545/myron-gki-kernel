@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable e6aa539720c3（upstream b5befa80fdbe，6.12.96）
+# fuse: re-lock request before returning from fuse_ref_folio()
+# FUSE 替換 page cache folio 前沒重新上鎖，UAF；/sdcard 走 FUSE
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index 9cf2561fba..3eb93b9d6f 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -971,7 +971,7 @@ static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
+ 	cs->nr_segs++;
+ 	cs->len = 0;
+ 
+-	return 0;
++	return lock_request(cs->req);
+ }
+ 
+ /*

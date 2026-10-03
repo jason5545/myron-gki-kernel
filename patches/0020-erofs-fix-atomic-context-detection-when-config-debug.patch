@@ -1,0 +1,34 @@
+# 來源：linux-6.12.y stable cc2ec79a6cb1（upstream c99fab6e80b7，6.12.45）
+# erofs: fix atomic context detection when !CONFIG_DEBUG_LOCK_ALLOC
+# 非 DEBUG_LOCK_ALLOC 的正式核心誤判 atomic context，可能在不能睡眠時同步解壓
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index b5b8f641cc..8e9b580362 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1454,6 +1454,16 @@ static void z_erofs_decompressqueue_kthread_work(struct kthread_work *work)
+ }
+ #endif
+ 
++/* Use (kthread_)work in atomic contexts to minimize scheduling overhead */
++static inline bool z_erofs_in_atomic(void)
++{
++	if (IS_ENABLED(CONFIG_PREEMPTION) && rcu_preempt_depth())
++		return true;
++	if (!IS_ENABLED(CONFIG_PREEMPT_COUNT))
++		return true;
++	return !preemptible();
++}
++
+ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ 				       int bios)
+ {
+@@ -1468,8 +1478,7 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+ 
+ 	if (atomic_add_return(bios, &io->pending_bios))
+ 		return;
+-	/* Use (kthread_)work and sync decompression for atomic contexts only */
+-	if (!in_task() || irqs_disabled() || rcu_read_lock_any_held()) {
++	if (z_erofs_in_atomic()) {
+ #ifdef CONFIG_EROFS_FS_PCPU_KTHREAD
+ 		struct kthread_worker *worker;
+ 

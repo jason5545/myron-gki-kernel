@@ -1,0 +1,25 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 8dd8929b71c4（upstream c283e9ada7fc，6.12.106）
+# xfrm: fix sk_dst_cache double-free in xfrm_user_policy()
+# xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index ad3aafaede..1090a31e40 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2879,7 +2879,7 @@ int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
+ 	if (sockptr_is_null(optval) && !optlen) {
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_IN, NULL);
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_OUT, NULL);
+-		__sk_dst_reset(sk);
++		sk_dst_reset(sk);
+ 		return 0;
+ 	}
+ 
+@@ -2920,7 +2920,7 @@ int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
+ 	if (err >= 0) {
+ 		xfrm_sk_policy_insert(sk, err, pol);
+ 		xfrm_pol_put(pol);
+-		__sk_dst_reset(sk);
++		sk_dst_reset(sk);
+ 		err = 0;
+ 	}
+ 

@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 43de8a49335e（upstream 136992de9bb9，6.12.101）
+# xfrm6: clear dst.dev on error to avoid double netdev_put in
+# xfrm 修正；IWLAN／VPN 會用到（LunaKernel 已採用）
+diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+index 125ea9a5b8..3b749475f6 100644
+--- a/net/ipv6/xfrm6_policy.c
++++ b/net/ipv6/xfrm6_policy.c
+@@ -88,6 +88,7 @@ static int xfrm6_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
+ 	xdst->u.rt6.rt6i_idev = in6_dev_get(dev);
+ 	if (!xdst->u.rt6.rt6i_idev) {
+ 		netdev_put(dev, &xdst->u.dst.dev_tracker);
++		xdst->u.dst.dev = NULL;
+ 		return -ENODEV;
+ 	}
+ 

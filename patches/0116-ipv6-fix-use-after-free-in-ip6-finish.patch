@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 3c770ac4e6f0（upstream d0d48d999b0e，6.12.106）
+# ipv6: fix use-after-free in ip6_finish_output2()
+# IPv6 輸出、dst 快取、fnhe 的 UAF 與 race
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 3d288e945e..12bc5dd46b 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -119,6 +119,8 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
+ 
+ 		if (res != LWTUNNEL_XMIT_CONTINUE)
+ 			return res;
++		hdr = ipv6_hdr(skb);
++		daddr = &hdr->daddr;
+ 	}
+ 
+ 	IP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUT, skb->len);

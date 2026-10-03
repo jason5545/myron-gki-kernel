@@ -1,0 +1,28 @@
+# 來源：linux-6.12.y stable 005671c60fcf（upstream 2a71a1a8d0ed，6.12.66）
+# net: sock: fix hardened usercopy panic in sock_recv_errqueue
+# sock_recv_errqueue() 觸發 hardened usercopy panic
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 1fe274c3eb..6b5c84bc23 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3761,7 +3761,7 @@ void sock_enable_timestamp(struct sock *sk, enum sock_flags flag)
+ int sock_recv_errqueue(struct sock *sk, struct msghdr *msg, int len,
+ 		       int level, int type)
+ {
+-	struct sock_exterr_skb *serr;
++	struct sock_extended_err ee;
+ 	struct sk_buff *skb;
+ 	int copied, err;
+ 
+@@ -3781,8 +3781,9 @@ int sock_recv_errqueue(struct sock *sk, struct msghdr *msg, int len,
+ 
+ 	sock_recv_timestamp(msg, sk, skb);
+ 
+-	serr = SKB_EXT_ERR(skb);
+-	put_cmsg(msg, level, type, sizeof(serr->ee), &serr->ee);
++	/* We must use a bounce buffer for CONFIG_HARDENED_USERCOPY=y */
++	ee = SKB_EXT_ERR(skb)->ee;
++	put_cmsg(msg, level, type, sizeof(ee), &ee);
+ 
+ 	msg->msg_flags |= MSG_ERRQUEUE;
+ 	err = copied;

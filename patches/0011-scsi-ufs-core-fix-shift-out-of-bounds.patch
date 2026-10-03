@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 6557af8245c0（upstream 2f38fd99c000，6.12.78）
+# scsi: ufs: core: Fix shift out of bounds when MAXQ=32
+# MCQ 模式（實機 use_mcq_mode=Y）下 MAXQ=32 的位移越界
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index 63457cf195..5a11cb32ea 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -7132,7 +7132,7 @@ static irqreturn_t ufshcd_handle_mcq_cq_events(struct ufs_hba *hba)
+ 
+ 	ret = ufshcd_vops_get_outstanding_cqs(hba, &outstanding_cqs);
+ 	if (ret)
+-		outstanding_cqs = (1U << hba->nr_hw_queues) - 1;
++		outstanding_cqs = (1ULL << hba->nr_hw_queues) - 1;
+ 
+ 	/* Exclude the poll queues */
+ 	nr_queues = hba->nr_hw_queues - hba->nr_queues[HCTX_TYPE_POLL];

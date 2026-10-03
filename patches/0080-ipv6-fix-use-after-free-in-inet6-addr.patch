@@ -1,0 +1,22 @@
+# 來源：linux-6.12.y stable 2684610a9c9c（upstream ddf96c393a33，6.12.67）
+# ipv6: Fix use-after-free in inet6_addr_del().
+# IPv6 位址、MLD、IGMP 的 UAF
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index a54be12ac7..64910ae109 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3164,12 +3164,12 @@ static int inet6_addr_del(struct net *net, int ifindex, u32 ifa_flags,
+ 			in6_ifa_hold(ifp);
+ 			read_unlock_bh(&idev->lock);
+ 
+-			ipv6_del_addr(ifp);
+-
+ 			if (!(ifp->flags & IFA_F_TEMPORARY) &&
+ 			    (ifp->flags & IFA_F_MANAGETEMPADDR))
+ 				delete_tempaddrs(idev, ifp);
+ 
++			ipv6_del_addr(ifp);
++
+ 			addrconf_verify_rtnl(net);
+ 			if (ipv6_addr_is_multicast(pfx)) {
+ 				ipv6_mc_config(net->ipv6.mc_autojoin_sk,

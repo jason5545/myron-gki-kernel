@@ -1,0 +1,16 @@
+# 來源：ACK android16-6.12（LunaKernel r21 也採用） a3d06921ce75
+# ANDROID: fuse-bpf: fix verifier bypass in
+# fuse-bpf verifier 繞過（LunaKernel 已採用）
+diff --git a/kernel/bpf/bpf_fuse.c b/kernel/bpf/bpf_fuse.c
+index c6aa670bc5..992eb2dd5a 100644
+--- a/kernel/bpf/bpf_fuse.c
++++ b/kernel/bpf/bpf_fuse.c
+@@ -53,6 +53,8 @@ static bool fuse_prog_is_valid_access(int off, int size,
+ 		if (off == offsetof(struct fuse_bpf_args, out_args[i].value)) {
+ 			info->reg_type = PTR_TO_BUF;
+ 			info->ctx_field_size = 256;
++			if (type != BPF_READ)
++				return false;
+ 			return true;
+ 		}
+ 	}

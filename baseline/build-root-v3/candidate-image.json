@@ -1,0 +1,33 @@
+{
+  "size": 40614400,
+  "sha256": "6c5d676bbab21995bc0056e36c2572efe9499ef3940025ca89cd29d39be7839b",
+  "kind": "kernel",
+  "image_sha256": "6c5d676bbab21995bc0056e36c2572efe9499ef3940025ca89cd29d39be7839b",
+  "image_size": 40614400,
+  "release": "6.12.23-android16-5-maybe-dirty-4k",
+  "kmi": "6.12-android16-5",
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG": "y",
+    "CONFIG_MODULE_SIG_ALL": "y",
+    "CONFIG_MODULE_SIG_FORCE": "n",
+    "CONFIG_MODULE_SIG_PROTECT_LIST": "\"\"",
+    "CONFIG_MODULE_SIG_PROTECT": "n",
+    "CONFIG_TRIM_UNUSED_KSYMS": "n",
+    "CONFIG_MODULE_FORCE_LOAD": "n",
+    "CONFIG_ANDROID_BINDER_IPC_RUST": "m",
+    "CONFIG_ZRAM": "m",
+    "CONFIG_ZSMALLOC": "m",
+    "CONFIG_KSU": "y",
+    "CONFIG_KSU_SUSFS": "y",
+    "CONFIG_KSU_MULTI_MANAGER_SUPPORT": "y",
+    "CONFIG_KALLSYMS_ALL": "y",
+    "CONFIG_KSU_DISABLE_MANAGER": "n",
+    "CONFIG_KSU_DISABLE_POLICY": "n",
+    "CONFIG_KSU_DEBUG": "n",
+    "CONFIG_KSU_TOOLKIT_SUPPORT": "n"
+  },
+  "file": "Image"
+}

@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable f98c4cec7504（upstream a3c4a125ec72，6.12.39）
+# netlink: Fix rmem check in netlink_broadcast_deliver().
+# 上一項在 broadcast 路徑的比較條件修正
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 116c183d0e..542ac9317b 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1398,7 +1398,7 @@ static int netlink_broadcast_deliver(struct sock *sk, struct sk_buff *skb)
+ 	rmem = atomic_add_return(skb->truesize, &sk->sk_rmem_alloc);
+ 	rcvbuf = READ_ONCE(sk->sk_rcvbuf);
+ 
+-	if ((rmem != skb->truesize || rmem <= rcvbuf) &&
++	if ((rmem == skb->truesize || rmem <= rcvbuf) &&
+ 	    !test_bit(NETLINK_S_CONGESTED, &nlk->state)) {
+ 		netlink_skb_set_owner_r(skb, sk);
+ 		__netlink_sendskb(sk, skb);

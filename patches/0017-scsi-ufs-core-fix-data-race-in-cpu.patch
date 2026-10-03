@@ -1,0 +1,70 @@
+# 來源：ACK android16-6.12 e6f3cb873
+# BACKPORT: FROMLIST: scsi: ufs: core: Fix data race in CPU latency PM QoS request handling
+# 高通提交的 UFS CPU latency PM QoS race，會造成 list 損毀；用 ufs_hba_priv 保持 KMI
+diff --git a/drivers/ufs/core/ufs-sysfs.c b/drivers/ufs/core/ufs-sysfs.c
+index ff7f26b3e6..0e2d074385 100644
+--- a/drivers/ufs/core/ufs-sysfs.c
++++ b/drivers/ufs/core/ufs-sysfs.c
+@@ -443,6 +443,8 @@ static ssize_t pm_qos_enable_show(struct device *dev,
+ {
+ 	struct ufs_hba *hba = dev_get_drvdata(dev);
+ 
++	guard(mutex)(&to_hba_priv(hba)->pm_qos_mutex);
++
+ 	return sysfs_emit(buf, "%d\n", hba->pm_qos_enabled);
+ }
+ 
+diff --git a/drivers/ufs/core/ufshcd-priv.h b/drivers/ufs/core/ufshcd-priv.h
+index d169ec9e57..10dc4c9ea7 100644
+--- a/drivers/ufs/core/ufshcd-priv.h
++++ b/drivers/ufs/core/ufshcd-priv.h
+@@ -9,6 +9,8 @@
+ struct ufs_hba_priv {
+ 	struct ufs_hba hba;
+ 	bool hid_sup;
++	/* synchronizes PM QoS request and status updates */
++	struct mutex pm_qos_mutex;
+ };
+ 
+ static inline struct ufs_hba_priv *to_hba_priv(struct ufs_hba *hba)
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index cbf17062ac..6eb15c38e0 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -1053,6 +1053,7 @@ EXPORT_SYMBOL_GPL(ufshcd_is_hba_active);
+  */
+ void ufshcd_pm_qos_init(struct ufs_hba *hba)
+ {
++	guard(mutex)(&to_hba_priv(hba)->pm_qos_mutex);
+ 
+ 	if (hba->pm_qos_enabled)
+ 		return;
+@@ -1069,6 +1070,8 @@ void ufshcd_pm_qos_init(struct ufs_hba *hba)
+  */
+ void ufshcd_pm_qos_exit(struct ufs_hba *hba)
+ {
++	guard(mutex)(&to_hba_priv(hba)->pm_qos_mutex);
++
+ 	if (!hba->pm_qos_enabled)
+ 		return;
+ 
+@@ -1083,6 +1086,8 @@ void ufshcd_pm_qos_exit(struct ufs_hba *hba)
+  */
+ static void ufshcd_pm_qos_update(struct ufs_hba *hba, bool on)
+ {
++	guard(mutex)(&to_hba_priv(hba)->pm_qos_mutex);
++
+ 	if (!hba->pm_qos_enabled)
+ 		return;
+ 
+@@ -10823,6 +10828,10 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 	mutex_init(&hba->ee_ctrl_mutex);
+ 
+ 	mutex_init(&hba->wb_mutex);
++
++	/* Initialize mutex for PM QoS request synchronization */
++	mutex_init(&to_hba_priv(hba)->pm_qos_mutex);
++
+ 	init_rwsem(&hba->clk_scaling_lock);
+ 
+ 	ufshcd_init_clk_gating(hba);

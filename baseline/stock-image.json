@@ -1,0 +1,24 @@
+{
+  "size": 100663296,
+  "sha256": "e4a6fea84769a450c26550f07ca4dc2967f03541f2a6716ad995065f1fa7a19d",
+  "boot": {
+    "header_version": 4,
+    "kernel_size": 39963136,
+    "ramdisk_size": 0,
+    "os_version": 0,
+    "signature_size": 0
+  },
+  "kind": "kernel",
+  "image_sha256": "670c8285a079ade6cfa50e35fae4f52f020d1a3e1b78395fd2ae1cbbfde4f6af",
+  "image_size": 39963136,
+  "release": "6.12.23-android16-5-g16e473de48a3-abogki462654244-4k",
+  "kmi": "6.12-android16-5",
+  "page_size": 4096,
+  "config": {
+    "CONFIG_MODVERSIONS": "y",
+    "CONFIG_CFI_CLANG": "y",
+    "CONFIG_MODULE_SIG_PROTECT": "y",
+    "CONFIG_KSU": "n"
+  },
+  "file": "device-boot_a.img"
+}

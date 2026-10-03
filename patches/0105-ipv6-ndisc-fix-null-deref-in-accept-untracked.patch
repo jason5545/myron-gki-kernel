@@ -1,0 +1,37 @@
+# 來源：linux-6.12.y stable（LunaKernel r21 也採用） 62c719203cb5（upstream d186e942365a，6.12.97）
+# ipv6: ndisc: fix NULL deref in accept_untracked_na()
+# IPv6 路徑上可從網路觸發的 UAF／NULL／越界（LunaKernel 已採用）
+diff --git a/net/ipv6/ndisc.c b/net/ipv6/ndisc.c
+index 8699d1a188..b4c1e2e725 100644
+--- a/net/ipv6/ndisc.c
++++ b/net/ipv6/ndisc.c
+@@ -974,10 +974,8 @@ static enum skb_drop_reason ndisc_recv_ns(struct sk_buff *skb)
+ 	return reason;
+ }
+ 
+-static int accept_untracked_na(struct net_device *dev, struct in6_addr *saddr)
++static int accept_untracked_na(struct inet6_dev *idev, struct in6_addr *saddr)
+ {
+-	struct inet6_dev *idev = __in6_dev_get(dev);
+-
+ 	switch (READ_ONCE(idev->cnf.accept_untracked_na)) {
+ 	case 0: /* Don't accept untracked na (absent in neighbor cache) */
+ 		return 0;
+@@ -987,7 +985,7 @@ static int accept_untracked_na(struct net_device *dev, struct in6_addr *saddr)
+ 		 * same subnet as an address configured on the interface that
+ 		 * received the na
+ 		 */
+-		return !!ipv6_chk_prefix(saddr, dev);
++		return !!ipv6_chk_prefix(saddr, idev->dev);
+ 	default:
+ 		return 0;
+ 	}
+@@ -1086,7 +1084,7 @@ static enum skb_drop_reason ndisc_recv_na(struct sk_buff *skb)
+ 	 */
+ 	new_state = msg->icmph.icmp6_solicited ? NUD_REACHABLE : NUD_STALE;
+ 	if (!neigh && lladdr && idev && READ_ONCE(idev->cnf.forwarding)) {
+-		if (accept_untracked_na(dev, saddr)) {
++		if (accept_untracked_na(idev, saddr)) {
+ 			neigh = neigh_create(&nd_tbl, &msg->target, dev);
+ 			new_state = NUD_STALE;
+ 		}

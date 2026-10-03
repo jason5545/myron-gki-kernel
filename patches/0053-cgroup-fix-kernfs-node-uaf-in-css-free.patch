@@ -1,0 +1,18 @@
+# 來源：linux-6.12.y stable 993047031c9f（6.12.69）
+# cgroup: Fix kernfs_node UAF in css_free_rwork_fn
+# cgroup 釋放與遷移的 UAF、race、死鎖；Android 每個 app 都建 cgroup
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 5739e5cbe9..856079b83e 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5500,9 +5500,9 @@ static void css_free_rwork_fn(struct work_struct *work)
+ 			 * children.
+ 			 */
+ 			cgroup_put(cgroup_parent(cgrp));
+-			kernfs_put(cgrp->kn);
+ 			psi_cgroup_free(cgrp);
+ 			cgroup_rstat_exit(cgrp);
++			kernfs_put(cgrp->kn);
+ 			kfree(cgrp);
+ 		} else {
+ 			/*

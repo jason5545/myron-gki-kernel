@@ -1,0 +1,65 @@
+# 來源：linux-6.12.y stable 3baeec23a82e（upstream 59e25ef2b413，6.12.63）
+# block: Use RCU in blk_mq_[un]quiesce_tagset() instead of set->tag_list_lock
+# UFS 錯誤處理會 quiesce tagset；改用 RCU 避免死鎖
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 57848f0fec..8f4ee7a4e1 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -369,12 +369,12 @@ void blk_mq_quiesce_tagset(struct blk_mq_tag_set *set)
+ {
+ 	struct request_queue *q;
+ 
+-	mutex_lock(&set->tag_list_lock);
+-	list_for_each_entry(q, &set->tag_list, tag_set_list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(q, &set->tag_list, tag_set_list) {
+ 		if (!blk_queue_skip_tagset_quiesce(q))
+ 			blk_mq_quiesce_queue_nowait(q);
+ 	}
+-	mutex_unlock(&set->tag_list_lock);
++	rcu_read_unlock();
+ 
+ 	blk_mq_wait_quiesce_done(set);
+ }
+@@ -384,12 +384,12 @@ void blk_mq_unquiesce_tagset(struct blk_mq_tag_set *set)
+ {
+ 	struct request_queue *q;
+ 
+-	mutex_lock(&set->tag_list_lock);
+-	list_for_each_entry(q, &set->tag_list, tag_set_list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(q, &set->tag_list, tag_set_list) {
+ 		if (!blk_queue_skip_tagset_quiesce(q))
+ 			blk_mq_unquiesce_queue(q);
+ 	}
+-	mutex_unlock(&set->tag_list_lock);
++	rcu_read_unlock();
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_unquiesce_tagset);
+ 
+@@ -4267,7 +4267,7 @@ static void blk_mq_del_queue_tag_set(struct request_queue *q)
+ 	struct blk_mq_tag_set *set = q->tag_set;
+ 
+ 	mutex_lock(&set->tag_list_lock);
+-	list_del(&q->tag_set_list);
++	list_del_rcu(&q->tag_set_list);
+ 	if (list_is_singular(&set->tag_list)) {
+ 		/* just transitioned to unshared */
+ 		set->flags &= ~BLK_MQ_F_TAG_QUEUE_SHARED;
+@@ -4275,7 +4275,6 @@ static void blk_mq_del_queue_tag_set(struct request_queue *q)
+ 		blk_mq_update_tag_set_shared(set, false);
+ 	}
+ 	mutex_unlock(&set->tag_list_lock);
+-	INIT_LIST_HEAD(&q->tag_set_list);
+ }
+ 
+ static void blk_mq_add_queue_tag_set(struct blk_mq_tag_set *set,
+@@ -4294,7 +4293,7 @@ static void blk_mq_add_queue_tag_set(struct blk_mq_tag_set *set,
+ 	}
+ 	if (set->flags & BLK_MQ_F_TAG_QUEUE_SHARED)
+ 		queue_set_hctx_shared(q, true);
+-	list_add_tail(&q->tag_set_list, &set->tag_list);
++	list_add_tail_rcu(&q->tag_set_list, &set->tag_list);
+ 
+ 	mutex_unlock(&set->tag_list_lock);
+ }

@@ -1,0 +1,17 @@
+# 來源：linux-6.12.y stable 645b1ed3259a（upstream d119775f2bad，6.12.88）
+# af_unix: Reject SIOCATMARK on non-stream sockets
+# af_unix OOB 與 GC 修正
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index ecb2907d65..27898c06f5 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -3189,6 +3189,9 @@ static int unix_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 			struct sk_buff *skb;
+ 			int answ = 0;
+ 
++			if (sk->sk_type != SOCK_STREAM)
++				return -EOPNOTSUPP;
++
+ 			mutex_lock(&u->iolock);
+ 
+ 			skb = skb_peek(&sk->sk_receive_queue);

@@ -1,0 +1,376 @@
+{
+  "metadata": {
+    "stock": {
+      "size": 100663296,
+      "sha256": "e4a6fea84769a450c26550f07ca4dc2967f03541f2a6716ad995065f1fa7a19d",
+      "boot": {
+        "header_version": 4,
+        "kernel_size": 39963136,
+        "ramdisk_size": 0,
+        "os_version": 0,
+        "signature_size": 0
+      },
+      "kind": "kernel",
+      "image_sha256": "670c8285a079ade6cfa50e35fae4f52f020d1a3e1b78395fd2ae1cbbfde4f6af",
+      "image_size": 39963136,
+      "release": "6.12.23-android16-5-g16e473de48a3-abogki462654244-4k",
+      "kmi": "6.12-android16-5",
+      "page_size": 4096,
+      "config": {
+        "CONFIG_MODVERSIONS": "y",
+        "CONFIG_CFI_CLANG": "y",
+        "CONFIG_MODULE_SIG_PROTECT": "y",
+        "CONFIG_KSU": "n"
+      },
+      "file": "device-boot_a.img"
+    },
+    "lk_v1_3": {
+      "size": 41110016,
+      "sha256": "65412d32d3d9fdb3a8e0865528198a582cf7902d53cbddaaec4eafead2b4e4b0",
+      "kind": "kernel",
+      "image_sha256": "65412d32d3d9fdb3a8e0865528198a582cf7902d53cbddaaec4eafead2b4e4b0",
+      "image_size": 41110016,
+      "release": "6.12.23-gb050bfa1f91e-LunarKernel-V1.3",
+      "kmi": null,
+      "page_size": 4096,
+      "config": {
+        "CONFIG_MODVERSIONS": "y",
+        "CONFIG_CFI_CLANG": "y",
+        "CONFIG_MODULE_SIG_PROTECT": "n",
+        "CONFIG_KSU": "y"
+      },
+      "package_sha256": "ba41a8560ab2af1f419f83718f97ef513fe5c19a17cecb800b612842f50d1728",
+      "package_version": "LunarKernel 6.12 bootstrap V1.3\n6.12.23-gb050bfa1f91e-LunarKernel-V1.3\nSource: b050bfa1f91e740de561ea118b36106d72ed6ff8\nDirty files: 3\nBuilt: Sat Jul 25 21:35:49 UTC 2026",
+      "supported_android_versions": "",
+      "file": "LunarKernel-v1.3.zip"
+    },
+    "baseline_v1": {
+      "size": 39954944,
+      "sha256": "0721b909ec6f287b176c8f15d9107d35ecec79aae26a4418e3572611fb64173f",
+      "kind": "kernel",
+      "image_sha256": "0721b909ec6f287b176c8f15d9107d35ecec79aae26a4418e3572611fb64173f",
+      "image_size": 39954944,
+      "release": "6.12.23-android16-5-maybe-dirty-4k",
+      "kmi": "6.12-android16-5",
+      "page_size": 4096,
+      "config": {
+        "CONFIG_MODVERSIONS": "y",
+        "CONFIG_CFI_CLANG": "y",
+        "CONFIG_MODULE_SIG_PROTECT": "y",
+        "CONFIG_KSU": "n"
+      },
+      "file": "Image"
+    }
+  },
+  "changes": [
+    {
+      "option": "CONFIG_ANDROID_BINDER_IPC_RUST",
+      "stock": "m",
+      "lk_v1_3": "y",
+      "baseline_v1": "m"
+    },
+    {
+      "option": "CONFIG_F2FS_FAULT_REPORT",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_FRAME_WARN",
+      "stock": "2048",
+      "lk_v1_3": "2048",
+      "baseline_v1": "0"
+    },
+    {
+      "option": "CONFIG_HEADERS_INSTALL",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_INFO_MANAGER",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KCOMPRESSD",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_FULL_NAME_FORMAT",
+      "stock": "n",
+      "lk_v1_3": "\"%TAG_NAME%-%COMMIT_SHA%@Lunar612\"",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_MULTI_MANAGER_SUPPORT",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_ENABLE_LOG",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_OPEN_REDIRECT",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SPOOF_UNAME",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SUS_KSTAT",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SUS_MAP",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SUS_MOUNT",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_KSU_SUSFS_SUS_PATH",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_LOCALVERSION",
+      "stock": "\"-4k\"",
+      "lk_v1_3": "\"-gb050bfa1f91e-LunarKernel-V1.3\"",
+      "baseline_v1": "\"-4k\""
+    },
+    {
+      "option": "CONFIG_LOCALVERSION_AUTO",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_LUNAR_RENDER_HINT",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_LUNAR_VFAS",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_MODULE_SCMVERSION",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_MODULE_SIG_PROTECT",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_MODULE_SIG_PROTECT_LIST",
+      "stock": "\"protected_module_names_list\"",
+      "lk_v1_3": "\"\"",
+      "baseline_v1": "\"protected_module_names_list\""
+    },
+    {
+      "option": "CONFIG_MQ_IOSCHED_ADIOS",
+      "stock": "n",
+      "lk_v1_3": "m",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_SCSI_DISCARD",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_SCSI_FASTDISCARD",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_TMPFS_POSIX_ACL",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_TMPFS_XATTR",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_TRIM_UNUSED_KSYMS",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_UNUSED_KSYMS_WHITELIST",
+      "stock": "\"abi_symbollist.raw\"",
+      "lk_v1_3": "n",
+      "baseline_v1": "\"abi_symbollist.raw\""
+    },
+    {
+      "option": "CONFIG_XIAOMI_DEVICE_XCOPY",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XIAOMI_DMABUF_HUGETLB",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XIAOMI_ENHANCED_IOSTAT",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XIAOMI_EROFS_IOSTAT",
+      "stock": "y",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XIAOMI_SFI",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XRING_SMART_CACHE",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XRING_ZRAM_MEMCG",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XRING_ZRAM_MEMCG_WRITEBACK",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_XRING_ZRAM_XSWAPD",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_ZRAM",
+      "stock": "m",
+      "lk_v1_3": "y",
+      "baseline_v1": "m"
+    },
+    {
+      "option": "CONFIG_ZRAM_BACKEND_ZSTD",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_ZRAM_DEF_COMP",
+      "stock": "\"lzo-rle\"",
+      "lk_v1_3": "\"lz4\"",
+      "baseline_v1": "\"lzo-rle\""
+    },
+    {
+      "option": "CONFIG_ZRAM_DEF_COMP_LZ4",
+      "stock": "n",
+      "lk_v1_3": "y",
+      "baseline_v1": "n"
+    },
+    {
+      "option": "CONFIG_ZRAM_DEF_COMP_LZORLE",
+      "stock": "y",
+      "lk_v1_3": "n",
+      "baseline_v1": "y"
+    },
+    {
+      "option": "CONFIG_ZSMALLOC",
+      "stock": "m",
+      "lk_v1_3": "y",
+      "baseline_v1": "m"
+    }
+  ],
+  "schema": 1,
+  "audit_date": "2026-10-02",
+  "comparison_note": "缺少的 CONFIG 項目視為未啟用（n）；每份原始設定均重新從對應的映像擷取。",
+  "lk_vs_stock_count": 41,
+  "script_sha256": {
+    "anykernel.sh": "502a185dbfbc247ce402984afd023a6069a0abd023c94f6b26f6d74efb15c235",
+    "tools/ak3-core.sh": "d49fa5f821acc82060047504ec405192b641b0265efd9f6cc3dcc6b75bec4848",
+    "lunarkernelmodule/functions.sh": "dc230b94e10b1fe4c28c19752740c34bbe55137e467429252c9297a24aab756c",
+    "lunarkernelmodule/service.sh": "c1ea58043d9593b249a2ebddc59fa37b8af1ef911a664392e54b528ff9f96e17",
+    "lunarkernelmodule/post-fs-data.sh": "cb3e6a2329f476a61d486765bd20abbf330d6e66dcb49aafa94c7507dfa6e816",
+    "lunarkernelmodule/capabilities.prop": "6576bb66158465c07a0bc476f9d5e513f36fa5f07849b2176138d375fb51d271"
+  },
+  "bundled_kernel_modules": [],
+  "bundled_partition_payloads": [],
+  "source_rules_commit": "13ff069897df965d9039dca208b2f39dacf81957",
+  "lk_declared_source_available_in_public_android_common": false,
+  "config_sha256": {
+    "stock": "73fa878baa4c748b2139e7acb4ed396d2056ca8ed71b565ded6f96b3558a98cd",
+    "lk_v1_3": "9ef0d7a4ad1479de35db0a06424f4e7db3fe4be2111219c3f540fae509c30d81",
+    "baseline_v1": "33661cd8bad15717293a7ba874f66cd75011d57a965f4532a17bdb94293d45a4"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "base_commit": "1ad7be92b3ed2e7d9c39f9b6d96bb91f1220c76d",
+  "patches": [
+    {
+      "name": "0001-keep-stock-rust-binder-lru-symbols.patch",
+      "sha256": "faf917d3f0a4814e77f6bfa1007a372382d0114c617481f378ecdb5e71c83e08"
+    },
+    {
+      "name": "0002-allow-stock-gki-modules-with-custom-kernel.patch",
+      "sha256": "2ffe4afd6cec53f7e2ffff5447b2d363b0e507507b00438058abf87ccb7e6d28"
+    },
+    {
+      "name": "0003-susfs-v2.3.0-android16-6.12.patch",
+      "sha256": "677c5cc8bb0ddb55cbfa7db1fb41c511c8ffa7150140134ee06626d4064fab88"
+    },
+    {
+      "name": "0004-integrate-pinned-resukisu-susfs.patch",
+      "sha256": "bbba7dc7e4d596d75a6195b57c4d5bbb3ece019593e88bc668d5fdd01f95de14"
+    },
+    {
+      "name": "0005-lk-v1.8.1-tuning-configs.patch",
+      "sha256": "0ea0783d35565302710a70fcefe7f89da80ed823a20e64bf7a654ae09e30d9ae"
+    },
+    {
+      "name": "0006-drm-log-instead-of-reject-invalid-clones.patch",
+      "sha256": "acc5f45121ec48a0dce58c8595b4e3b13c11aa989413b9466ac942666b84c75c"
+    },
+    {
+      "name": "0007-ufs-runtime-pm-error-recovery.patch",
+      "sha256": "27d3d331f6ff39cc5ed426818a7edd28c461ba8c482054e729396f3a05af30c4"
+    },
+    {
+      "name": "0008-ufs-rtc-work-serror-during-suspend.patch",
+      "sha256": "77db8ef6f52ca7f29750470b49b205b0cf6c310329f72d841b55280bc984a8e7"
+    }
+  ]
+}

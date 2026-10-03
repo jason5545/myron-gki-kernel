@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 44ddd7b1ae0b（upstream 759dfc7d04ba，6.12.43）
+# netlink: avoid infinite retry looping in netlink_unicast()
+# 上一項在 rmem 剛好等於 rcvbuf 時造成 netlink_unicast() 無限重試（RCU stall）
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index b02fb75f8d..e5ca84fb00 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1222,7 +1222,7 @@ int netlink_attachskb(struct sock *sk, struct sk_buff *skb,
+ 	nlk = nlk_sk(sk);
+ 	rmem = atomic_add_return(skb->truesize, &sk->sk_rmem_alloc);
+ 
+-	if ((rmem == skb->truesize || rmem < READ_ONCE(sk->sk_rcvbuf)) &&
++	if ((rmem == skb->truesize || rmem <= READ_ONCE(sk->sk_rcvbuf)) &&
+ 	    !test_bit(NETLINK_S_CONGESTED, &nlk->state)) {
+ 		netlink_skb_set_owner_r(skb, sk);
+ 		return 0;

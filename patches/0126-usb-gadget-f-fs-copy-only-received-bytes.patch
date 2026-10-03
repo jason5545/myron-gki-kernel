@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable 88874a19b2b0（upstream 4e036c10e7f4，6.12.93）
+# usb: gadget: f_fs: copy only received bytes on short ep0 read
+# f_fs（adb 使用）的 NULL、短讀、read_buffer 生命週期、ep0 死鎖
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 2bc41fe226..058f43a030 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -622,7 +622,7 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
+ 
+ 		/* unlocks spinlock */
+ 		ret = __ffs_ep0_queue_wait(ffs, data, len);
+-		if ((ret > 0) && (copy_to_user(buf, data, len)))
++		if ((ret > 0) && (copy_to_user(buf, data, ret)))
+ 			ret = -EFAULT;
+ 		goto done_mutex;
+ 

@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable 9cca530c7cc1（upstream 5ee01f1a7343，6.12.78）
+# cgroup: fix race between task migration and iteration
+# cgroup 釋放與遷移的 UAF、race、死鎖；Android 每個 app 都建 cgroup
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 856079b83e..976119e28d 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2534,6 +2534,7 @@ static void cgroup_migrate_add_task(struct task_struct *task,
+ 
+ 	mgctx->tset.nr_tasks++;
+ 
++	css_set_skip_task_iters(cset, task);
+ 	list_move_tail(&task->cg_list, &cset->mg_tasks);
+ 	if (list_empty(&cset->mg_node))
+ 		list_add_tail(&cset->mg_node,

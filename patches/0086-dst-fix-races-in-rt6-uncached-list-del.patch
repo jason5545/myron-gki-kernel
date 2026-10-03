@@ -1,0 +1,47 @@
+# 來源：linux-6.12.y stable f24a52948c95（upstream 9a6f0c4d5796，6.12.78）
+# dst: fix races in rt6_uncached_list_del() and rt_del_uncached_list()
+# IPv6 輸出、dst 快取、fnhe 的 UAF 與 race
+diff --git a/net/core/dst.c b/net/core/dst.c
+index e06ac600dc..df56aafb3e 100644
+--- a/net/core/dst.c
++++ b/net/core/dst.c
+@@ -68,6 +68,7 @@ void dst_init(struct dst_entry *dst, struct dst_ops *ops,
+ 	dst->lwtstate = NULL;
+ 	rcuref_init(&dst->__rcuref, 1);
+ 	INIT_LIST_HEAD(&dst->rt_uncached);
++	dst->rt_uncached_list = NULL;
+ 	dst->__use = 0;
+ 	dst->lastuse = jiffies;
+ 	dst->flags = flags;
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index c40a839863..876ac8e629 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1533,9 +1533,9 @@ void rt_add_uncached_list(struct rtable *rt)
+ 
+ void rt_del_uncached_list(struct rtable *rt)
+ {
+-	if (!list_empty(&rt->dst.rt_uncached)) {
+-		struct uncached_list *ul = rt->dst.rt_uncached_list;
++	struct uncached_list *ul = rt->dst.rt_uncached_list;
+ 
++	if (ul) {
+ 		spin_lock_bh(&ul->lock);
+ 		list_del_init(&rt->dst.rt_uncached);
+ 		spin_unlock_bh(&ul->lock);
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 98a668dd88..81d00c7ecf 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -148,9 +148,9 @@ void rt6_uncached_list_add(struct rt6_info *rt)
+ 
+ void rt6_uncached_list_del(struct rt6_info *rt)
+ {
+-	if (!list_empty(&rt->dst.rt_uncached)) {
+-		struct uncached_list *ul = rt->dst.rt_uncached_list;
++	struct uncached_list *ul = rt->dst.rt_uncached_list;
+ 
++	if (ul) {
+ 		spin_lock_bh(&ul->lock);
+ 		list_del_init(&rt->dst.rt_uncached);
+ 		spin_unlock_bh(&ul->lock);

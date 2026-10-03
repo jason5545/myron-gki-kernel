@@ -1,0 +1,16 @@
+{
+  "run_id": 36965637116,
+  "run_url": "https://github.com/jason5545/myron-gki-kernel/actions/runs/36965637116",
+  "build_project_commit": "7868bf2c13f5826748700c98bb1fe804c520a027",
+  "packaging_project_commit": "7868bf2c13f5826748700c98bb1fe804c520a027",
+  "artifact_ids": {
+    "reports": 11210868312,
+    "baseline": 11210858451
+  },
+  "root_markers_in_image": {
+    "resukisu": "v4.2.0-rc3-239e1e88@ReSukiSU",
+    "susfs": "susfs is initialized! version: v2.3.0"
+  },
+  "standby": "skipped_by_user",
+  "on_device_boot_verified": false
+}

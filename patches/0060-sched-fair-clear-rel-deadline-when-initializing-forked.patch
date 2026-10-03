@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable c71bf35caba1（upstream 3da56dc063cd，6.12.91）
+# sched/fair: Clear rel_deadline when initializing forked entities
+# EEVDF：fork 出的 entity 沒清 rel_deadline
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 23a8509b59..c390d1d24b 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5004,6 +5004,7 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
+ 	p->se.nr_migrations		= 0;
+ 	p->se.vruntime			= 0;
+ 	p->se.vlag			= 0;
++	p->se.rel_deadline		= 0;
+ 	INIT_LIST_HEAD(&p->se.group_node);
+ 
+ 	/* A delayed task cannot be in clone(). */

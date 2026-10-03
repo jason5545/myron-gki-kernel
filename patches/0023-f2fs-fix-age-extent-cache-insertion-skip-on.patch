@@ -1,0 +1,70 @@
+# 來源：linux-6.12.y stable 19d7ac99e101（upstream 27bf6a637b76，6.12.64）
+# f2fs: fix age extent cache insertion skip on counter overflow
+# age extent cache 計數溢位（實機掛載 atgc）
+diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
+index 9db0d277b5..bbf0c9ff4e 100644
+--- a/fs/f2fs/extent_cache.c
++++ b/fs/f2fs/extent_cache.c
+@@ -799,7 +799,7 @@ static void __update_extent_tree_range(struct inode *inode,
+ 	}
+ 	goto out_read_extent_cache;
+ update_age_extent_cache:
+-	if (!tei->last_blocks)
++	if (tei->last_blocks == F2FS_EXTENT_AGE_INVALID)
+ 		goto out_read_extent_cache;
+ 
+ 	__set_extent_info(&ei, fofs, len, 0, false,
+@@ -903,7 +903,7 @@ static int __get_new_block_age(struct inode *inode, struct extent_info *ei,
+ 			cur_age = cur_blocks - tei.last_blocks;
+ 		else
+ 			/* allocated_data_blocks overflow */
+-			cur_age = ULLONG_MAX - tei.last_blocks + cur_blocks;
++			cur_age = (ULLONG_MAX - 1) - tei.last_blocks + cur_blocks;
+ 
+ 		if (tei.age)
+ 			ei->age = __calculate_block_age(sbi, cur_age, tei.age);
+@@ -1105,6 +1105,7 @@ void f2fs_update_age_extent_cache_range(struct dnode_of_data *dn,
+ 	struct extent_info ei = {
+ 		.fofs = fofs,
+ 		.len = len,
++		.last_blocks = F2FS_EXTENT_AGE_INVALID,
+ 	};
+ 
+ 	if (!__may_extent_tree(dn->inode, EX_BLOCK_AGE))
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index fb9b4bade7..aeb37ac96f 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -653,6 +653,12 @@ enum extent_type {
+ 	NR_EXTENT_CACHES,
+ };
+ 
++/*
++ * Reserved value to mark invalid age extents, hence valid block range
++ * from 0 to ULLONG_MAX-1
++ */
++#define F2FS_EXTENT_AGE_INVALID	ULLONG_MAX
++
+ struct extent_info {
+ 	unsigned int fofs;		/* start offset in a file */
+ 	unsigned int len;		/* length of the extent */
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index be5a13f8b1..70358baabc 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -3845,8 +3845,13 @@ int f2fs_allocate_data_block(struct f2fs_sb_info *sbi, struct page *page,
+ 	locate_dirty_segment(sbi, GET_SEGNO(sbi, old_blkaddr));
+ 	locate_dirty_segment(sbi, GET_SEGNO(sbi, *new_blkaddr));
+ 
+-	if (IS_DATASEG(curseg->seg_type))
+-		atomic64_inc(&sbi->allocated_data_blocks);
++	if (IS_DATASEG(curseg->seg_type)) {
++		unsigned long long new_val;
++
++		new_val = atomic64_inc_return(&sbi->allocated_data_blocks);
++		if (unlikely(new_val == ULLONG_MAX))
++			atomic64_set(&sbi->allocated_data_blocks, 0);
++	}
+ 
+ 	up_write(&sit_i->sentry_lock);
+ 

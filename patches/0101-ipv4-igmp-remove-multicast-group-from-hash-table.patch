@@ -1,0 +1,15 @@
+# 來源：linux-6.12.y stable 8820b530cb23（upstream 7993211bde16，6.12.96）
+# ipv4: igmp: remove multicast group from hash table on device destruction
+# IPv6 位址、MLD、IGMP 的 UAF
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index f4a87b9035..20729290bc 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -1816,6 +1816,7 @@ void ip_mc_destroy_dev(struct in_device *in_dev)
+ #endif
+ 
+ 	while ((i = rtnl_dereference(in_dev->mc_list)) != NULL) {
++		ip_mc_hash_remove(in_dev, i);
+ 		in_dev->mc_list = i->next_rcu;
+ 		in_dev->mc_count--;
+ 		ip_mc_clear_src(i);
