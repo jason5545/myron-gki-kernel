@@ -1,6 +1,6 @@
 # myron GKI kernel
 
-POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM` 用的自編 GKI 核心。
+POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM`、`OS3.0.310.0.WPMCNXM` 用的自編 GKI 核心。
 
 基底是 Android 官方 ACK `android16-6.12-2025-09`（Linux 6.12.38，KMI 5），補上 6.12.38 之後的穩定性與安全修正，內建 ReSukiSU 與 SUSFS。方向是只做修正與最佳化，盡量維持小米官方核心的行為；不改 KMI，不加新的排程器或功能。
 
@@ -11,8 +11,9 @@ v16：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://gith
 - 2026/10/3 起在作者的手機上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS 都正常，dmesg 的 WARNING 與原廠相同。
 - 原廠模組需要的 4,015 個核心符號，CRC 全部一致。
 - 版本字串中 commit 的開頭固定為 `4b4d4935`，是 "KMI5" 的 ASCII hex。
+- 2026/10/3 手機升級到 `OS3.0.310.0.WPMCNXM`，保留資料，繼續用 v16，開機檢查與 309 相同。310 的原廠核心與 309 相同，v16 改用 310 的原廠 boot 重封裝（[升級紀錄](docs/rom-upgrade-310.md)）。
 
-只在這一台手機、這一個韌體版本驗證過。
+只在這一台手機驗證過，韌體版本是 309 與 310。
 
 ## 內容
 
@@ -39,9 +40,10 @@ v16：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://gith
 
 條件：
 
-- myron，HyperOS `OS3.0.309.0.WPMCNXM`（Android 16），bootloader 已解鎖。
+- myron，HyperOS `OS3.0.309.0.WPMCNXM` 或 `OS3.0.310.0.WPMCNXM`（Android 16），bootloader 已解鎖。
 - 目前 boot 的核心是 KMI 5、4 KB 頁面（`6.12.*-android16-5-*-4k`）。
 - init_boot 必須是原廠映像（SHA-256 `a4ed45c0…`）。root 若是靠 init_boot 的 KernelSU LKM 或 Magisk 修補，安裝器會拒絕，要先換回原廠 init_boot。
+- 310 的原廠 init_boot 是 `0a9871f4…`，v16 的安裝器只認得 309 的，在 310 上會拒絕安裝。310 目前要用 fastboot 寫入以 310 原廠 boot 重封裝的映像，做法見[升級紀錄](docs/rom-upgrade-310.md)。
 
 安裝包是 AnyKernel3 ZIP，只替換 boot 裡的核心，不動 ramdisk、DTB、init_boot 與模組。可以用 ReSukiSU 管理器或其他能刷 AnyKernel3 的工具刷入。編譯好的 ZIP 在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)，也可以自己編譯。
 
@@ -99,6 +101,8 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | KMI／頁面 | `6.12-android16-5`／4096 bytes |
 | boot | header v4，ramdisk 為 0，分割區 100663296 bytes |
 
+基準取自 309。310 的原廠核心 Image 與 309 完全相同（`670c8285…`），boot 只有 AVB footer 不同（`security_patch` 2026-02-01 → 2026-09-01）。
+
 原廠設定在 [`baseline/stock.config`](baseline/stock.config)。原廠的 common commit `16e473de48a3` 在公開的 Android common 查不到，所以這個專案是官方 ACK 的相容版本，不是重現小米的原始碼。
 
 原廠映像、第三方核心 ZIP 與手機備份只留在作者本機的 `local-backup/`，不在這個 repo 裡；`baseline/` 只放從中讀出的設定、雜湊與符號清單。
@@ -125,6 +129,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 
 - [backport 候選清單](docs/kmi6-backport-candidates.md)：936 筆候選的來源、篩選與判斷，完整表格在 [TSV](docs/kmi6-backport-candidates.tsv)。
 - [backport 實作紀錄](docs/kmi6-backport-batches.md)：v9～v15 的做法、改寫、排除項目與實機結果。
+- [升級到 OS3.0.310](docs/rom-upgrade-310.md)：第一次在自編核心上升級韌體，保留資料；用 310 原廠 boot 重封裝 v16 的原因、做法與實機結果。
 - [可參考的 6.12 開源核心](docs/references-6.12.md)：LokumKernel、LunaKernel、小米官方釋出，以及原廠私有修改的查核。
 - [ReSukiSU／SUSFS 的固定版本](docs/resukisu-susfs-fixed.md)、[模組相容與封裝](docs/module-policy-and-packaging.md)、[LunarKernel v1.3 套件查核](docs/lk-v1.3-audit.md)。
 
