@@ -1,4 +1,4 @@
-# KMI 6 時期修正 backport：六批實作與編譯（v9～v15）
+# KMI 6 時期修正 backport：七批實作與編譯（v9～v16）
 
 依 [候選清單](kmi6-backport-candidates.md) 的建議，2026/10/2 晚上 Jason 確認全部做，需要改寫的也一起做。手機當時已拔掉 USB，所以當晚只做到編譯和 CRC 關卡。10/3 Jason 直接刷入 v13，實機結果見下方；之後追加批次 6 編出 v14。
 
@@ -22,6 +22,7 @@
 | v13 | ＋批次 5：USB／HID | 0122～0131（10） | `6.12.38-android16-5-g4b4d49357977-4k` | `3fc3f57b6209…` | 缺少 0、不符 0 |
 | v14 | ＋批次 6：netlink rmem（追加） | 0132～0135（4） | `6.12.38-android16-5-g4b4d4935922a-4k` | `b246ec5eeede…` | 缺少 0、不符 0 |
 | v15 | ＋0136：預設 TCP 擁塞控制改為 BBR | 0136（1） | `6.12.38-android16-5-g4b4d4935f92d-4k` | `936cf7b208f0…` | 缺少 0、不符 0 |
+| v16 | ＋批次 7：Image 內的高通相關修正（Gunyah、SCMI） | 0137～0140（4） | `6.12.38-android16-5-g4b4d49350df7-4k` | `30c25089a4a2…` | 缺少 0、不符 0 |
 
 每一版的 KMI 都是 `6.12-android16-5`，頁面 4096 bytes，Image 內都有 ReSukiSU（`v4.2.0-rc3-239e1e88@ReSukiSU`）、SUSFS 與 0006 的字串，Mac 上重跑映像驗收也通過。CRC 共 4,015 個符號。`rust_binder.ko` 例外和 v8 相同：不符 16、未版本化缺少 4。18 項測試通過。產物在 `out/build-2025-09-v<N>/`。
 
@@ -120,6 +121,19 @@ Jason 指定預設 TCP 擁塞控制改為 BBR、開機就套用。原本 0005 �
 v15 Image 讀出 `CONFIG_DEFAULT_TCP_CONG="bbr"`，cubic 仍內建可選。CRC 與其他驗收和 v14 相同。AnyKernel3 ZIP（`myron-kmi5-936cf7b208f0-AnyKernel3.zip`，SHA-256 `9ddf1795…`）已推到手機 `/sdcard/Download/`。
 
 Jason 刷入後開機約 3 分鐘檢查：核心 `6.12.38-android16-5-g4b4d4935f92d-4k`，boot_a `c8c6b082…`，init_boot 原廠；`tcp_congestion_control` 為 `bbr`，`ss -tin` 列出的 95 條 TCP 連線全部是 bbr。616 個模組、`drmModeAtomicCommit failed` 0 次、UFS 錯誤 0、dmesg WARNING 與原廠相同、沒有 tombstone、ReSukiSU Built-in、SUSFS 已初始化、`/sdcard` 讀寫正常。
+
+## 批次 7：Image 內的高通相關修正（2026/10/3）
+
+先前的掃描範圍沒有涵蓋 Gunyah、SCMI、GIC ITS 與 qcom-geni。查核過程與完整分類見 [references-6.12.md 的高通段落](references-6.12.md#高通2026103-查)。Jason 同意後實作建議的 4 筆，都直接套用，沒有改寫：
+
+| patch | 來源 | 修正 |
+| --- | --- | --- |
+| 0137 | ACK `6ed0366cc367` | `gunyah_vm_start()` 每次成功啟動 VM 都漏釋放 `resources` |
+| 0138 | ACK `c6b71e31c280` | 分享 VM 記憶體時，binding 在計數後變多會寫出陣列範圍 |
+| 0139 | ACK `f776caa5cc69` | Gunyah RM 重複回覆造成 use-after-return，記憶體損毀後卡在 `complete()` |
+| 0140 | stable `96dd9e3e48ad`（6.12.110） | SCMI 的 device request 查 IDR 時加 RCU |
+
+v16 Image `30c25089a4a2…`：KMI `6.12-android16-5`、4 KB、ReSukiSU 與 SUSFS 都在，預設擁塞控制仍是 bbr。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同。AnyKernel3 ZIP 是 `myron-kmi5-30c25089a4a2-AnyKernel3.zip`（SHA-256 `e8347e72…`），已推到手機 `/sdcard/Download/`，手機上核對 SHA-256 相同。尚未刷入；目前 boot_a 是 v15（`c8c6b082…`），init_boot 是原廠。
 
 ## 實機驗收（後續版本）
 

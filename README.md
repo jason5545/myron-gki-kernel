@@ -27,6 +27,7 @@ v15：`6.12.38-android16-5-g4b4d4935f92d-4k`。
 | 0007～0008 | UFS runtime PM 錯誤復原、suspend 時 RTC work 造成的 SError |
 | 0009～0135 | 6.12.38 之後（KMI 6 時期）的 stable、ACK 與 LunaKernel 修正，共 127 份，分 6 批：UFS／SCSI／block、f2fs／erofs／fuse／binder、mm／排程、網路、USB／HID、netlink |
 | 0136 | 預設 TCP 擁塞控制改為 BBR |
+| 0137～0140 | Image 內高通相關程式碼的修正：Gunyah 3 份、SCMI 1 份 |
 
 每份 backport 的檔頭寫著來源、upstream commit 和採用理由。挑選過程與排除項目見 [候選清單](docs/kmi6-backport-candidates.md) 和 [實作紀錄](docs/kmi6-backport-batches.md)。
 
@@ -116,6 +117,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v9～v13 | KMI 6 時期修正批次 1～5（[紀錄](docs/kmi6-backport-batches.md)） | v13 正常 |
 | v14 | 批次 6：netlink | 正常 |
 | v15 | 預設 TCP 擁塞控制改為 BBR | 正常 |
+| v16 | 批次 7：Gunyah、SCMI 修正 | 尚未刷入 |
 
 公開時把開發歷史合併成單一 commit，v15 是第一個公開版本。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 
