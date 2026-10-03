@@ -133,7 +133,25 @@ Jason 刷入後開機約 3 分鐘檢查：核心 `6.12.38-android16-5-g4b4d4935f
 | 0139 | ACK `f776caa5cc69` | Gunyah RM 重複回覆造成 use-after-return，記憶體損毀後卡在 `complete()` |
 | 0140 | stable `96dd9e3e48ad`（6.12.110） | SCMI 的 device request 查 IDR 時加 RCU |
 
-v16 Image `30c25089a4a2…`：KMI `6.12-android16-5`、4 KB、ReSukiSU 與 SUSFS 都在，預設擁塞控制仍是 bbr。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同。AnyKernel3 ZIP 是 `myron-kmi5-30c25089a4a2-AnyKernel3.zip`（SHA-256 `e8347e72…`），已推到手機 `/sdcard/Download/`，手機上核對 SHA-256 相同。尚未刷入；目前 boot_a 是 v15（`c8c6b082…`），init_boot 是原廠。
+v16 Image `30c25089a4a2…`：KMI `6.12-android16-5`、4 KB、ReSukiSU 與 SUSFS 都在，預設擁塞控制仍是 bbr。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同。AnyKernel3 ZIP 是 `myron-kmi5-30c25089a4a2-AnyKernel3.zip`（SHA-256 `e8347e72…`），已推到手機 `/sdcard/Download/`，手機上核對 SHA-256 相同。
+
+## v16 實機（2026/10/3）
+
+Jason 用 ReSukiSU 管理器刷入，開機約 3 分鐘檢查：
+
+| 項目 | 結果 |
+| --- | --- |
+| 核心 | `6.12.38-android16-5-g4b4d49350df7-4k`，boot_a `7843acd9…`，init_boot 原廠 `a4ed45c0…` |
+| 模組 | 616 個 |
+| 顯示 | logcat 沒有 `drmModeAtomicCommit failed` |
+| UFS | 沒有錯誤，`ufshcd_err_handler` 0 次 |
+| dmesg | WARNING 只有 `spmi-pmic-arb.c:352` 兩次，與 v14 相同；沒有 Oops |
+| Gunyah | `gunyah_rm_rx` 143 次、`gunyah_rm_tx` 10 次、`gunyah_vcpu` 3,439 次，VM 在跑；Gunyah 相關訊息與 v14 相同 |
+| SCMI | cpufreq 兩個 policy 都是 `scmi`、governor `walt`，頻率正常變動；6 個 SCMI driver 都綁定。SCMI 訊息與 v14 相同，包括韌體不支援 fastchannel 的提示 |
+| root | ReSukiSU `Work mode: Built-in`，SUSFS v2.3.0 已初始化 |
+| 其他 | 沒有新的 tombstone，`/sdcard` 讀寫正常，`tcp_congestion_control` 為 bbr |
+
+dmesg 與 logcat 在 `out/v16-device/`。
 
 ## 實機驗收（後續版本）
 
