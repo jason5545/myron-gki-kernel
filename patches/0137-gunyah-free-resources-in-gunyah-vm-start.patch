@@ -1,0 +1,32 @@
+# 來源：ACK android16-6.12 6ed0366cc367
+# ANDROID: gunyah: Free resources in gunyah_vm_start()
+# 每次成功啟動 Gunyah VM 都漏釋放 resources；手機的高通 trusted VM 在跑
+diff --git a/drivers/virt/gunyah/vm_mgr.c b/drivers/virt/gunyah/vm_mgr.c
+index 7b0bacb512..2d3aef342b 100644
+--- a/drivers/virt/gunyah/vm_mgr.c
++++ b/drivers/virt/gunyah/vm_mgr.c
+@@ -800,7 +800,7 @@ static long gunyah_vm_set_boot_context(struct gunyah_vm *ghvm,
+ 
+ static int gunyah_vm_start(struct gunyah_vm *ghvm)
+ {
+-	struct gunyah_rm_hyp_resources *resources;
++	struct gunyah_rm_hyp_resources *resources = NULL;
+ 	struct gunyah_resource *ghrsc;
+ 	int ret, i, n;
+ 	u16 vmid = 0;
+@@ -923,6 +923,7 @@ static int gunyah_vm_start(struct gunyah_vm *ghvm)
+ 
+ 	ghvm->vm_status = GUNYAH_RM_VM_STATUS_RUNNING;
+ 	up_write(&ghvm->status_lock);
++	kfree(resources);
+ 	return ret;
+ err_dealloc_vmid:
+ 	ret = gunyah_rm_dealloc_vmid(ghvm->rm, ghvm->vmid);
+@@ -935,6 +936,7 @@ static int gunyah_vm_start(struct gunyah_vm *ghvm)
+ 	/* gunyah_vm_free will handle releasing resources and reclaiming memory */
+ 	gunyah_vm_start_fail(ghvm);
+ 	up_write(&ghvm->status_lock);
++	kfree(resources);
+ 	return ret;
+ }
+ 

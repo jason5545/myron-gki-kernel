@@ -1,0 +1,25 @@
+# 來源：linux-6.12.y stable 96dd9e3e48ad（upstream e6a0e7a49d83，6.12.110）
+# firmware: arm_scmi: Protect device request lookup with RCU
+# SCMI 開機時查 IDR 沒有 RCU 保護；手機的 cpufreq 與 perf domain 都走內建 SCMI
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index f1abe60586..32534c22ed 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -31,6 +31,7 @@
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/processor.h>
++#include <linux/rcupdate.h>
+ #include <linux/refcount.h>
+ #include <linux/slab.h>
+ #include <linux/xarray.h>
+@@ -2850,7 +2851,9 @@ static int scmi_device_request_notifier(struct notifier_block *nb,
+ 	struct scmi_device_id *id_table = data;
+ 	struct scmi_info *info = req_nb_to_scmi_info(nb);
+ 
++	rcu_read_lock();
+ 	np = idr_find(&info->active_protocols, id_table->protocol_id);
++	rcu_read_unlock();
+ 	if (!np)
+ 		return NOTIFY_DONE;
+ 

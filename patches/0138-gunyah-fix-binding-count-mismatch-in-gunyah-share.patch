@@ -1,0 +1,51 @@
+# 來源：ACK android16-6.12 c6b71e31c280
+# ANDROID: gunyah: Fix binding count mismatch in gunyah_share_range_as_parcels()
+# 分享 VM 記憶體時 binding 在計數後變多會寫出陣列範圍
+diff --git a/drivers/virt/gunyah/vm_mgr_mem.c b/drivers/virt/gunyah/vm_mgr_mem.c
+index 5cf28ecd8f..969948d2c4 100644
+--- a/drivers/virt/gunyah/vm_mgr_mem.c
++++ b/drivers/virt/gunyah/vm_mgr_mem.c
+@@ -815,26 +815,31 @@ int gunyah_share_range_as_parcels(struct gunyah_vm *ghvm, u64 start_gfn,
+ 		u64 parcel_start = b->guest_phys_addr >> PAGE_SHIFT;
+ 		u64 parcel_pages = b->size >> PAGE_SHIFT;
+ 
++		if (count >= n) {
++			ret = -EAGAIN;
++			dev_err(ghvm->parent, "Binding count changed during share; rolling back\n");
++			goto rollback;
++		}
+ 		ret = gunyah_share_parcel(ghvm, &(*parcels)[count++], &parcel_start, &parcel_pages);
+ 		if (ret) {
+ 			dev_err(ghvm->parent, "Failed to share parcel of %llx: %d\n",
+ 								parcel_start, ret);
+-			/* Let's roll back.*/
+-			while (count--) {
+-				if ((*parcels)[count].parcel.mem_handle !=
+-					GUNYAH_MEM_HANDLE_INVAL) {
+-					ret_err = gunyah_reclaim_parcel(ghvm, &(*parcels)[count]);
+-					if (ret_err)
+-						dev_err(ghvm->parent, "Failed to reclaim parcel: %d, memory will leak\n",
+-										ret_err);
+-				}
+-			}
+-			goto err;
++			goto rollback;
+ 		}
+ 	}
+ 	return ret;
+ 
+-err:
++rollback:
++	/* Let's roll back.*/
++	while (count--) {
++		if ((*parcels)[count].parcel.mem_handle !=
++			GUNYAH_MEM_HANDLE_INVAL) {
++			ret_err = gunyah_reclaim_parcel(ghvm, &(*parcels)[count]);
++			if (ret_err)
++				dev_err(ghvm->parent, "Failed to reclaim parcel: %d, memory will leak\n",
++										ret_err);
++		}
++	}
+ 	kfree(*parcels);
+ 	*parcels = NULL;
+ 	return ret;

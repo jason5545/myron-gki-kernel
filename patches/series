@@ -135,3 +135,7 @@
 0134-netlink-make-sure-we-allow-at-least-one.patch
 0135-netlink-avoid-infinite-retry-looping-in-netlink-unicast.patch
 0136-default-tcp-congestion-bbr.patch
+0137-gunyah-free-resources-in-gunyah-vm-start.patch
+0138-gunyah-fix-binding-count-mismatch-in-gunyah-share.patch
+0139-gunyah-rsc-mgr-erase-xarray-entry-before-completing.patch
+0140-firmware-arm-scmi-protect-device-request-lookup-with.patch
