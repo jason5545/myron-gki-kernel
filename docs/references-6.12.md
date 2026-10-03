@@ -48,6 +48,59 @@ LunarKernel 6.12 的核心原始碼沒有找到：[`4532sde/LunarKernel6.12-back
 
 其餘設定差異是本專案刻意的（KernelSU／SUSFS、模組保護與匯出裁切、BBR、tmpfs xattr、省電 workqueue）或 ACK 基底不同造成的（例如 2025-06 的 gki_defconfig 有 `CONFIG_TLS=m`，連帶 `STREAM_PARSER=y`；2025-09 拿掉了）。MiCode 的 6.12.38 分支 `bsp-prague-w-oss`（Redmi K90 Max）與 `yili-w-oss`（REDMI K Pad 2）是聯發科平台，對 myron 參考價值低。
 
+## 高通（2026/10/3 查）
+
+高通在 CodeLinaro 的 6.12 程式碼分成兩邊，都沒有可以直接合進 Image 的東西：
+
+- `clo/la/kernel/common` 的 6.12 分支全部是 `aosp-new/*`，是 AOSP common 的鏡像，沒有高通自己的 GKI 修改。
+- `clo/la/kernel/qcom` 的 `kernel.lnx.6.12.*` 是高通的 soc-repo，和小米 `popsicle-w-oss` 同一種 overlay，內容編成 vendor 模組。手機沿用原廠模組，boot 只換 Image，所以不合入。
+
+Image 裡實際在跑的高通相關程式碼，是從手機上的 driver 綁定與中斷確認的：
+
+| 內建程式碼 | 手機上 |
+| --- | --- |
+| `qcom_geni_serial` | 只綁 debug UART `a9c000`（`qcom,geni-debug-uart`，FIFO 模式）；其他 UART 是原廠 `msm_geni_serial` |
+| `qcom-geni-se`（`geni_se_qup`） | 綁 5 個 QUP |
+| GIC v3 ITS | UFS MCQ 的 ESI 中斷走 `ITS-pMSI` |
+| SCMI 核心、`scmi-cpufreq`、`scmi-perf-domain` | CPU 調頻驅動是 `scmi` |
+| Gunyah（ACK `drivers/virt/gunyah`） | `/dev/gunyah`、RM 與 vcpu 中斷都在跑，高通的 trusted VM 在用 |
+| interconnect 核心 | 高通的 icc provider（vendor 模組）都經過它 |
+
+`pcie-qcom`、`dwc3-qcom`、`gdsc`、`qcom-ebi2` 有編進 Image，但沒有綁定任何裝置。
+
+掃描範圍是 stable 6.12.39～6.12.111 改到上述檔案的 43 筆，加上 ACK `android16-6.12` 在 `1ad7be92` 之後改到 Gunyah、SCMI、GIC、qcom-geni 的 44 筆；其中 3 筆在 stable 與 ACK 重複。這些路徑不在先前 [候選清單](kmi6-backport-candidates.md) 的掃描範圍內（`drivers/tty/` 除外）。對 v15 的樹試套用：可套用 49、需 3-way 7、衝突 9、基底已有 22。
+
+建議 4 筆。依序疊在 v15 上都能套用，`abi.stg` 判定 KMI 風險都是低：
+
+| commit | 來源 | 修正 |
+| --- | --- | --- |
+| `f776caa5c` | ACK | Gunyah RM：回覆完成前就移除 xarray 項目。原本有 use-after-return，會造成記憶體損毀，卡在 `complete()` |
+| `c6b71e31c` | ACK | Gunyah：分享記憶體時，binding 在計數後變多會寫出陣列範圍 |
+| `6ed0366cc` | ACK | Gunyah：`gunyah_vm_start()` 每次成功啟動 VM 都漏釋放 `resources` |
+| `96dd9e3e4` | stable 6.12.110 | SCMI：device request 查 IDR 時加 RCU，避免和 protocol 註冊同時進行 |
+
+可選，價值低或需要再確認：
+
+- `6f3f53253`（stable 6.12.110）：SCMI transport 在 channel 狀態發布前就收到 callback 會 NULL 解參考。只可能發生在開機，手機至今開機都正常。
+- `5d9570416`（stable 6.12.105）：SCMI perf domain 收到 state 0 時改回傳成功。手機的 debugfs 看不到 genpd，無法確認有沒有裝置會這樣呼叫。
+- `220923cf9`、`5bd7edfa2`（ACK）：Gunyah CMA 的 file 參照與 offset 檢查。前者會拒絕第二個 fd，屬於行為改變，要先確認高通 VMM 的用法。
+- `3c0036536`（ACK）：Gunyah 錯誤路徑的計數。`1c35915ea`：只在 SCMI 模組卸載時會遇到。`4fa626cfd`：只把警告改成限速。
+- `bb1958720`、`dbd401877`、`664eaddd4`：ITS 的 ID 位元上限，以及 probe 失敗時的洩漏。`a4e9aa790`：interconnect 只在配置記憶體失敗時出錯。`10bb2f5d3`：cpufreq 初始化少一次 `of_node_put`。
+- SCMI 的輸入檢查（`0db2bb3c9`、`2ac73017f`、`bd8bc95ef`、`c148ff2f5`、`5142fd31b`），以及初始化失敗時的回收（`06e65e07a`、`3fa8cabd2`、`4c2a5d723`、`babb017cf`、`df273eced`、`8e0bb69c7`、`431c6b872`、`de0a4c103`、`b8479e1f0`、`6778bcabd`、`492fb49ea`、`921b09084`、`e088efcd9`）。
+
+不採用：
+
+- `084ba3b99`：只影響 32 位元 LPAE。
+- `ab233119a`、`0d1951a19`：GICv4，需要 KVM。
+- `74f0c573d`、`29fb9633b`、`6c7e2caa3`、`ccc5a37e6`：raw mode、VirtIO transport、power control 在手機上都沒用到。
+- `1a1f50bdd`：DT 格式錯誤才會遇到。
+- `231c84fe7`、`4ec9e08e6`：qcom-geni 的 DMA 與 parity，debug UART 走不到。
+- `7d9fe864d`：hibernation restore。
+- `81c5d23a2`：改變 cpufreq 的 transition latency。
+- 新功能或新增 vendor hook：`d6bcfcda7`、`9511f5713`、`d44cf2a39`、`ae517efa3`、`9c17a0afd`。
+
+`qcom_geni_serial` 的 3 筆 DMA 修正，候選清單原本的理由寫成「高通用自己的 msm_geni_serial」，不精確：內建驅動其實有綁 debug UART。不過那個埠用 FIFO 模式，DMA 修正一樣走不到，結論不變，理由已更正。
+
 ## myron 與 ReSukiSU 整合
 
 - [`Geeeeeker/android_kernel_xiaomi_sm8850`](https://github.com/Geeeeeker/android_kernel_xiaomi_sm8850)（`lineage-23.2`，6.12.23）：commit「arch: arm64: add support for Poco F8 Ultra (myron)」只加 3 個檔案，含 `arch/arm64/configs/vendor/myron_GKI.config`，可以和原廠 config 對照。

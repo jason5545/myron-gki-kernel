@@ -32,6 +32,8 @@ v15：`6.12.38-android16-5-g4b4d4935f92d-4k`。
 
 原廠 Image 另有 7 個小米私有選項（例如 `SCSI_FASTDISCARD`、`XIAOMI_ENHANCED_IOSTAT`），小米沒有公開原始碼，這個核心沒有這些功能。查核過程見 [references-6.12.md](docs/references-6.12.md)。
 
+高通在 CodeLinaro 釋出的 GKI common 是 AOSP 原樣鏡像，高通自己的程式碼都在 vendor 模組，手機沿用原廠版本；Image 裡用到的高通相關修正也整理在同一份文件。
+
 ## 安裝
 
 條件：

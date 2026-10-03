@@ -829,19 +829,19 @@
 不適用	5	a9fce61d1	ACK android16-6.12		dma-buf	修正	衝突需改寫	低	task_dma_buf_info 是 2025-09 之後才加的 Android 功能	ANDROID: dmabuf: Fix task_dma_buf_info refcount and memory leaks		
 不適用	5	f118039cc	ACK android16-6.12		dma-buf	修正	衝突需改寫	低	task_dma_buf_info 是 2025-09 之後才加的 Android 功能	ANDROID: read task_dma_buf_info under task lock and pin it		
 不適用	5	81472f8e87f8	stable	6.12.88	mm	效能	可套用	低	eMMC 最佳化，手機是 UFS	mmc: core: Optimize time for secure erase/trim for some Kingston eMMCs	d6bf2e64dec8	drivers/mmc/core/card.h: 新增宣告 mmc_card_fixed_secure_erase_trim_time；drivers/mmc/core/quirks.h: inline／header 內容；include/linux/mmc/card.h: 巨集
-不適用	5	01a5378f19e1	stable	6.12.110	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	tty: hvc: restrict HVC_DCC to ARMv6+ and ARM64	782f4dbd1794	
-不適用	5	07ffe414a708	stable	6.12.95	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_dw: unregister 8250 port if clk_notifier_register() fails	10fc708b4de7	
-不適用	5	2881b2e6da02	stable	6.12.111	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: fix possible ISR soft lockup	0c6bf45e5a34	
-不適用	5	2a72403b985a	stable	6.12.78	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: Fix TX deadlock when using DMA	a424a34b8fad	
-不適用	5	313ae287442e	stable	6.12.104	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom-geni: fix TX DMA buffer flush	e3c04834ae1a	
-不適用	5	460e0dc9af2d	stable	6.12.58	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	tty: serial: ip22zilog: Use platform device for probing	3fc36ae6abd2	
-不適用	5	4f07d8839327	stable	6.12.95	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom_geni: Fix RX DMA stall when SE_DMA_RX_LEN_IN is zero	b93062b6d8a1	
-不適用	5	6a83d5e24a84	stable	6.12.93	tty	修正	衝突需改寫	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: zs: Convert to use a platform device	7cac59d08a73	drivers/tty/serial/zs.h: inline／header 內容
-不適用	5	6f5964622949	stable	6.12.93	tty	修正	衝突需改寫	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: dz: Convert to use a platform device	5d7a49d60b8f	
-不適用	5	8e2739478c16	stable	6.12.44	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250: fix panic due to PSLVERR	7f8fdd4dbffc	
-不適用	5	9f2444f4c0e4	stable	6.12.104	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_dma: Clear stale RX state on shutdown	e2fe6a0efecb	
-不適用	5	b1159dce10b3	stable	6.12.93	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: qcom_geni: fix kfifo underflow when flush precedes DMA completion IRQ	452d6fa37ae9	
-不適用	5	c321dc5172c8	stable	6.12.106	tty	修正	可套用	低	高通用自己的 msm_geni_serial；8250、zs、dz 不是這個平台	serial: 8250_of: clear stuck empty-FIFO RX-timeout on LPC32xx	142341547127	
+不適用	5	01a5378f19e1	stable	6.12.110	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	tty: hvc: restrict HVC_DCC to ARMv6+ and ARM64	782f4dbd1794	
+不適用	5	07ffe414a708	stable	6.12.95	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250_dw: unregister 8250 port if clk_notifier_register() fails	10fc708b4de7	
+不適用	5	2881b2e6da02	stable	6.12.111	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250: fix possible ISR soft lockup	0c6bf45e5a34	
+不適用	5	2a72403b985a	stable	6.12.78	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250: Fix TX deadlock when using DMA	a424a34b8fad	
+不適用	5	313ae287442e	stable	6.12.104	tty	修正	可套用	低	內建 qcom_geni_serial 只綁 debug UART（FIFO 模式），DMA 路徑走不到；其他 UART 是原廠 msm_geni_serial	serial: qcom-geni: fix TX DMA buffer flush	e3c04834ae1a	
+不適用	5	460e0dc9af2d	stable	6.12.58	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	tty: serial: ip22zilog: Use platform device for probing	3fc36ae6abd2	
+不適用	5	4f07d8839327	stable	6.12.95	tty	修正	可套用	低	內建 qcom_geni_serial 只綁 debug UART（FIFO 模式），DMA 路徑走不到；其他 UART 是原廠 msm_geni_serial	serial: qcom_geni: Fix RX DMA stall when SE_DMA_RX_LEN_IN is zero	b93062b6d8a1	
+不適用	5	6a83d5e24a84	stable	6.12.93	tty	修正	衝突需改寫	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: zs: Convert to use a platform device	7cac59d08a73	drivers/tty/serial/zs.h: inline／header 內容
+不適用	5	6f5964622949	stable	6.12.93	tty	修正	衝突需改寫	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: dz: Convert to use a platform device	5d7a49d60b8f	
+不適用	5	8e2739478c16	stable	6.12.44	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250: fix panic due to PSLVERR	7f8fdd4dbffc	
+不適用	5	9f2444f4c0e4	stable	6.12.104	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250_dma: Clear stale RX state on shutdown	e2fe6a0efecb	
+不適用	5	b1159dce10b3	stable	6.12.93	tty	修正	可套用	低	內建 qcom_geni_serial 只綁 debug UART（FIFO 模式），DMA 路徑走不到；其他 UART 是原廠 msm_geni_serial	serial: qcom_geni: fix kfifo underflow when flush precedes DMA completion IRQ	452d6fa37ae9	
+不適用	5	c321dc5172c8	stable	6.12.106	tty	修正	可套用	低	8250、zs、dz 不是這個平台的序列埠；HVC_DCC 的 Kconfig 限制對 arm64 沒有影響	serial: 8250_of: clear stuck empty-FIFO RX-timeout on LPC32xx	142341547127	
 不適用	5	533b917e065f	stable	6.12.56	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbc: fix bogus 1024 byte prefix if ttyDBC read races with stall event	f3d12ec847b9	
 不適用	5	943f976c93e7	stable	6.12.108	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbgtty: Fix unregister on tty_register_driver() failure	a916fa66a43e	
 不適用	5	aa55e09cfc4b	stable	6.12.61	xhci	修正	可套用	低	xhci DbC 未啟用	xhci: dbgtty: Fix data corruption when transmitting data form DbC to host	f6bb3b67be9a	drivers/usb/host/xhci-dbgcap.h: struct dbc_port（非 KMI）
