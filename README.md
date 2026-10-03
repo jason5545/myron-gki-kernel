@@ -6,7 +6,7 @@ POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM`、`OS3.0.310.0.WPMCNXM` 
 
 ## 目前版本
 
-v16：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。
+v16.1：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。核心與 v16 相同，安裝器多接受 310 的原廠 init_boot。
 
 - 2026/10/3 起在作者的手機上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS 都正常，dmesg 的 WARNING 與原廠相同。
 - 原廠模組需要的 4,015 個核心符號，CRC 全部一致。
@@ -42,8 +42,7 @@ v16：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://gith
 
 - myron，HyperOS `OS3.0.309.0.WPMCNXM` 或 `OS3.0.310.0.WPMCNXM`（Android 16），bootloader 已解鎖。
 - 目前 boot 的核心是 KMI 5、4 KB 頁面（`6.12.*-android16-5-*-4k`）。
-- init_boot 必須是原廠映像（SHA-256 `a4ed45c0…`）。root 若是靠 init_boot 的 KernelSU LKM 或 Magisk 修補，安裝器會拒絕，要先換回原廠 init_boot。
-- 310 的原廠 init_boot 是 `0a9871f4…`，v16 的安裝器只認得 309 的，在 310 上會拒絕安裝。310 目前要用 fastboot 寫入以 310 原廠 boot 重封裝的映像，做法見[升級紀錄](docs/rom-upgrade-310.md)。
+- init_boot 必須是原廠映像（309 是 `a4ed45c0…`，310 是 `0a9871f4…`）。root 若是靠 init_boot 的 KernelSU LKM 或 Magisk 修補，安裝器會拒絕，要先換回原廠 init_boot。v16 以前的安裝器只認得 309 的 init_boot。
 
 安裝包是 AnyKernel3 ZIP，只替換 boot 裡的核心，不動 ramdisk、DTB、init_boot 與模組。可以用 ReSukiSU 管理器或其他能刷 AnyKernel3 的工具刷入。編譯好的 ZIP 在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)，也可以自己編譯。
 
@@ -122,8 +121,9 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v14 | 批次 6：netlink | 正常 |
 | v15 | 預設 TCP 擁塞控制改為 BBR | 正常 |
 | v16 | 批次 7：Gunyah、SCMI 修正 | 正常 |
+| v16.1 | 核心與 v16 相同；安裝器接受 310 的原廠 init_boot（[紀錄](docs/rom-upgrade-310.md)） | 核心在 310 上正常 |
 
-公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，v16 是第二個。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
+公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，之後是 v16、v16.1。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 
 ## 文件
 

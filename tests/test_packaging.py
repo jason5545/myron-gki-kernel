@@ -87,6 +87,10 @@ class PackageChecks(unittest.TestCase):
     def test_correct_boot_reaches_repack(self):
         self.assertEqual(self.run_installer("6.12.23-android16-5-stock-4k"), (0, True))
 
+    def test_310_stock_init_boot_reaches_repack(self):
+        sha = "0a9871f49b19840af13485feea6baa37ea0db4beffedc057f020bccc6b93e550"
+        self.assertEqual(self.run_installer("6.12.38-android16-5-g4b4d49350df7-4k", init_sha=sha), (0, True))
+
     def test_old_lkm_or_unknown_init_boot_never_flashes(self):
         for sha in ("5dee4a6da2e6c6718ccec7c6570ff90371a94468103a54fc53a37fa629406f7f", "0" * 64):
             code, wrote = self.run_installer("6.12.23-android16-5-stock-4k", init_sha=sha)

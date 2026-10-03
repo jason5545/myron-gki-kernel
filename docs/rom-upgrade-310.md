@@ -50,6 +50,8 @@ boot_b 保留 310 原廠 boot（`ecbfbf66…`）。v16 在 310 上出問題時�
 
 dmesg、logcat 與模組清單在 `out/v16-310-device/`。
 
-## 安裝器
+## 安裝器（v16.1）
 
-v16 的 AnyKernel3 安裝器只接受 309 的原廠 init_boot（`a4ed45c0…`），在 310 上會拒絕安裝。下一版要把 310 的 `0a9871f4…` 加進去。
+v16 的 AnyKernel3 安裝器只接受 309 的原廠 init_boot（`a4ed45c0…`），在 310 上會拒絕安裝。v16.1 把 310 的 `0a9871f4…` 加進去，核心 Image 不變（`30c25089…`）。
+
+AnyKernel3 沿用手機目前的 boot，只換核心，所以在 310 上用 v16.1 刷入時，boot 的 AVB footer 仍是 310 的，不會有上面修補等級倒退的問題。
