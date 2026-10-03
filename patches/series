@@ -139,3 +139,5 @@
 0138-gunyah-fix-binding-count-mismatch-in-gunyah-share.patch
 0139-gunyah-rsc-mgr-erase-xarray-entry-before-completing.patch
 0140-firmware-arm-scmi-protect-device-request-lookup-with.patch
+0141-kshrink-slabd.patch
+0142-cpq-iosched.patch
