@@ -6,13 +6,11 @@ POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM` 用的自編 GKI 核心�
 
 ## 目前版本
 
-最新發布的是 v15：`6.12.38-android16-5-g4b4d4935f92d-4k`。
+v16：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。
 
-- 2026/10/3 起在作者的手機上使用：開機、顯示、616 個原廠模組、UFS、ReSukiSU 與 SUSFS 都正常，dmesg 的 WARNING 與原廠相同。
+- 2026/10/3 起在作者的手機上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS 都正常，dmesg 的 WARNING 與原廠相同。
 - 原廠模組需要的 4,015 個核心符號，CRC 全部一致。
 - 版本字串中 commit 的開頭固定為 `4b4d4935`，是 "KMI5" 的 ASCII hex。
-
-作者手機上正在測試 v16（`6.12.38-android16-5-g4b4d49350df7-4k`），多了批次 7 的 Gunyah 與 SCMI 修正，開機檢查都通過，穩定後再發布。
 
 只在這一台手機、這一個韌體版本驗證過。
 
@@ -119,9 +117,9 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v9～v13 | KMI 6 時期修正批次 1～5（[紀錄](docs/kmi6-backport-batches.md)） | v13 正常 |
 | v14 | 批次 6：netlink | 正常 |
 | v15 | 預設 TCP 擁塞控制改為 BBR | 正常 |
-| v16 | 批次 7：Gunyah、SCMI 修正 | 正常，測試中 |
+| v16 | 批次 7：Gunyah、SCMI 修正 | 正常 |
 
-公開時把開發歷史合併成單一 commit，v15 是第一個公開版本。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
+公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，v16 是第二個。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 
 ## 文件
 
