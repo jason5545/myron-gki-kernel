@@ -1,0 +1,54 @@
+# 來源：linux-6.12.y stable 5045aa25f379（upstream be31fe6333f5，6.12.112）
+# ipv6: Fix dst leak for uncached routes.
+# 網路介面註銷時與 uncached route 競爭，洩漏 dst 與 net_device 參考；rmnet、wlan、VPN 介面常上下線。接續 0086 沒修到的部分
+diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
+index 6dbdf60b34..b1ea27bbd1 100644
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
+@@ -94,12 +94,12 @@ static inline struct dst_entry *ip6_route_output(struct net *net,
+ }
+ 
+ /* Only conditionally release dst if flags indicates
+- * !RT6_LOOKUP_F_DST_NOREF or dst is in uncached_list.
++ * !RT6_LOOKUP_F_DST_NOREF or dst is uncached.
+  */
+ static inline void ip6_rt_put_flags(struct rt6_info *rt, int flags)
+ {
+ 	if (!(flags & RT6_LOOKUP_F_DST_NOREF) ||
+-	    !list_empty(&rt->dst.rt_uncached))
++	    rt->dst.rt_uncached_list)
+ 		ip6_rt_put(rt);
+ }
+ 
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 70c54e1f90..64ab0c5347 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -139,6 +139,7 @@ void rt6_uncached_list_add(struct rt6_info *rt)
+ {
+ 	struct uncached_list *ul = raw_cpu_ptr(&rt6_uncached_list);
+ 
++	/* Set once and never cleared: non-NULL marks an uncached route. */
+ 	rt->dst.rt_uncached_list = ul;
+ 
+ 	spin_lock_bh(&ul->lock);
+@@ -2686,8 +2687,8 @@ struct dst_entry *ip6_route_output_flags(struct net *net,
+ 	rcu_read_lock();
+ 	dst = ip6_route_output_flags_noref(net, sk, fl6, flags);
+ 	rt6 = dst_rt6_info(dst);
+-	/* For dst cached in uncached_list, refcnt is already taken. */
+-	if (list_empty(&rt6->dst.rt_uncached) && !dst_hold_safe(dst)) {
++	/* For an uncached dst, refcnt is already taken. */
++	if (!rt6->dst.rt_uncached_list && !dst_hold_safe(dst)) {
+ 		dst = &net->ipv6.ip6_null_entry->dst;
+ 		dst_hold(dst);
+ 	}
+@@ -2797,7 +2798,7 @@ INDIRECT_CALLABLE_SCOPE struct dst_entry *ip6_dst_check(struct dst_entry *dst,
+ 	from = rcu_dereference(rt->from);
+ 
+ 	if (from && (rt->rt6i_flags & RTF_PCPU ||
+-	    unlikely(!list_empty(&rt->dst.rt_uncached))))
++	    unlikely(rt->dst.rt_uncached_list)))
+ 		dst_ret = rt6_dst_from_check(rt, from, cookie);
+ 	else
+ 		dst_ret = rt6_check(rt, from, cookie);

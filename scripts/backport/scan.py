@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """掃描 linux-6.12.y 6.12.39..111，對 ACK 1ad7be92（6.12.38，KMI 5）做套用、反向套用、
-3-way 檢查，並估計是否編進核心與 KMI 風險。在 LXC 112 執行。"""
+3-way 檢查，並估計是否編進核心與 KMI 風險。在 LXC 112 執行。
+
+STABLE_RANGE 改掃描範圍（例如 v6.12.111..v6.12.112），KMI6_BASE 改比對的樹
+（build_tree.py 建出的目前 patch 狀態）。"""
 import collections, json, os, re, subprocess, sys
 
 STABLE = '/gki/stable'
 KMI = '/gki/kmi6'
-BASE = '1ad7be92b3ed2e7d9c39f9b6d96bb91f1220c76d'
+BASE = os.environ.get('KMI6_BASE', '1ad7be92b3ed2e7d9c39f9b6d96bb91f1220c76d')
+RANGE = os.environ.get('STABLE_RANGE', 'v6.12.111')
 CONFIG_PATH = '/src/out/reports/candidate.config'
 SYSMAP_PATH = '/src/out/dist/System.map'
 OUT = os.environ.get('KMI6_OUT', '/root/kmi6scan')
@@ -327,7 +331,7 @@ def apply_status(patch_path, commit=None):
 def stable_commits():
     shallow = set(open(STABLE + '/.git/shallow').read().split())
     fmt = '%x1e%H%x1f%s%x1f%b%x1f'
-    out = run('git', 'log', '--no-merges', '--name-only', f'--format={fmt}', 'v6.12.111', cwd=STABLE).stdout
+    out = run('git', 'log', '--no-merges', '--name-only', f'--format={fmt}', RANGE, cwd=STABLE).stdout
     version = None
     commits = []
     for chunk in out.split('\x1e')[1:]:

@@ -139,3 +139,10 @@
 0138-gunyah-fix-binding-count-mismatch-in-gunyah-share.patch
 0139-gunyah-rsc-mgr-erase-xarray-entry-before-completing.patch
 0140-firmware-arm-scmi-protect-device-request-lookup-with.patch
+0141-mm-rmap-fix-missing-barrier-between-anon-vma.patch
+0142-exec-cleanup-posix-timers-right-after-de-thread.patch
+0143-net-lock-the-socket-in-sock-gettstamp.patch
+0144-tcp-fix-use-after-free-of-retransmit-skb.patch
+0145-tcp-don-t-call-skb-clone-and-charge.patch
+0146-ipv6-fix-dst-leak-for-uncached-routes.patch
+0147-xfrm-use-hlist-del-init-rcu-for-state.patch
