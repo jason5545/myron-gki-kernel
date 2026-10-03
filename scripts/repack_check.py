@@ -13,6 +13,8 @@ from package_kernel import ROOT, digest, vendor_files
 from validate import check_image
 
 REMOTE_ROOT = "/data/local/tmp/myron-kernel-repack-check"
+# 310 的原廠 boot：核心與 309 相同，只有 AVB footer 不同（docs/rom-upgrade-310.md）。
+STOCK_BOOT_310 = "ecbfbf6640d45df4c6fd68686f8a9bc9be5b4c31f8f4a3f6d26cd9d6be3229f9"
 
 
 def check_repacked(stock_bytes, candidate_bytes, expected_kernel):
@@ -29,8 +31,8 @@ def check_repacked(stock_bytes, candidate_bytes, expected_kernel):
 
 def repack(adb, serial, stock_boot, image, output, expect_live=None):
     stock = json.loads((ROOT / "baseline/stock-image.json").read_text())
-    if digest(stock_boot) != stock["sha256"]:
-        raise ValueError("原廠 boot 備份與已收集的實機基準不同")
+    if digest(stock_boot) not in (stock["sha256"], STOCK_BOOT_310):
+        raise ValueError("原廠 boot 備份不是已收集的 309 或 310 原廠 boot")
     info, raw, _ = inspect_path(image)
     source = json.loads((ROOT / "source.lock.json").read_text())
     policy = json.loads((ROOT / "config/kernel-policy.json").read_text())

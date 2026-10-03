@@ -196,10 +196,12 @@ v18 Image `fdea557f4842…`，版本字串 `6.12.38-android16-5-g4b4d4935db3b-4k
 刷機前都要先問 Jason。只刷 `boot_a`，init_boot 維持原廠。每一版刷之前，先跑暫存重封裝驗收，指定目前 `boot_a` 的雜湊：
 
 ```sh
-python3 scripts/repack_check.py --serial <adb 序號> --stock-boot local-backup/device-boot_a.img \
+python3 scripts/repack_check.py --serial <adb 序號> --stock-boot local-backup/eu310/boot-stock-310.img \
   --image out/build-2025-09-v<N>/dist/Image --output out/repack-2025-09-v<N>/boot-from-stock.img \
   --expect-live-sha <目前 boot_a 的 sha256>
 ```
+
+310 之後 `--stock-boot` 用 310 原廠 boot（309 的 `local-backup/device-boot_a.img` 也仍接受）。v18 刷入前的驗收：目前 boot_a `aa2a63e6…`，重封裝通過，boot_a 未改變。
 
 每版要看的項目同 v8：
 
