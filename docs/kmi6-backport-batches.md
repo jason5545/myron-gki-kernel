@@ -1,4 +1,4 @@
-# KMI 6 時期修正 backport：七批實作與編譯（v9～v16）
+# KMI 6 時期修正 backport：八批實作與編譯（v9～v18）
 
 依 [候選清單](kmi6-backport-candidates.md) 的建議，2026/10/2 晚上 Jason 確認全部做，需要改寫的也一起做。手機當時已拔掉 USB，所以當晚只做到編譯和 CRC 關卡。10/3 Jason 直接刷入 v13，實機結果見下方；之後追加批次 6 編出 v14。
 
@@ -23,6 +23,7 @@
 | v14 | ＋批次 6：netlink rmem（追加） | 0132～0135（4） | `6.12.38-android16-5-g4b4d4935922a-4k` | `b246ec5eeede…` | 缺少 0、不符 0 |
 | v15 | ＋0136：預設 TCP 擁塞控制改為 BBR | 0136（1） | `6.12.38-android16-5-g4b4d4935f92d-4k` | `936cf7b208f0…` | 缺少 0、不符 0 |
 | v16 | ＋批次 7：Image 內的高通相關修正（Gunyah、SCMI） | 0137～0140（4） | `6.12.38-android16-5-g4b4d49350df7-4k` | `30c25089a4a2…` | 缺少 0、不符 0 |
+| v18 | ＋批次 8：stable 6.12.112 補掃 | 0141～0147（7） | `6.12.38-android16-5-g4b4d4935db3b-4k` | `fdea557f4842…` | 缺少 0、不符 0 |
 
 每一版的 KMI 都是 `6.12-android16-5`，頁面 4096 bytes，Image 內都有 ReSukiSU（`v4.2.0-rc3-239e1e88@ReSukiSU`）、SUSFS 與 0006 的字串，Mac 上重跑映像驗收也通過。CRC 共 4,015 個符號。`rust_binder.ko` 例外和 v8 相同：不符 16、未版本化缺少 4。18 項測試通過。產物在 `out/build-2025-09-v<N>/`。
 
@@ -152,6 +153,43 @@ Jason 用 ReSukiSU 管理器刷入，開機約 3 分鐘檢查：
 | 其他 | 沒有新的 tombstone，`/sdcard` 讀寫正常，`tcp_congestion_control` 為 bbr |
 
 dmesg 與 logcat 在 `out/v16-device/`。
+
+## 批次 8：stable 6.12.112 補掃（2026/10/3）
+
+6.12.112 在 10/3 發布，[候選清單](kmi6-backport-candidates.md) 只掃到 6.12.111。這次用同一套腳本與篩選條件補掃，但套用檢查改對 v16.1 的樹（基底加 0001～0140），不再對 v8。
+
+- 6.12.112 共 850 個 commit，落在掃描子系統的 233 個。
+- 自動篩選：未編進核心 85、沒有嚴重性字樣 49、只是前置 34、手機沒用到的功能 8、基底已有 2，剩 55 筆。
+- 被修的 commit 是否在樹上：stable 會收，表示 bug 存在 6.12.111；再排除被修的 commit 是 6.12.39～6.12.112 才回推、而我們沒有拿的情況。55 筆中只有 dwc3 的 `5f359265f616` 屬於這種，它修的是 6.12.112 自己回推的 commit。
+- 6.12.112 沒有 commit 修到我們已 backport 的 254 個 commit（`Fixes:` 與內文都比對過）。內文提到的只有 0086、0090，就是下面 0146、0147 補完的那兩份。
+- 逐筆判斷：建議 7、可選 31、不建議 5、不適用 12，完整清單在 [stable-6.12.112-candidates.tsv](stable-6.12.112-candidates.tsv)。
+
+| patch | stable commit | 修正 | 套用 |
+| --- | --- | --- | --- |
+| 0141 | `a500df43cde0` | arm64 上 anon_vma 發布前缺 release barrier，兩個執行緒同時在相鄰 VMA 觸發 page fault，會鎖到舊的 root 而 hung task | 改寫 |
+| 0142 | `d9ae467e617c` | 多執行緒 exec 在 `de_thread()` 之後失敗，POSIX CPU timer 留在佇列裡被釋放 | 3-way |
+| 0143 | `1f73253add83` | `SIOCGSTAMP` 與 `bind()` 同時改 `sk_flags`，清掉 `SOCK_RCU_FREE`，UDP socket UAF | 直接 |
+| 0144 | `e3ea71cb1408` | TCP Fast Open 的 SYN-ACK 換掉 SYN skb 後，retransmit hint 指向已釋放的 skb | 直接 |
+| 0145 | `3e3394a13b60` | IPv6 listener 被 `close()` 時，`tcp_v6_do_rcv()` 無鎖計入 `sk_forward_alloc` | 直接 |
+| 0146 | `5045aa25f379` | 介面註銷時與 uncached route 競爭，洩漏 dst 與 net_device 參考；0086 沒修到的部分 | 直接 |
+| 0147 | `fb38fb7420d5` | xfrm state 第二次刪除時經 `LIST_POISON` 寫入；0090 漏掉的 `state_cache` 兩個 list | 直接 |
+
+0141 的改寫：6.12.38 的 `__anon_vma_prepare()` 接著呼叫 `anon_vma_chain_link()`，上游是 `anon_vma_chain_assign()`，所以 rmap.c 那段套不上。修正本身只有把 `vma->anon_vma` 的 store 換成 `smp_store_release()`，mm/vma.c 的註解照原樣。0142 以 3-way 合併，增減的行與原 commit 相同；timer 清理移到 `de_thread()` 之後、`unshare_files()` 之前，位置與上游一致。匯出的 0141～0147 從 v16.1 的樹依序套用，結果與逐筆 commit 的樹完全相同。
+
+重跑方式（LXC 112）：
+
+```sh
+cd /src/scripts/backport
+BASE=$(python3 build_tree.py)
+KMI6_BASE=$BASE STABLE_RANGE=v6.12.111..v6.12.112 KMI6_OUT=/root/kmi6scan-112 python3 scan.py
+KMI6_OUT=/root/kmi6scan-112 python3 filter.py
+```
+
+`build_tree.py` 只動 `/gki/kmi6` 的 detached HEAD，`bp` 分支不變。`/gki/stable` 是 shallow clone，6.12.38 以前的歷史不在裡面，不能用 `merge-base --is-ancestor` 判斷被修的 commit 在不在樹上。
+
+這批編成 v18。v17 是 K3 把小米 cpq、kshrink_slabd 編進 Image 的版本，原廠 first stage 的 `cpq.ko` 會因此載入失敗，沒有刷過就撤回了（`29eae3a`）。
+
+v18 Image `fdea557f4842…`，版本字串 `6.12.38-android16-5-g4b4d4935db3b-4k`：KMI `6.12-android16-5`、4 KB，設定與 v16 相同。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同；原廠模組撞名 0（`kernelsu` 列為例外）。vmlinux.symvers 與 v16 完全相同，System.map 只有 exec.c、sock.c 行數變動造成的 initcall 名稱與 linker veneer 不同。AnyKernel3 ZIP 是 `myron-kmi5-fdea557f4842-AnyKernel3.zip`（SHA-256 `ddf1c98c…`），還沒刷。
 
 ## 實機驗收（後續版本）
 

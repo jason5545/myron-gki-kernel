@@ -1,0 +1,56 @@
+建議	patch	commit	upstream	子系統	狀態（對 v16.1）	KMI 風險	說明	標題
+建議	0141	a500df43cde0	b6ac0b3f6013	mm	衝突需改寫	低	arm64 上 anon_vma 發布缺 release barrier，相鄰 VMA 同時 page fault 會 hung task；改寫	mm/rmap: fix missing barrier between anon_vma init and vma->anon_vma publish
+建議	0142	d9ae467e617c	acb03d388181	vfs	可套用（3-way）	低	多執行緒 exec 失敗時 POSIX CPU timer UAF，一般 app 可觸發；3-way	exec: Cleanup POSIX timers right after de_thread()
+建議	0143	1f73253add83	9ed55f3dbef4	net	可套用	低	SIOCGSTAMP 與 bind() 競爭造成 UDP socket UAF，一般 app 可觸發	net: lock the socket in sock_gettstamp()
+建議	0144	e3ea71cb1408	fe99bbeee5c5	net	可套用	低	TCP Fast Open SYN-ACK 的 retransmit hint UAF，一般 app 可觸發	tcp: fix use-after-free of retransmit_skb_hint in tcp_send_synack()
+建議	0145	3e3394a13b60	8e759cd1f644	net	可套用	低	IPv6 listener close() 時 sk_forward_alloc 無鎖計數	tcp: Don't call skb_clone_and_charge_r() for close()d listener in tcp_v6_do_rcv().
+建議	0146	5045aa25f379	be31fe6333f5	net	可套用	中	介面註銷時 uncached route 洩漏 dst 與 net_device 參考；接續 0086	ipv6: Fix dst leak for uncached routes.
+建議	0147	fb38fb7420d5	2afb8dc1f439	net	可套用	低	xfrm state_cache 二次刪除寫入 UAF；補上 0090 漏掉的兩個 list	xfrm: use hlist_del_init_rcu for state_cache and state_cache_input
+可選		0dceda331180	6db1ce73e985	bpf	可套用	低	只有特權程序能載入 BPF	bpf: Reject dev-bound-only programs on other devices
+可選		63af086cb5fa	b0b3dc665296	bpf	可套用	低	只有特權程序能載入 BPF	bpf: Fix divide-by-zero in btf_struct_walk()
+可選		798a61edbc43	50e80e2bb5e2	bpf	可套用	低	只有特權程序能載入 BPF	bpf: Skip unsettled links in link iterator
+可選		a0e150a11802	1c21452d02ee	bpf	衝突需改寫	中	只有特權程序能載入 BPF	bpf: Fix UAF due to concurrent consumption of ttrace lists in alloc_bulk
+可選		f0c09de08ec0	85136bf22404	bpf	可套用	低	只有特權程序能載入 BPF	bpf: Avoid soft lockup in __htab_map_lookup_and_delete_batch()
+可選		34732e3a8713	5b86eab84ac8	f2fs	可套用（3-way）	低	只在 node 已損毀時走到	f2fs: fix to clear dirty flag on folio in error path
+可選		bca61ee5192e	e533889fc26a	f2fs	可套用	低	F2FS_IOC_MOVE_RANGE 不在 app 的 SELinux ioctl 白名單	f2fs: validate MOVE_RANGE destination size
+可選		4eb889649eaf	407a5d205179	mm	可套用	低	要上百萬個 inode 掛在同一個 dying cgwb 才會發生	writeback: report a Tasks-RCU quiescent state per cgwb drain pass
+可選		1c70275ca87e	ee319bd3a0e9	net	可套用	低	會越界的是 openvswitch；netfilter 讀封包有 skb_header_pointer 保護	ipv6: do not let ipv6_find_hdr() return an offset past the packet end
+可選		259caa711b76	c82b797abe66	net	可套用	低	刪除 tc action 需要 CAP_NET_ADMIN	net/sched: reject IDR error pointers when deleting actions
+可選		290c96e5d947	1b9b5323725e	net	可套用	低	要在 user namespace 建 nexthop 物件，app 做不到	netfilter: ip6t_rpfilter: reject routes without inet6_dev
+可選		37877a247580	ed6eec97b534	net	可套用	中	只有特權程序能載入 BPF	bpf: Fix bounds check for skb-backed dynptrs
+可選		3a46f14e6cf3	75f8cf22463d	net	可套用	低	只有特權程序能載入 BPF	bpf: Fix out-of-bounds read of rtt_min in sock_ops
+可選		414bbad99285	d8b6529e80bc	net	可套用	低	SIOCSARP 需要 CAP_NET_ADMIN	net: arp: terminate device name before lookup
+可選		49a48a5aaf85	33ff111d7ba3	net	可套用	低	PACKET_VNET_HDR 只有虛擬化會用	net/packet: clear RX owner on VNET header error
+可選		5b52417c6196	eaab8cab451b	net	可套用	低	只有特權程序能載入 BPF	tcp: Skip cond_resched() in inet_csk_listen_stop() under BPF context
+可選		60df201dbb19	83a945a529d6	net	可套用	低	改 tcp_rmem 需要 root	tcp: do not let tcp_rmem be set below 4096
+可選		68a317b4aec8	d2f5082f9e84	net	衝突需改寫	低	espintcp 未啟用；衝突	xfrm: add missing rcu_read_lock(), skb_dst_force() and dev_hold() for xfrm_trans_reinject()
+可選		6c28c31f051d	3b4e0b0c008a	net	可套用	低	skb_checksum_setup 只有 virtio／tun 類驅動會用	net: skbuff: fix pull-bound underflow in skb_checksum_setup_ipv6()
+可選		a9651704c6fd	01b245ba016d	net	可套用	低	只有特權程序能載入 BPF	bpf: Fix out-of-bounds read of sk_protocol in bpf_sock_destroy()
+可選		b2bcc6a254d6	56d82862a0a2	net	可套用	低	需要 CAP_NET_RAW	af_packet: fix integer overflow in prb_calc_retire_blk_tmo()
+可選		cac69c50716c	2998147b59c9	net	衝突需改寫	低	最多一次 WARN；衝突	ipv4: icmp: reject RTN_UNREACHABLE input routes in icmp_route_lookup
+可選		cc70972ddbf0	814a81c842bd	net	可套用	低	sockmap 實機未使用	bpf, sockmap: Reject max_entries > INT_MAX in sock_map_alloc
+可選		e67c455d79fb	951840561386	net	衝突需改寫	中	TX_RING 需要 CAP_NET_RAW；衝突	packet: use ubuf_info completion for TX_RING packets
+可選		ef6f2182fee6	490a83d6386e	net	可套用	低	sockmap 實機未使用	bpf, sockmap: Fix self-redirect copied_seq double-counting
+可選		eff227a3cb4d	4da3b7b8b50f	net	可套用	低	xps 設定需要 root	net: xps: reject an out of range traffic class
+可選		b5409311b606	36bb85cf36ca	perf	衝突需改寫	低	只在 PMU 有 sched_task 回呼時走到；衝突	perf/core: Fix NULL pmu_ctx passed to pmu->sched_task()
+可選		51cc9af4f2d3	2c0f5ca48674	usb-gadget	可套用	低	這個 USB gadget function 平常不會啟用	usb: gadget: f_mass_storage: fix null pointer dereference in fsg_common_set_num_buffers()
+可選		624dd0931162	f6988c90671e	vfs	衝突需改寫	低	要上百萬個 inode 掛在同一個 dying cgwb 才會發生；衝突	writeback: bound cleanup_offline_cgwb() rescans by rotating scanned inodes
+可選		bac2f1913a21	9688a4680293	vfs	可套用	低	要配合 setuid 程式，Android 沒有	pidfd: hold exec_update_lock around namespace ioctl
+可選		ccd28394c5ea	2d2a2d7aa987	vfs	可套用	低	主要影響 CIFS DFS；改動 super 生命週期，範圍大	super: make iterate_supers_type() deletion-safe
+不建議		7ee6be9ee7f9	3d7bca9d5837	f2fs	衝突需改寫	高	改到 KMI 型別 struct f2fs_sb_info	f2fs: embed f2fs_gc_kthread in f2fs_sb_info
+不建議		ae3e53fe3c12	5a88f78df753	kernel,sched	衝突需改寫	高	改到 KMI 型別；改 cad_pid 也需要 root	reboot: fix cad_pid use-after-free race
+不建議		388b44703fb5	37213e611202	net	可套用	高	改到結構成員；也需要 CAP_NET_RAW	net/packet: avoid truncating TPACKET_V3 private size
+不建議		4986a72f3444	1767bb2d47b7	net	可套用	低	拿掉 RTNL 的重構，不是修正	ipv6: mcast: Don't hold RTNL for IPV6_ADD_MEMBERSHIP and MCAST_JOIN_GROUP.
+不建議		5c50dd4a6a72	e6e14d582dd2	net	衝突需改寫	低	拿掉 RTNL 的重構，不是修正	ipv6: mcast: Don't hold RTNL for MCAST_ socket options.
+不適用		60a3c319f112	955d86e5f3b9	arm64	可套用	低	hibernation，Android 不用	arm64: hibernate: pass HVC_SET_VECTORS args to the resume hvc
+不適用		bb8c90c86441	2bc6b218717b	arm64	可套用	中	只影響從 EL2 開機的流程；手機 All CPU(s) started at EL1	arm64/boot: Disable trapping of PMZR_EL0 writes to EL2
+不適用		5f359265f616	9c855832790c	dwc3	可套用	低	bug 由 6.12.112 才回推的 commit 引入，不在樹上	usb: dwc3: gadget: Fix use-after-free in dwc3_gadget_free_endpoints due to race condition
+不適用		1ae7aee39524	fc6d80eb5044	net	可套用	中	只影響網卡 TLS offload 與 PSP	tcp: prevent collapsing skbs across boundary in rtx queue
+不適用		39e41af3653e	89fefad9f971	net	衝突需改寫	低	需要網卡 IPsec offload	xfrm: serialize state GC with device state flush
+不適用		46ec55855c97	ab1404ac8115	net	可套用	低	沒有 bridge	net: bridge: mdb: restart port group walk after deletion
+不適用		6508304ac2c8	f89416eb3db1	net	可套用	低	managed frags 只來自 io_uring zerocopy，Android 不開放 io_uring	esp: downgrade zerocopy managed frags before mutating skb frags
+不適用		97f907203321	2566866fc309	net	可套用	中	沒有 GUE tunnel	net: gue: reject invalid REMCSUM offsets
+不適用		bb63ab52a182	d1ebd9081879	net	衝突需改寫	低	XFRM_USER_COMPAT 未啟用	xfrm: fix compat ALLOCSPI request use-after-free
+不適用		be5ead655241	7a49e6b16f36	net	可套用	高	沒有 bridge	net: bridge: use option bits for CFM/MRP frame handlers
+不適用		c5f4b694db4a	9b222cb1d23f	net	衝突需改寫	中	ROSE 未編進核心	rose: cancel neighbour timers in rose_neigh_put() before freeing
+不適用		60b0b8ce803e	3d676e458fe0	scsi	可套用	低	CDL 只有 ATA 裝置，UFS 不會啟用	scsi: core: Validate MODE SENSE lengths in scsi_cdl_enable()
