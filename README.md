@@ -127,7 +127,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v16 | 批次 7：Gunyah、SCMI 修正 | 正常 |
 | v16.1 | 核心與 v16 相同；安裝器接受 310 的原廠 init_boot（[紀錄](docs/rom-upgrade-310.md)） | 核心在 310 上正常 |
 | v17 | 把小米 cpq、kshrink_slabd 編進 Image；原廠 first stage 的 `cpq.ko` 會載入失敗，已撤回 | 沒有刷 |
-| v18 | 批次 8：stable 6.12.112 補掃（[紀錄](docs/kmi6-backport-batches.md#批次-8stable-612112-補掃2026103)） | — |
+| v18 | 批次 8：stable 6.12.112 補掃（[紀錄](docs/kmi6-backport-batches.md#批次-8stable-612112-補掃2026103)） | 正常 |
 
 公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，之後是 v16、v16.1。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 

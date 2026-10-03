@@ -189,7 +189,27 @@ KMI6_OUT=/root/kmi6scan-112 python3 filter.py
 
 這批編成 v18。v17 是 K3 把小米 cpq、kshrink_slabd 編進 Image 的版本，原廠 first stage 的 `cpq.ko` 會因此載入失敗，沒有刷過就撤回了（`29eae3a`）。
 
-v18 Image `fdea557f4842…`，版本字串 `6.12.38-android16-5-g4b4d4935db3b-4k`：KMI `6.12-android16-5`、4 KB，設定與 v16 相同。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同；原廠模組撞名 0（`kernelsu` 列為例外）。vmlinux.symvers 與 v16 完全相同，System.map 只有 exec.c、sock.c 行數變動造成的 initcall 名稱與 linker veneer 不同。AnyKernel3 ZIP 是 `myron-kmi5-fdea557f4842-AnyKernel3.zip`（SHA-256 `ddf1c98c…`），還沒刷。
+v18 Image `fdea557f4842…`，版本字串 `6.12.38-android16-5-g4b4d4935db3b-4k`：KMI `6.12-android16-5`、4 KB，設定與 v16 相同。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同；原廠模組撞名 0（`kernelsu` 列為例外）。vmlinux.symvers 與 v16 完全相同，System.map 只有 exec.c、sock.c 行數變動造成的 initcall 名稱與 linker veneer 不同。AnyKernel3 ZIP 是 `myron-kmi5-fdea557f4842-AnyKernel3.zip`（SHA-256 `ddf1c98c…`）。
+
+## v18 實機（2026/10/3）
+
+Jason 用 ReSukiSU 管理器刷入，開機約 2 分鐘檢查，對照 v16 在 310 上的紀錄（`out/v16-310-device/`）：
+
+| 項目 | 結果 |
+| --- | --- |
+| 核心 | `6.12.38-android16-5-g4b4d4935db3b-4k`，310，slot a；boot_a `6fb660a8…`，init_boot 310 原廠 `0a9871f4…` |
+| boot_a 內容 | 讀回比對：核心與 v18 Image 位元相同，標頭除核心大小外與刷入前的 `aa2a63e6…` 相同 |
+| 模組 | 616 個，清單與 v16 完全相同；原廠 cpq（sda 排程器 `[cpq]`）與 kshrink_slabd 照常運作 |
+| 顯示 | logcat 沒有 `drmModeAtomicCommit failed` |
+| UFS | 沒有錯誤，`ufshcd_err_handler` 0 次 |
+| dmesg | WARNING 只有 `spmi-pmic-arb.c:352` 兩次與 eBPF 提示，與 v16 相同；沒有 Oops、stall、lockup |
+| Gunyah | `gunyah_rm_rx` 131 次、`gunyah_rm_tx` 4 次，vcpu 中斷在跑 |
+| SCMI | 兩個 policy 都是 `scmi`、governor `walt`，頻率正常 |
+| root | ReSukiSU `Work mode: Built-in`，SUSFS v2.3.0 已初始化 |
+| 網路 | Wi-Fi IPv4／IPv6 ping 正常，wlan0 與 IMS（rmnet_data1）都通過驗證；xfrm 有 2 個 SA、3 條 policy 在用 |
+| 其他 | 沒有新的 tombstone，`/sdcard` 讀寫正常，擁塞控制 bbr，`tcp_fastopen` 1 |
+
+dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v18-device/`。萬一要退回，fastboot 寫 `local-backup/eu310/boot-v16-on-310.img`（`aa2a63e6…`）就是 v16.1。
 
 ## 實機驗收（後續版本）
 
