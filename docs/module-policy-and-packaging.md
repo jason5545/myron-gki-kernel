@@ -16,7 +16,7 @@ MODVERSIONS、CFI、模組簽章驗證與編譯時簽章維持啟用；不強制
 
 ## AnyKernel3 套件
 
-`scripts/package_kernel.py` 先驗證 KMI 5、4 KB、核心設定與現有原廠模組 CRC，再產生 `out/packages/myron-kmi5-<Image SHA 前 12 碼>-AnyKernel3.zip`。
+`scripts/package_kernel.py` 先驗證 KMI 5、4 KB、核心設定、現有原廠模組 CRC，以及內建模組與匯出符號沒有跟原廠模組同名，再產生 `out/packages/myron-kmi5-<Image SHA 前 12 碼>-AnyKernel3.zip`。
 
 官方 AnyKernel3 腳本固定於 `020dfeccf9d7e962a48400fc94d3e451df92eead`；ARM64 工具固定於 `f1a6f5ec47749252d30cc5e26f71f06b14cba617`。來源、每個檔案的 SHA-256 與 LICENSE 保存在 `packaging/`，工具架構也會核對。
 

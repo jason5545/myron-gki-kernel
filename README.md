@@ -34,6 +34,8 @@ v16.1：`6.12.38-android16-5-g4b4d49350df7-4k`，下載在 [Releases](https://gi
 
 原廠 Image 另有 7 個小米私有選項（例如 `SCSI_FASTDISCARD`、`XIAOMI_ENHANCED_IOSTAT`），小米沒有公開原始碼，這個核心沒有這些功能。查核過程見 [references-6.12.md](docs/references-6.12.md)。
 
+小米另一部分功能在原廠就是 vendor 模組，例如 CPQ I/O 排程器（`cpq.ko`）、非同步 slab 回收（`kshrink_slabd.ko`）、`unfairmem.ko`。手機沿用這些原廠模組，核心不重複內建；內建同名功能會讓原廠模組載入失敗。
+
 高通在 CodeLinaro 釋出的 GKI common 是 AOSP 原樣鏡像，高通自己的程式碼都在 vendor 模組，手機沿用原廠版本；Image 裡用到的高通相關修正也整理在同一份文件。
 
 ## 安裝
@@ -82,6 +84,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 
 - Image 的 KMI 是 `6.12-android16-5`，頁面 4096 bytes，設定與 `kernel-policy.json` 一致。
 - 對照原廠 boot、vendor_boot、vendor_dlkm、system_dlkm 的模組（[`baseline/module-requirements.json`](baseline/module-requirements.json)），4,015 個符號 CRC 缺少 0、不符 0。唯一例外是原廠 `rust_binder.ko`：手機用 C binder，不會載入它。
+- 核心內建的模組（`modules.builtin`）與匯出符號，不能跟原廠模組同名。同名的原廠模組會載入失敗，發生在 first stage 就開不了機。唯一例外是舊 init_boot 的 KernelSU LKM，安裝器只接受原廠 init_boot，它不會跟內建 ReSukiSU 同時存在。
 
 每次刷入：
 

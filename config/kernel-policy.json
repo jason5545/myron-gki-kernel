@@ -34,6 +34,9 @@
     "status": "skipped_by_user",
     "reason": "Jason 確認沒有 LK 待機功能的來源，已指示跳過。"
   },
+  "collision_exceptions": {
+    "kernelsu.ko": "舊 init_boot 修補用的 KernelSU LKM（init/kernelsu.ko，vermagic 6.12.76），不是原廠模組。核心內建 ReSukiSU 同名 kernelsu；安裝器只接受原廠 init_boot，兩者不會同時存在。"
+  },
   "abi_exceptions": {
     "rust_binder.ko": "手機使用 C binder（kcmdline.binder=c，rust_binder 引用數 0、沒有依賴模組）。它由 /vendor/bin/system_dlkm_modprobe.sh 第二階段逐一載入，失敗不影響其他模組；該目錄第一個模組是 gzvm.ko。Rust kernel crate 符號不在 KMI 保證內，6.12.38 與原廠 6.12.23 不同。Jason 2026/10/2 同意。"
   }

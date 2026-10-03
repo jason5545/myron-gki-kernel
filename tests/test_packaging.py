@@ -38,7 +38,7 @@ class PackageChecks(unittest.TestCase):
                     patch("package_kernel.check_image", return_value=[]), \
                     patch("package_kernel.compare", return_value={"compatible": False}):
                 with self.assertRaisesRegex(ValueError, "CRC"):
-                    create_package(Path("unused"), Path("unused"), Path("unused"), out)
+                    create_package(Path("unused"), Path("unused"), Path("unused"), Path("unused"), out)
             self.assertFalse(out.exists())
 
     def test_repack_rejects_changed_header_or_kernel(self):

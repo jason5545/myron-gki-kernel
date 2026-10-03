@@ -55,9 +55,11 @@ python3 "$PROJECT_ROOT/scripts/validate.py" --image "$DIST_DIR/Image"
 python3 "$PROJECT_ROOT/scripts/module_abi.py" check \
   --required "$PROJECT_ROOT/baseline/module-requirements.json" \
   --symvers "$DIST_DIR/vmlinux.symvers" --system-map "$DIST_DIR/System.map" \
+  --builtin "$DIST_DIR/modules.builtin" \
   --output "$PROJECT_ROOT/out/reports/module-abi.json"
 python3 "$PROJECT_ROOT/scripts/package_kernel.py" --image "$DIST_DIR/Image" \
-  --symvers "$DIST_DIR/vmlinux.symvers" --system-map "$DIST_DIR/System.map"
+  --symvers "$DIST_DIR/vmlinux.symvers" --system-map "$DIST_DIR/System.map" \
+  --builtin "$DIST_DIR/modules.builtin"
 python3 - "$PROJECT_ROOT/out" <<'PY'
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]);files={}

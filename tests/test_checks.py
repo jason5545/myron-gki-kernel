@@ -10,7 +10,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from inspect_kernel import inspect, inspect_path
-from module_abi import compare, parse_module
+from module_abi import collisions, compare, parse_module
 from validate import check_image
 
 
@@ -101,6 +101,38 @@ class KernelChecks(unittest.TestCase):
             result = compare(required, path, exceptions=exceptions)
             self.assertFalse(result["compatible"])
             self.assertEqual(result["mismatched"][0]["symbol"], "shared")
+
+    def test_builtin_or_export_named_like_stock_module_is_rejected(self):
+        # v17 把 cpq、kshrink_slabd 編進 Image；原廠 first stage 的 cpq.ko 會因 -EBUSY 載入失敗。
+        baseline = json.loads((ROOT / "baseline/module-requirements.json").read_text())
+        allowed = json.loads((ROOT / "config/kernel-policy.json").read_text())["collision_exceptions"]
+        stock_export = next(iter(baseline["exports"]))
+        with tempfile.TemporaryDirectory() as folder:
+            builtin = Path(folder) / "modules.builtin"
+            builtin.write_text("kernel/drivers/kernelsu/kernelsu.ko\nkernel/fs/ext4/ext4.ko\n")
+            collided, excepted = collisions(baseline, set(), builtin, allowed)
+            self.assertEqual(collided, [])
+            self.assertEqual([item["name"] for item in excepted], ["kernelsu"])
+            builtin.write_text(builtin.read_text() + "kernel/block/cpq.ko\nkernel/mm/kshrink_slabd.ko\n")
+            collided, _ = collisions(baseline, {stock_export}, builtin, allowed)
+            self.assertEqual([(item["kind"], item["name"]) for item in collided],
+                             [("module", "cpq"), ("module", "kshrink_slabd"), ("export", stock_export)])
+
+    def test_collision_fails_compare(self):
+        required = {"kernel_symbol_count": 0, "symbols": {}, "exports": {"stock_fn": ["vendor-modules.tar:./qcom.ko"]},
+                    "modules": [{"module_name": "cpq", "name": "ramdisk-modules.tar:vendor-0-1/lib/modules/cpq.ko"}]}
+        with tempfile.TemporaryDirectory() as folder:
+            symvers, builtin = Path(folder) / "vmlinux.symvers", Path(folder) / "modules.builtin"
+            symvers.write_text("")
+            builtin.write_text("kernel/block/mq-deadline.ko\n")
+            result = compare(required, symvers, builtin=builtin)
+            self.assertTrue(result["compatible"])
+            self.assertTrue(result["builtin_checked"])
+            builtin.write_text("kernel/block/cpq.ko\n")
+            self.assertFalse(compare(required, symvers, builtin=builtin)["compatible"])
+            builtin.write_text("")
+            symvers.write_text("0x00000001\tstock_fn\tvmlinux\tEXPORT_SYMBOL_GPL\n")
+            self.assertEqual(compare(required, symvers, builtin=builtin)["collisions"][0]["name"], "stock_fn")
 
 
 if __name__ == "__main__":

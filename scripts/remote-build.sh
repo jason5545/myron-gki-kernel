@@ -24,13 +24,13 @@ fi
   bash scripts/sync.sh /gki
   BUILD_JOBS=$JOBS bash scripts/build.sh /gki" 2>&1 | tee "$PROJECT_ROOT/out/$NAME.log"
 mkdir -p "$DEST"
-"${SSH[@]}" 'cd /src/out && cp /src/work/resolved-manifest.xml reports/ && tar -cf - dist/Image dist/vmlinux.symvers dist/System.map reports packages build.log' \
+"${SSH[@]}" 'cd /src/out && cp /src/work/resolved-manifest.xml reports/ && tar -cf - dist/Image dist/vmlinux.symvers dist/System.map dist/modules.builtin reports packages build.log' \
   | tar -xf - -C "$DEST"
 python3 - "$DEST" <<'PY'
 import hashlib, json, pathlib, sys
 dest = pathlib.Path(sys.argv[1])
 expected = json.loads((dest / "reports/sha256.json").read_text())
-for name in ("dist/Image", "dist/vmlinux.symvers", "dist/System.map"):
+for name in ("dist/Image", "dist/vmlinux.symvers", "dist/System.map", "dist/modules.builtin"):
     if hashlib.sha256((dest / name).read_bytes()).hexdigest() != expected[name]:
         raise SystemExit(f"{name} 傳回 Mac 後 SHA-256 不符")
 print(f"產物已取回並核對：{dest}")

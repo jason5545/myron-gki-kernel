@@ -124,7 +124,8 @@ def inventory(archives, loaded=None):
             "unversioned_symbols": {name: {"modules": labels,
                                            "prebuilt_providers": sorted(providers.get(name, []))}
                                     for name, labels in sorted(unversioned.items())},
-            "kernel_symbol_count": sum(not s["prebuilt_providers"] for s in symbols.values())}
+            "kernel_symbol_count": sum(not s["prebuilt_providers"] for s in symbols.values()),
+            "exports": {name: sorted(labels) for name, labels in sorted(providers.items())}}
 
 
 def exempted(modules, exceptions):
@@ -133,7 +134,30 @@ def exempted(modules, exceptions):
     return bool(names) and names <= set(exceptions)
 
 
-def compare(required, symvers, system_map=None, exceptions=None):
+def collisions(required, kernel_exports, builtin=None, exceptions=None):
+    """內建模組或核心匯出符號跟原廠模組同名時，原廠模組會載入失敗或重複執行。
+    例：內建 cpq 後，原廠 cpq.ko 的 elv_register 回 -EBUSY，first stage init 因此 LOG(FATAL)。"""
+    stock = defaultdict(list)
+    for module in required.get("modules", []):
+        stock[module["module_name"]].append(module["name"])
+    names = set()
+    if builtin:
+        # modules.builtin 一行一個 kernel/<路徑>/<名稱>.ko，模組名的 - 會換成 _。
+        names = {Path(line.strip()).stem.replace("-", "_")
+                 for line in Path(builtin).read_text().splitlines() if line.strip()}
+    providers = required.get("exports")
+    if providers is None:
+        # 舊版 baseline 沒有完整匯出清單，只能比對有被其他模組匯入的符號。
+        providers = {name: info["prebuilt_providers"] for name, info in required["symbols"].items()
+                     if info["prebuilt_providers"]}
+    found = ([{"kind": "module", "name": name, "modules": stock[name]} for name in sorted(names & set(stock))]
+             + [{"kind": "export", "name": name, "modules": providers[name]}
+                for name in sorted(set(kernel_exports) & set(providers))])
+    excepted = [item for item in found if exempted(item["modules"], exceptions or {})]
+    return [item for item in found if item not in excepted], excepted
+
+
+def compare(required, symvers, system_map=None, exceptions=None, builtin=None, collision_exceptions=None):
     exceptions = exceptions or {}
     actual = {}
     for line in Path(symvers).read_text().splitlines():
@@ -165,8 +189,13 @@ def compare(required, symvers, system_map=None, exceptions=None):
     mismatched = [item for item in mismatched if not exempted(item["modules"], exceptions)]
     unversioned_missing = [name for name in unversioned_missing
                            if not exempted(unversioned[name]["modules"], exceptions)]
-    return {"compatible": not missing and not mismatched,
-            "scope": "核心匯出符號 CRC；不代表模組簽章、CFI 或實機開機已通過",
+    collided, collision_excepted = collisions(required, actual, builtin, collision_exceptions)
+    return {"compatible": not missing and not mismatched and not collided,
+            "scope": "核心匯出符號 CRC 與原廠模組撞名；不代表模組簽章、CFI 或實機開機已通過",
+            "builtin_checked": builtin is not None,
+            "collisions": collided,
+            "collision_exceptions": collision_exceptions or {},
+            "collision_excepted": collision_excepted,
             "unversioned_symbols": len(unversioned),
             "unversioned_missing": unversioned_missing,
             "root_runtime_validation_required": True,
@@ -185,6 +214,7 @@ def main():
     check.add_argument("--required", required=True, type=Path)
     check.add_argument("--symvers", required=True, type=Path)
     check.add_argument("--system-map", type=Path)
+    check.add_argument("--builtin", required=True, type=Path, help="編譯產物的 modules.builtin")
     check.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     if args.command == "inventory":
@@ -196,11 +226,17 @@ def main():
     else:
         policy = json.loads((Path(__file__).resolve().parents[1] / "config/kernel-policy.json").read_text())
         result = compare(json.loads(args.required.read_text()), args.symvers, args.system_map,
-                         policy.get("abi_exceptions"))
+                         policy.get("abi_exceptions"), args.builtin, policy.get("collision_exceptions"))
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         print(json.dumps({k: result[k] for k in ("compatible", "checked", "scope")}, ensure_ascii=False))
-        print(f"缺少符號：{len(result['missing'])}；CRC 不符：{len(result['mismatched'])}")
+        print(f"缺少符號：{len(result['missing'])}；CRC 不符：{len(result['mismatched'])}；"
+              f"撞名：{len(result['collisions'])}")
+        for item in result["collisions"]:
+            kind = "內建模組" if item["kind"] == "module" else "匯出符號"
+            print(f"{kind} {item['name']} 與原廠模組同名：{'、'.join(item['modules'])}")
+        if result["collision_excepted"]:
+            print("撞名例外：" + "、".join(item["name"] for item in result["collision_excepted"]))
         if result["excepted"]:
             kinds = defaultdict(int)
             for item in result["excepted"]:

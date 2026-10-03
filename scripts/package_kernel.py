@@ -38,16 +38,17 @@ def vendor_files():
     return lock, paths
 
 
-def create_package(image, symvers, system_map, output):
+def create_package(image, symvers, system_map, builtin, output):
     source = json.loads((ROOT / "source.lock.json").read_text())
     policy = json.loads((ROOT / "config/kernel-policy.json").read_text())
     result, raw, _ = inspect_path(image)
     if errors := check_image(result, source, policy):
         raise ValueError("；".join(errors))
     required = json.loads((ROOT / "baseline/module-requirements.json").read_text())
-    abi = compare(required, symvers, system_map, policy.get("abi_exceptions"))
+    abi = compare(required, symvers, system_map, policy.get("abi_exceptions"),
+                  builtin, policy.get("collision_exceptions"))
     if not abi["compatible"]:
-        raise ValueError("原廠模組 CRC 驗收未通過，停止封裝")
+        raise ValueError("原廠模組 CRC 或撞名驗收未通過，停止封裝")
     vendor, paths = vendor_files()
     manifest = {
         "schema": 1,
@@ -91,9 +92,10 @@ def main():
     parser.add_argument("--image", required=True, type=Path)
     parser.add_argument("--symvers", required=True, type=Path)
     parser.add_argument("--system-map", required=True, type=Path)
+    parser.add_argument("--builtin", required=True, type=Path, help="編譯產物的 modules.builtin")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    create_package(args.image, args.symvers, args.system_map, args.output)
+    create_package(args.image, args.symvers, args.system_map, args.builtin, args.output)
 
 
 if __name__ == "__main__":
