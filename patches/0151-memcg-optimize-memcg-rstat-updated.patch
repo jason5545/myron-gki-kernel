@@ -1,0 +1,35 @@
+# 來源：mainline 60cada258dfe（v6.16）
+# memcg: optimize memcg_rstat_updated
+# 效能：memcg 已達 flush 門檻時，不再往上更新祖先的計數。手機 memcg v1 有 163 個 cgroup，每次 page charge 與統計更新都會走到（LunaKernel r21 採用）
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index f9d90a130..b669e8804 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -589,18 +589,20 @@ static inline void memcg_rstat_updated(struct mem_cgroup *memcg, int val)
+ 	cgroup_rstat_updated(memcg->css.cgroup, cpu);
+ 	statc = this_cpu_ptr(memcg->vmstats_percpu);
+ 	for (; statc; statc = statc->parent) {
++		/*
++		 * If @memcg is already flushable then all its ancestors are
++		 * flushable as well and also there is no need to increase
++		 * stats_updates.
++		 */
++		if (memcg_vmstats_needs_flush(statc->vmstats))
++			break;
++
+ 		stats_updates = READ_ONCE(statc->stats_updates) + abs(val);
+ 		WRITE_ONCE(statc->stats_updates, stats_updates);
+ 		if (stats_updates < MEMCG_CHARGE_BATCH)
+ 			continue;
+ 
+-		/*
+-		 * If @memcg is already flush-able, increasing stats_updates is
+-		 * redundant. Avoid the overhead of the atomic update.
+-		 */
+-		if (!memcg_vmstats_needs_flush(statc->vmstats))
+-			atomic64_add(stats_updates,
+-				     &statc->vmstats->stats_updates);
++		atomic64_add(stats_updates, &statc->vmstats->stats_updates);
+ 		WRITE_ONCE(statc->stats_updates, 0);
+ 	}
+ }

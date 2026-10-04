@@ -1,0 +1,16 @@
+# 來源：linux-6.12.y stable a83264d8dfba（upstream 0e125ecfe20c，6.12.104）
+# tcp: do not change rcv_ssthresh in tcp_measure_rcv_mss()
+# scaling_ratio 每次下降都順帶調低 rcv_ssthresh，之後只能靠 tcp_grow_window() 慢慢長回來，通告視窗偏小；upstream 回報從 6.1 升到 6.12 後 P99 延遲約十倍。手機所有 TCP 接收都會走到（LunaKernel r21 也採用）
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 6c757e651..79400be0b 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -248,7 +248,7 @@ static void tcp_measure_rcv_mss(struct sock *sk, const struct sk_buff *skb)
+ 				struct tcp_sock *tp = tcp_sk(sk);
+ 
+ 				val = tcp_win_from_space(sk, sk->sk_rcvbuf);
+-				tcp_set_window_clamp(sk, val);
++				WRITE_ONCE(tp->window_clamp, val);
+ 
+ 				if (tp->window_clamp < tp->rcvq_space.space)
+ 					tp->rcvq_space.space = tp->window_clamp;

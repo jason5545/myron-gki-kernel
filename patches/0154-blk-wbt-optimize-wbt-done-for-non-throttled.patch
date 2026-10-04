@@ -1,0 +1,27 @@
+# 來源：mainline d8b96a79622e（v6.17）
+# blk-wbt: Optimize wbt_done() for non-throttled writes
+# 效能：未被節流的寫入完成時少一次判斷；手機 sda 的 wbt 有開（wbt_lat_usec 2000）（LunaKernel r21 採用）
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index 6dfc659d2..6d7d64fce 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -247,13 +247,14 @@ static void wbt_done(struct rq_qos *rqos, struct request *rq)
+ 	struct rq_wb *rwb = RQWB(rqos);
+ 
+ 	if (!wbt_is_tracked(rq)) {
+-		if (rwb->sync_cookie == rq) {
+-			rwb->sync_issue = 0;
+-			rwb->sync_cookie = NULL;
+-		}
++		if (wbt_is_read(rq)) {
++			if (rwb->sync_cookie == rq) {
++				rwb->sync_issue = 0;
++				rwb->sync_cookie = NULL;
++			}
+ 
+-		if (wbt_is_read(rq))
+ 			wb_timestamp(rwb, &rwb->last_comp);
++		}
+ 	} else {
+ 		WARN_ON_ONCE(rq == rwb->sync_cookie);
+ 		__wbt_done(rqos, wbt_flags(rq));

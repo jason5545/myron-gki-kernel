@@ -1,0 +1,22 @@
+# 來源：linux-6.12.y stable d8d7b0043acc（upstream d19ff16c11db，6.12.91）
+# hrtimer: Avoid pointless reprogramming in __hrtimer_start_range_ns()
+# 效能：hrtimer 中斷處理期間重新啟動本 CPU 最早到期的 timer，不立刻重設 clock event，交給中斷結束時統一處理（LunaKernel r21 也採用）
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 139cbd226..1ca1ffa5e 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -1284,6 +1284,14 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
+ 	}
+ 
+ 	first = enqueue_hrtimer(timer, new_base, mode);
++
++	/*
++	 * If the hrtimer interrupt is running, then it will reevaluate the
++	 * clock bases and reprogram the clock event device.
++	 */
++	if (new_base->cpu_base->in_hrtirq)
++		return false;
++
+ 	if (!force_local) {
+ 		/*
+ 		 * If the current CPU base is online, then the timer is

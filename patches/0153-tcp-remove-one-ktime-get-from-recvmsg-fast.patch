@@ -1,0 +1,41 @@
+# 來源：mainline 0ae1ac7335ca（v6.19）
+# tcp: remove one ktime_get() from recvmsg() fast path
+# 效能：recvmsg 呼叫 tcp_rcv_space_adjust() 時改用快取的 tcp_mstamp，只在要送 ACK 時更新（LunaKernel r21 採用）
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 4180028ca..2ae155e15 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1505,8 +1505,10 @@ void __tcp_cleanup_rbuf(struct sock *sk, int copied)
+ 				time_to_ack = true;
+ 		}
+ 	}
+-	if (time_to_ack)
++	if (time_to_ack) {
++		tcp_mstamp_refresh(tp);
+ 		tcp_send_ack(sk);
++	}
+ }
+ 
+ void tcp_cleanup_rbuf(struct sock *sk, int copied)
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 79400be0b..6b1bb99e0 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -756,9 +756,15 @@ void tcp_rcv_space_adjust(struct sock *sk)
+ 
+ 	trace_tcp_rcv_space_adjust(sk);
+ 
+-	tcp_mstamp_refresh(tp);
++	if (unlikely(!tp->rcv_rtt_est.rtt_us))
++		return;
++
++	/* We do not refresh tp->tcp_mstamp here.
++	 * Some platforms have expensive ktime_get() implementations.
++	 * Using the last cached value is enough for DRS.
++	 */
+ 	time = tcp_stamp_us_delta(tp->tcp_mstamp, tp->rcvq_space.time);
+-	if (time < (tp->rcv_rtt_est.rtt_us >> 3) || tp->rcv_rtt_est.rtt_us == 0)
++	if (time < (tp->rcv_rtt_est.rtt_us >> 3))
+ 		return;
+ 
+ 	/* Number of bytes copied to user in last RTT */

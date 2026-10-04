@@ -1,0 +1,74 @@
+# 來源：linux-6.12.y stable 44480f7e3f83（upstream dd3114870771，6.12.96）
+# f2fs: fix potential deadlock in f2fs_balance_fs()
+# 空間快滿時，前景 GC 要鎖的 folio 還在 writeback 執行緒快取的 bio 裡，與 truncate 互等而 hung task。/data 是 nogc_merge，走的正是這條路徑；候選掃描時因 Stable-dep-of 被排除（LunaKernel r21 也採用）
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index d3d8662f1..508bd9152 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -898,6 +898,35 @@ void f2fs_submit_merged_ipu_write(struct f2fs_sb_info *sbi,
+ 	}
+ }
+ 
++void f2fs_submit_all_merged_ipu_writes(struct f2fs_sb_info *sbi)
++{
++	struct bio_entry *be, *tmp;
++	struct f2fs_bio_info *io;
++	enum temp_type temp;
++
++	for (temp = HOT; temp < NR_TEMP_TYPE; temp++) {
++		LIST_HEAD(list);
++
++		io = sbi->write_io[DATA] + temp;
++
++		/* A lockless list_empty() check is safe here: any bios from
++		 * other kworkers that we miss will be submitted by those
++		 * kworkers accordingly.
++		 */
++		if (list_empty(&io->bio_list))
++			continue;
++
++		f2fs_down_write(&io->bio_list_lock);
++		list_splice_init(&io->bio_list, &list);
++		f2fs_up_write(&io->bio_list_lock);
++
++		list_for_each_entry_safe(be, tmp, &list, list) {
++			f2fs_submit_write_bio(sbi, be->bio, DATA);
++			del_bio_entry(be);
++		}
++	}
++}
++
+ int f2fs_merge_page_bio(struct f2fs_io_info *fio)
+ {
+ 	struct bio *bio = *fio->bio;
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 9b47944a5..ee7662cc0 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3984,6 +3984,7 @@ void f2fs_submit_merged_write_cond(struct f2fs_sb_info *sbi,
+ 				nid_t ino, enum page_type type);
+ void f2fs_submit_merged_ipu_write(struct f2fs_sb_info *sbi,
+ 					struct bio **bio, struct page *page);
++void f2fs_submit_all_merged_ipu_writes(struct f2fs_sb_info *sbi);
+ void f2fs_flush_merged_writes(struct f2fs_sb_info *sbi);
+ int f2fs_submit_page_bio(struct f2fs_io_info *fio);
+ int f2fs_merge_page_bio(struct f2fs_io_info *fio);
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 70358baab..965b4ad3a 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -457,6 +457,14 @@ void f2fs_balance_fs(struct f2fs_sb_info *sbi, bool need)
+ 			.should_migrate_blocks = false,
+ 			.err_gc_skipped = false,
+ 			.nr_free_secs = 1 };
++
++		/*
++		 * Submit all cached OPU/IPU DATA bios before triggering
++		 * foreground GC to avoid potential deadlocks.
++		 */
++		f2fs_submit_merged_write(sbi, DATA);
++		f2fs_submit_all_merged_ipu_writes(sbi);
++
+ 		f2fs_down_write(&sbi->gc_lock);
+ 		stat_inc_gc_call_count(sbi, FOREGROUND);
+ 		f2fs_gc(sbi, &gc_control);
