@@ -25,6 +25,7 @@
 | v16 | ＋批次 7：Image 內的高通相關修正（Gunyah、SCMI） | 0137～0140（4） | `6.12.38-android16-5-g4b4d49350df7-4k` | `30c25089a4a2…` | 缺少 0、不符 0 |
 | v18 | ＋批次 8：stable 6.12.112 補掃 | 0141～0147（7） | `6.12.38-android16-5-g4b4d4935db3b-4k` | `fdea557f4842…` | 缺少 0、不符 0 |
 | v19 | ＋批次 9：參考 LunaKernel 的效能 backport | 0148～0155（8） | `6.12.38-android16-5-g4b4d49351f54-4k` | `3e58b2a92be4…` | 缺少 0、不符 0 |
+| v20 | ReSukiSU 升到 main `8770c7e3`（UAPI 5） | 沒有新 patch | `6.12.38-android16-5-g4b4d49355000-4k` | `6cd174a92948…` | 缺少 0、不符 0 |
 
 每一版的 KMI 都是 `6.12-android16-5`，頁面 4096 bytes，Image 內都有 ReSukiSU（`v4.2.0-rc3-239e1e88@ReSukiSU`）、SUSFS 與 0006 的字串，Mac 上重跑映像驗收也通過。CRC 共 4,015 個符號。`rust_binder.ko` 例外和 v8 相同：不符 16、未版本化缺少 4。18 項測試通過。產物在 `out/build-2025-09-v<N>/`。
 
@@ -290,6 +291,18 @@ Stable-dep-of 的盲點：候選掃描依序排除的 366 筆前置 commit 中�
 dmesg 有 176 次 `msm_vidc` 的 `session error 0x4000008`（heicD、hevcD 解碼 session），當時 Threads、微信、QQ 剛開機在載入媒體。v13（204 次）、v14（16）、v16（152）的實機紀錄也有同樣的錯誤，v18 與 v16-310 檢查時是 0，看起來跟開機後在跑的 app 有關，不是 v19 帶進來的。原廠核心下有沒有這些錯誤，沒有對照過。
 
 dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v19-device/`。要退回 v18，fastboot 寫 `out/v18-device/boot_a.img`（`6fb660a8…`）。
+
+## v20：ReSukiSU 升到 main `8770c7e3`（2026/10/5）
+
+10/5 補掃：stable 最新仍是 6.12.112，ACK `android16-6.12` 的 head 是 `3a7d1771`（10/1），LXC 的 clone 已經有；LunaKernel 9/1 之後沒推，SUSFS 沒動。只有 ReSukiSU main 在 rc3 之後多了 32 個提交，而且 `8770c7e3` 把 UAPI 升到 5，管理器更新後配舊核心會跳過開機的 service 階段。判斷與改動見 [ReSukiSU／SUSFS 的固定版本](resukisu-susfs-fixed.md#2026105升到-main-8770c7e3v20)。patch 沒有變，只換 root 來源。
+
+先前 10/4 有一個 v20（0156，netlink 收件門檻），熱點問題查明是 Wi-Fi 與行動網路共存、不是核心造成之後撤回，沒有推送或發布，檔案留在 `out/withdrawn-v20/`。這次的 v20 跟它無關。
+
+v20 Image `6cd174a92948…`，版本字串 `6.12.38-android16-5-g4b4d49355000-4k`：KMI `6.12-android16-5`、4 KB，設定與 v19 相同。Image 內的 root 版本是 `v4.2.0-rc3-8770c7e3@ReSukiSU`，有新的 `services triggered`、`services already started, skipping` 字串。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同；原廠模組撞名 0（`kernelsu` 列為例外）。vmlinux.symvers、modules.builtin 與 v19 完全相同；System.map 的差異是 sepolicy 少了 `add_xperm_rule_raw` 的配置標記、多了 `do_report_event.services_started`，以及 1 個 linker veneer。21 項測試通過。上游 Kbuild 少右括號的 riscv64 段落沒有影響編譯。AnyKernel3 ZIP 是 `myron-kmi5-6cd174a92948-AnyKernel3.zip`（SHA-256 `723d3382…`），已推到手機 `/sdcard/Download/`。
+
+刷入前的暫存重封裝驗收：目前 boot_a 是 v19 的 `b9a6f8c3…`，init_boot_a 是 310 原廠 `0a9871f4…`；用 310 原廠 boot 重封裝通過（`bb2d1731…`），boot_a 未改變。
+
+刷入後再換管理器：裝 `out/manager/` 的 Spoofed 版（`ntaxru.tzihjp.gpckog`，35203），移除舊的 `dultqo.utgklb.okvfdx`（35199）。實機要多看兩項：管理器不再顯示「Kernel update required」，以及 service 階段有執行（dmesg 有一次 `services triggered`）。
 
 ## 實機驗收（後續版本）
 

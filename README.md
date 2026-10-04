@@ -132,6 +132,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v17 | 把小米 cpq、kshrink_slabd 編進 Image；原廠 first stage 的 `cpq.ko` 會載入失敗，已撤回 | 沒有刷 |
 | v18 | 批次 8：stable 6.12.112 補掃（[紀錄](docs/kmi6-backport-batches.md#批次-8stable-612112-補掃2026103)） | 正常 |
 | v19 | 批次 9：參考 LunaKernel 的效能 backport 與 2 份修正（[紀錄](docs/kmi6-backport-batches.md#批次-9參考-lunakernel-的效能-backport2026104)） | 正常（Wi-Fi 未驗） |
+| v20 | ReSukiSU 升到 main `8770c7e3`（UAPI 5），patch 不變（[紀錄](docs/kmi6-backport-batches.md#v20resukisu-升到-main-8770c7e32026105)） | 待刷 |
 
 公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，之後是 v16、v16.1。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 
