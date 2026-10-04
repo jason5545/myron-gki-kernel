@@ -260,6 +260,37 @@ Stable-dep-of 的盲點：候選掃描依序排除的 366 筆前置 commit 中�
 
 刷入前的暫存重封裝驗收：目前 boot_a 是 v18 的 `6fb660a8…`，用 310 原廠 boot 重封裝通過，boot_a 未改變。
 
+## v19 實機（2026/10/4）
+
+第一次刷入被安裝器擋下，訊息是「init_boot 與已核對的原廠基準不同」。查出 init_boot_a 在 10/3 21:27（v18 實機檢查之後）被 ReSukiSU 管理器以 LKM 方式修補，SHA-256 變成 `77db7bde…`：
+
+- ramdisk 多了管理器內附的 `kernelsu.ko`（`v4.2.0-rc3-80c0e190@ReSukiSU`，vermagic 6.12.76）。
+- `init` 換成 ksuinit，原本的改名為 `init.real`；另有 `ksu_config`（`bundled=1`）、`ksu_block_modules`、`stock_image.sha1`。
+- 10/4 06:56 用它開過一次機，手機正常，跑的仍是內建 ReSukiSU（`/proc/modules` 沒有 kernelsu）。開機早期的 dmesg 已被洗掉，看不到 ksuinit 當時的訊息。
+
+管理器修補前把原廠映像備份在 `/data/adb/ksu/ksu_backup_206b5247…`，核對 SHA-256 是 310 原廠的 `0a9871f4…`。經 Jason 同意，用 adb 把它寫回 init_boot_a，讀回確認後再刷 v19。修補過的映像存在 `local-backup/eu310/init_boot_a-lkm-20261003.img`。核心已內建 ReSukiSU，管理器的 LKM 安裝不要再用。
+
+刷入後約 2～4 分鐘檢查，對照 v18（`out/v18-device/`）：
+
+| 項目 | 結果 |
+| --- | --- |
+| 核心 | `6.12.38-android16-5-g4b4d49351f54-4k`，310，slot a；boot_a `b9a6f8c3…`，init_boot 310 原廠 `0a9871f4…` |
+| boot_a 內容 | 讀回與刷入前暫存重封裝的映像位元相同 |
+| 模組 | 616 個，清單與 v18 完全相同 |
+| 顯示 | logcat 沒有 `drmModeAtomicCommit failed` |
+| UFS | 沒有錯誤，`ufshcd_err_handler` 0 次 |
+| dmesg | WARNING 只有 `spmi-pmic-arb.c:352` 兩次與 eBPF 提示，與 v18 相同；沒有 Oops、stall、lockup、hung task |
+| Gunyah | `gunyah_rm_rx` 148 次、`gunyah_rm_tx` 11 次，vcpu 中斷在跑 |
+| SCMI | 兩個 policy 都是 `scmi`、governor `walt`，頻率正常 |
+| root | ReSukiSU `Work mode: Built-in`，SUSFS v2.3.0 已初始化 |
+| 網路 | 行動網路 IPv4／IPv6 ping 正常；LTE internet 與兩張卡的 IMS（MMTEL）都通過驗證 |
+| Wi-Fi | 設定裡是關的（`wifi_on` 0，開機後沒有切換紀錄），wlan0 驅動正常但沒連線；Wi-Fi、IWLAN 與 xfrm 這次沒驗到 |
+| 其他 | 沒有新的 tombstone，`/sdcard` 讀寫正常，擁塞控制 bbr，`tcp_fastopen` 1 |
+
+dmesg 有 176 次 `msm_vidc` 的 `session error 0x4000008`（heicD、hevcD 解碼 session），當時 Threads、微信、QQ 剛開機在載入媒體。v13（204 次）、v14（16）、v16（152）的實機紀錄也有同樣的錯誤，v18 與 v16-310 檢查時是 0，看起來跟開機後在跑的 app 有關，不是 v19 帶進來的。原廠核心下有沒有這些錯誤，沒有對照過。
+
+dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v19-device/`。要退回 v18，fastboot 寫 `out/v18-device/boot_a.img`（`6fb660a8…`）。
+
 ## 實機驗收（後續版本）
 
 刷機前都要先問 Jason。只刷 `boot_a`，init_boot 維持原廠。每一版刷之前，先跑暫存重封裝驗收，指定目前 `boot_a` 的雜湊：
@@ -270,7 +301,7 @@ python3 scripts/repack_check.py --serial <adb 序號> --stock-boot local-backup/
   --expect-live-sha <目前 boot_a 的 sha256>
 ```
 
-310 之後 `--stock-boot` 用 310 原廠 boot（309 的 `local-backup/device-boot_a.img` 也仍接受）。v18 刷入前的驗收：目前 boot_a `aa2a63e6…`，重封裝通過，boot_a 未改變。
+310 之後 `--stock-boot` 用 310 原廠 boot（309 的 `local-backup/device-boot_a.img` 也仍接受）。刷之前也看一下 init_boot_a 是不是原廠（310 是 `0a9871f4…`）：管理器的 LKM 安裝會改它，安裝器會以「init_boot 與已核對的原廠基準不同」拒絕，還原方式見 v19 實機。v18 刷入前的驗收：目前 boot_a `aa2a63e6…`，重封裝通過，boot_a 未改變。
 
 每版要看的項目同 v8：
 
