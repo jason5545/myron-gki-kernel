@@ -2,11 +2,12 @@
   "schema": 1,
   "resukisu": {
     "repository": "https://github.com/ReSukiSU/ReSukiSU",
-    "commit": "239e1e8871b8fcd51a6e5b3002e0ba522fdd99fb",
+    "commit": "8770c7e324a22895703c4916b8a16520e0b81c79",
     "tag": "v4.2.0-rc3",
-    "version_code": 35171,
-    "commit_count": 4471,
-    "uapi_version": 4
+    "version_code": 35203,
+    "commit_count": 4503,
+    "uapi_version": 5,
+    "describe": "v4.2.0-rc3-32-g8770c7e3"
   },
   "susfs": {
     "repository": "https://gitlab.com/simonpunk/susfs4ksu",
@@ -16,17 +17,20 @@
     "upstream_kernel_patch_sha256": "31333a67aef105ce85b43fda29f407cfa4d5585060ed12375da535a4122ea682"
   },
   "manager": {
-    "file": "ReSukiSU_v4.2.0-rc3_35171-arm64-v8a-release.apk",
-    "sha256": "25657bc449439687608fffa04b4b586de90fc405e3dc6217bd997fc71ba0a0a1",
-    "size": 9379362,
+    "file": "ReSukiSU_v4.2.0-rc3_35203-arm64-v8a-spoofed-release.apk",
+    "sha256": "365789335c025d0cc2971baded864b9d1481416c21a1d40a947f02bf2743c4b1",
+    "size": 9646520,
+    "package": "ntaxru.tzihjp.gpckog",
     "certificate_sha256": "d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64",
     "certificate_size": 887,
     "repository": "https://github.com/ReSukiSU/ReSukiSU",
     "tag": "v4.2.0-rc3",
-    "commit": "239e1e8871b8fcd51a6e5b3002e0ba522fdd99fb",
-    "version_code": 35171,
-    "uapi_version": 4,
-    "url": "https://github.com/ReSukiSU/ReSukiSU/releases/download/v4.2.0-rc3/ReSukiSU_v4.2.0-rc3_35171-arm64-v8a-release.apk"
+    "commit": "8770c7e324a22895703c4916b8a16520e0b81c79",
+    "version_code": 35203,
+    "uapi_version": 5,
+    "url": "https://github.com/ReSukiSU/ReSukiSU/actions/runs/37180105212",
+    "artifact": "Spoofed-Manager-release",
+    "artifact_file": "ReSukiSU_v4.2.0-rc3_35203-arm64-v8a-release.apk"
   },
   "files": {
     "resukisu/LICENSE": {
@@ -59,7 +63,7 @@
     },
     "resukisu/kernel/Kbuild": {
       "type": "file",
-      "sha256": "08bbd04a5667f54db6ac4ca8bf7ccf4b90187971f0b7e392d667468596de3cf6"
+      "sha256": "2d83885b9a932f9e7b8e93b4dd3bf4c5455b37dfac8f9a5f0a687f6e01738307"
     },
     "resukisu/kernel/Kconfig": {
       "type": "file",
@@ -99,7 +103,7 @@
     },
     "resukisu/kernel/compat/kernel_compat.h": {
       "type": "file",
-      "sha256": "0645e26daedd407cad9537bc9915c18907a477038171eb5790f043f8cd706db5"
+      "sha256": "36b6213ea9388a7a9590f2b663ea26ac175f000d26f1f86c092558486059c58b"
     },
     "resukisu/kernel/core/init.c": {
       "type": "file",
@@ -107,7 +111,7 @@
     },
     "resukisu/kernel/feature/adb_root.c": {
       "type": "file",
-      "sha256": "fa42fdf94ce57539755c04f0b143e4e43a4080738319a7bb172e4c12f6f07649"
+      "sha256": "e9562ef3a924ff5c4c6869f366110ea5c973cd7ad322a9ad71475f2bcef7e507"
     },
     "resukisu/kernel/feature/adb_root.h": {
       "type": "file",
@@ -147,7 +151,7 @@
     },
     "resukisu/kernel/feature/sucompat.c": {
       "type": "file",
-      "sha256": "10bae9393f5341178ccf8ca3e0a36ef3c653989cc218899658e290a0652fb8bb"
+      "sha256": "a0976161b7ac6e109e12649e9e998f2a9a4ddfc6c6255a484709ffe4834c0511"
     },
     "resukisu/kernel/feature/sucompat.h": {
       "type": "file",
@@ -191,7 +195,7 @@
     },
     "resukisu/kernel/hook/patch_memory.h": {
       "type": "file",
-      "sha256": "01eef246848f94ea94c017967b8d1c7de346af0f54a74e854b9bc11b6b7c5d46"
+      "sha256": "a50dfa8768c89d1f31f0b1133f44b4386c4765e75b64fc96d390fd9eeef947fc"
     },
     "resukisu/kernel/hook/setuid_hook.c": {
       "type": "file",
@@ -203,7 +207,7 @@
     },
     "resukisu/kernel/hook/syscall_event_bridge.c": {
       "type": "file",
-      "sha256": "3cef99a624d1f45f06145221b167584f456d9f67b05dda7303a6b22a6729c396"
+      "sha256": "0ef5c8fc5c4a73640e58e484f078b9fd5c8da3918dc4ff7cd5d0e6a0ac6a289c"
     },
     "resukisu/kernel/hook/syscall_event_bridge.h": {
       "type": "file",
@@ -211,11 +215,11 @@
     },
     "resukisu/kernel/hook/syscall_hook.h": {
       "type": "file",
-      "sha256": "0c60a54d67498d41976f6471d3f71a21b16fb399a4ae789311532df3945cb71b"
+      "sha256": "f2ff8d6b98c03008961849a449c1632a6ca8dd16d475f732a9693b61ede1b622"
     },
     "resukisu/kernel/hook/syscall_hook_manager.c": {
       "type": "file",
-      "sha256": "edbe619055e8299adf2491c8e79665e400e27b8e264f0aac1be71cc6b130afcc"
+      "sha256": "5cd30ac210ed4b4745b829d335b2b354b0a356e86ffaeeaee7ed8fa568833c62"
     },
     "resukisu/kernel/hook/syscall_hook_manager.h": {
       "type": "file",
@@ -239,7 +243,7 @@
     },
     "resukisu/kernel/include/arch.h": {
       "type": "file",
-      "sha256": "4fbf6c477337717e40e26d3ab2d746a40b620c2709829be7b189aac3bf4dc33b"
+      "sha256": "74a76616726423bea079588903f6a95edf06bfe7507aba7f46ff75a8c908bce6"
     },
     "resukisu/kernel/include/klog.h": {
       "type": "file",
@@ -319,7 +323,7 @@
     },
     "resukisu/kernel/manager/pkg_observer.c": {
       "type": "file",
-      "sha256": "245fcae77ff50bd310d8d3a311a8b065305a3125d624af89e340f413326162e9"
+      "sha256": "d968e4fc38e1ad24d2afda48ef56872619cf6d33e2283dfbc58739bab547f080"
     },
     "resukisu/kernel/manager/throne_tracker.c": {
       "type": "file",
@@ -331,7 +335,7 @@
     },
     "resukisu/kernel/policy/allowlist.c": {
       "type": "file",
-      "sha256": "ee4f4d3c9af9afec23c96a5baceda19bbe1f82328bc7376f4732ebbb9d8cd979"
+      "sha256": "025402cac3593c90becc3ef72fb40c0fac2c83e4fa05263f4ea7a0e46f082912"
     },
     "resukisu/kernel/policy/allowlist.h": {
       "type": "file",
@@ -367,7 +371,7 @@
     },
     "resukisu/kernel/runtime/ksud_integration.c": {
       "type": "file",
-      "sha256": "f8777ff73c76283efbf46d596cdd33dc7c47dd5f1ab0f7b57cf9d5c45b3db551"
+      "sha256": "9e6c72fec94bfa70adb86294b8f60ebf47cf68fb84a377f8700403ac2ecf8f08"
     },
     "resukisu/kernel/selinux/rules.c": {
       "type": "file",
@@ -387,7 +391,7 @@
     },
     "resukisu/kernel/selinux/sepolicy.c": {
       "type": "file",
-      "sha256": "ec139ae30b24d3b4b7d553ad5720e682afbd9fb26575cdf4581ded4b0dcf9b22"
+      "sha256": "414e6bcd22bd082b23633f417a20cb06d39adbc0ef1b2fc2acacdc9696bbfd07"
     },
     "resukisu/kernel/selinux/sepolicy.h": {
       "type": "file",
@@ -415,7 +419,7 @@
     },
     "resukisu/kernel/supercall/dispatch.c": {
       "type": "file",
-      "sha256": "2fcc6576a414eaf032527b00cf02d4f18d1cb9bd5c8fae0825aa5b82d4668393"
+      "sha256": "f9e7194378a442acf65b47ebaa2b4f78fc7507dc10861dd8ae2caa2506473f07"
     },
     "resukisu/kernel/supercall/internal.h": {
       "type": "file",
@@ -427,7 +431,7 @@
     },
     "resukisu/kernel/supercall/supercall.c": {
       "type": "file",
-      "sha256": "bba951015981fa9525c6dad84697fb958209506abeb123f28811760f74004b96"
+      "sha256": "60a5440c35a8124dc80f7b3454791db5832754fd9bfaba5a8abe2c24ab25aebe"
     },
     "resukisu/kernel/supercall/supercall.h": {
       "type": "file",
@@ -483,7 +487,7 @@
     },
     "resukisu/uapi/supercall.h": {
       "type": "file",
-      "sha256": "faee7c638e3a291afba1ef61a8ef390030b093945da748b06a10e5111c703fa2"
+      "sha256": "ca897ddb31f0a910fb5eac0e4ad14d562a14af212243acdf1b5dd87f711a3618"
     },
     "susfs/LICENSE": {
       "type": "file",
@@ -504,6 +508,22 @@
     "susfs/kernel_patches/include/linux/susfs_def.h": {
       "type": "file",
       "sha256": "db7f98dcf8119a4eb5c45c05205b6c1065766047d6f803b0e86f3d14b1a251f0"
+    },
+    "resukisu/kernel/hook/riscv64/insn.h": {
+      "type": "file",
+      "sha256": "322faa2d837163bf86a72b7282c88af96727f9baf832de95105938346d9144c4"
+    },
+    "resukisu/kernel/hook/riscv64/patch_memory.c": {
+      "type": "file",
+      "sha256": "417b34eb6968291d33d6fdeded971caad4067078459920e85b63402febc0cd95"
+    },
+    "resukisu/kernel/hook/riscv64/syscall_hook.c": {
+      "type": "file",
+      "sha256": "85766a35033abf2b148f4f3755830e08438a37a602205326adc77c06ef87c9fe"
+    },
+    "resukisu/kernel/hook/riscv64/syscall_regs.h": {
+      "type": "file",
+      "sha256": "c4db2d132128d5b4cd86103adff5b5f458df17880fdd236aade1d7fa4d788276"
     }
   },
   "init_boot_migration": {

@@ -22,7 +22,7 @@ v19：`6.12.38-android16-5-g4b4d49351f54-4k`，下載在 [Releases](https://gith
 | patch | 內容 |
 | --- | --- |
 | 0001～0002 | 原廠模組相容：保留原廠 `rust_binder.ko` 需要的兩個符號；允許原廠 GKI 模組搭配自編核心（清空保護清單、停用匯出裁切） |
-| 0003～0004 | 內建 SUSFS v2.3.0 與 ReSukiSU v4.2.0-rc3，來源固定在 [`root.lock.json`](root.lock.json) |
+| 0003～0004 | 內建 SUSFS v2.3.0 與 ReSukiSU main `8770c7e3`（v4.2.0-rc3 之後 32 個提交，UAPI 5；v19 以前是 v4.2.0-rc3），來源固定在 [`root.lock.json`](root.lock.json) |
 | 0005 | 取自 LunarKernel v1.8.1 的三項設定：內建 BBR、tmpfs xattr、省電 workqueue |
 | 0006 | 6.12.38 的 DRM valid clones 檢查會拒絕原廠顯示驅動，造成面板無法點亮；改成只記錄 |
 | 0007～0008 | UFS runtime PM 錯誤復原、suspend 時 RTC work 造成的 SError |
@@ -52,9 +52,9 @@ v19：`6.12.38-android16-5-g4b4d49351f54-4k`，下載在 [Releases](https://gith
 
 手機上沒有內建 root 的核心時，只能用 fastboot 寫入。[`scripts/repack_check.py`](scripts/repack_check.py) 可以用原廠 boot 加新的 Image 重封裝出 boot 映像並驗收；它只在手機暫存目錄操作，不寫分割區。
 
-root 管理器請用 ReSukiSU v4.2.0-rc3（UAPI 4），下載連結在 `root.lock.json`。舊版或 UAPI 2 的管理器不相容。
+root 管理器請用 ReSukiSU `8770c7e3` 的 CI 版本（35203，UAPI 5），來源在 `root.lock.json`。v19 以前的核心是 UAPI 4，要配 v4.2.0-rc3 到 `4c5c8ced` 之間的管理器。舊版或 UAPI 2 的管理器不相容。
 
-核心內建的 root 版本在編譯時就固定了，管理器更新不會更新核心這一半。管理器要跟核心的 UAPI 完全相同才有完整功能：新版管理器只要仍是 UAPI 4 就能用（2026/10/4 ReSukiSU main 仍是 4）；UAPI 改了，管理器會顯示「Kernel update required」，要等核心更新。不要用管理器的 LKM 安裝：它會修補 init_boot，之後這個安裝器會拒絕刷入，要先把 init_boot 換回原廠。
+核心內建的 root 版本在編譯時就固定了，管理器更新不會更新核心這一半。管理器要跟核心的 UAPI 完全相同才有完整功能：新版管理器只要 UAPI 沒變就能用；UAPI 改了，管理器會顯示「Kernel update required」，要等核心更新。ReSukiSU main 在 2026/10/4 的 `8770c7e3` 升到 UAPI 5，v20 起跟上。UAPI 5 的管理器配 v19 以前的核心時，開機的 service 階段會被跳過，`service.d` 與模組的 `service.sh` 都不會執行（[說明](docs/resukisu-susfs-fixed.md#2026105升到-main-8770c7e3v20)）。不要用管理器的 LKM 安裝：它會修補 init_boot，之後這個安裝器會拒絕刷入，要先把 init_boot 換回原廠。
 
 刷入前先備份目前的 boot 分割區；開不了機時，用 fastboot 寫回備份。
 
