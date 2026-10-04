@@ -1,4 +1,4 @@
-# KMI 6 時期修正 backport：八批實作與編譯（v9～v18）
+# KMI 6 時期修正 backport：九批實作與編譯（v9～v19）
 
 依 [候選清單](kmi6-backport-candidates.md) 的建議，2026/10/2 晚上 Jason 確認全部做，需要改寫的也一起做。手機當時已拔掉 USB，所以當晚只做到編譯和 CRC 關卡。10/3 Jason 直接刷入 v13，實機結果見下方；之後追加批次 6 編出 v14。
 
@@ -24,6 +24,7 @@
 | v15 | ＋0136：預設 TCP 擁塞控制改為 BBR | 0136（1） | `6.12.38-android16-5-g4b4d4935f92d-4k` | `936cf7b208f0…` | 缺少 0、不符 0 |
 | v16 | ＋批次 7：Image 內的高通相關修正（Gunyah、SCMI） | 0137～0140（4） | `6.12.38-android16-5-g4b4d49350df7-4k` | `30c25089a4a2…` | 缺少 0、不符 0 |
 | v18 | ＋批次 8：stable 6.12.112 補掃 | 0141～0147（7） | `6.12.38-android16-5-g4b4d4935db3b-4k` | `fdea557f4842…` | 缺少 0、不符 0 |
+| v19 | ＋批次 9：參考 LunaKernel 的效能 backport | 0148～0155（8） | `6.12.38-android16-5-g4b4d49351f54-4k` | `3e58b2a92be4…` | 缺少 0、不符 0 |
 
 每一版的 KMI 都是 `6.12-android16-5`，頁面 4096 bytes，Image 內都有 ReSukiSU（`v4.2.0-rc3-239e1e88@ReSukiSU`）、SUSFS 與 0006 的字串，Mac 上重跑映像驗收也通過。CRC 共 4,015 個符號。`rust_binder.ko` 例外和 v8 相同：不符 16、未版本化缺少 4。18 項測試通過。產物在 `out/build-2025-09-v<N>/`。
 
@@ -210,6 +211,54 @@ Jason 用 ReSukiSU 管理器刷入，開機約 2 分鐘檢查，對照 v16 在 3
 | 其他 | 沒有新的 tombstone，`/sdcard` 讀寫正常，擁塞控制 bbr，`tcp_fastopen` 1 |
 
 dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v18-device/`。萬一要退回，fastboot 寫 `local-backup/eu310/boot-v16-on-310.img`（`aa2a63e6…`）就是 v16.1。
+
+## 批次 9：參考 LunaKernel 的效能 backport（2026/10/4）
+
+10/4 重讀 LunaKernel 主分支（最後推送 2026/9/1）。10/3 的查核只看了 `patches/backports/`，`patch.sh` 另有一段「Selected upstream performance backports」，6 筆沒有記到 [references-6.12.md](references-6.12.md)。兩邊合計 11 筆效能改動。設定層沒有可以參考的：它和原廠一樣是 `LTO_NONE`，預設 TCP 維持 cubic，省電 workqueue 與 tmpfs xattr 0005 已經有了。
+
+逐筆判斷用到的實機狀態（2026/10/4，v18 開機中，adb 只讀）：
+
+| 項目 | 手機上 |
+| --- | --- |
+| I/O 排程器 | sda `[cpq]`，其他 LU 是 mq-deadline；UFS 每個 CPU 一個 hw queue（`mq/0/cpu_list` 為 0） |
+| /data | f2fs，`extent_cache`、`nogc_merge`、`mode=adaptive`，沒用壓縮 |
+| memcg | v1 掛在 `/dev/memcg`，163 個 cgroup |
+| wbt | sda `wbt_lat_usec` 2000 |
+| PSI | 系統 PSI 有開，cmdline 有 `cgroup_disable=pressure` |
+| MGLRU | `lru_gen/enabled` 0x0000 |
+
+採用 6 筆，另外收 2 筆修正：
+
+| patch | 來源 | 內容 | 手機上的依據 |
+| --- | --- | --- | --- |
+| 0148 | stable `a83264d8dfba`（6.12.104） | 修正：`tcp_measure_rcv_mss()` 不再隨 scaling_ratio 調低 `rcv_ssthresh` | v18 呼叫 `tcp_set_window_clamp()`，bug 在樹上；upstream 回報從 6.1 升到 6.12 後 P99 延遲約十倍。候選清單原列可選 |
+| 0149 | stable `44480f7e3f83`（6.12.96） | 修正：`f2fs_balance_fs()` 前景 GC 前先送出快取的 IPU／OPU bio，避免與 truncate 互等 | /data 是 `nogc_merge`，走的正是這條路徑。候選掃描時因 Stable-dep-of 被排除 |
+| 0150 | mainline `222bc257a151`（v7.2-rc1） | f2fs 覆寫 EOF 內的區塊時，extent cache 命中就不查 inode folio | /data 開了 `extent_cache`、沒用壓縮 |
+| 0151 | mainline `60cada258dfe`（v6.16） | memcg 已達 flush 門檻就不再往上更新祖先 | 163 個 memcg，每次 page charge 都會進來 |
+| 0152 | mainline `3ec955713d96`（v6.14） | timer base 指標只取一次 | 只改 static inline，行為不變 |
+| 0153 | mainline `0ae1ac7335ca`（v6.19） | recvmsg 的 `tcp_rcv_space_adjust()` 改用快取的 `tcp_mstamp` | arm64 讀時鐘本來就便宜，收益比 x86 小 |
+| 0154 | mainline `d8b96a79622e`（v6.17） | 未被節流的寫入完成時，`wbt_done()` 少一次判斷 | sda 的 wbt 有開 |
+| 0155 | stable `d8d7b0043acc`（6.12.91） | hrtimer 中斷處理期間重啟本 CPU 最早到期的 timer，不立刻重設 clock event | 收益小 |
+
+8 份依序疊在 v18 的樹上全部直接套用，增減行與 upstream 原 commit 逐份比對相同。GitHub 搜尋 mainline 沒有找到這 8 筆的後續修正或 revert（沒有逐一對 lore）。
+
+不採用：
+
+| commit | 內容 | 原因 |
+| --- | --- | --- |
+| `9cbbac29d752` | 拿掉 `__submit_bio()` 自動加的 plug | sda 有 cpq 排程器。沒有 plug 時，`blk_mq_submit_bio()` 對 `RQF_USE_SCHED` 的 request 呼叫 `blk_mq_run_hw_queue(hctx, true)`，改由 kblockd 非同步派送；有 plug 時，`blk_finish_plug()` 在送出的 CPU 上同步派送。upstream 的數字是無排程器、直接派送的情境。會改到原廠的 I/O 行為，沒有 A/B 實測不收 |
+| `b0bc1c75f304` | PSI irqtime 增量為 0 時提早返回 | `cgroup_disable=pressure` 讓所有 task 都在 `psi_system`，context switch 的呼叫在計算前就因為同一個 group 返回；tick 的呼叫因上一次 tick 本身的中斷時間，增量幾乎不會是 0 |
+| `ff1de90dd7a6`、`29cf3b31e8cc` | EAS 的 cpumask 判斷與 runnable boosting 算式 | 選核由 WALT 接手，governor 也是 WALT，這兩段走不到 |
+| `19999e479c2a` | MGLRU 主動回收達到目標就停 | MGLRU 實機關閉 |
+| `d860974a7e38` | f2fs DIO 覆寫只檢查第一段映射 | 只影響 O_DIRECT，手機上應該少見（未實測） |
+
+`patch.sh` 另外 9 筆修正：futex requeue-PI lockup 在 ACK 基底已有；blk-cgroup rstat 是 0013，MLD query UAF 是 0099；f2fs ACL、listxattr 的邊界檢查原本就列可選；f2fs gc_merge 路徑那筆不適用（`nogc_merge`）；KVM 那筆手機用不到（dmesg：「KVM is not available」）。erofs 目錄尾項與 ext4 xattr 的越界讀取是 AOSP `android16-6.12-lts` 的 commit，這次沒有逐筆查核。
+
+Stable-dep-of 的盲點：候選掃描依序排除的 366 筆前置 commit 中，0149 本身就是修正。這 366 筆裡有編進核心、標題或說明帶嚴重性字樣的有 90 筆（UAF 28、死鎖 15、race 12），下一輪補掃可以從這 90 筆開始。
+
+這批編成 v19。Image `3e58b2a92be4…`，版本字串 `6.12.38-android16-5-g4b4d49351f54-4k`：KMI `6.12-android16-5`、4 KB，設定與 v18 相同。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外 20 個和之前相同；原廠模組撞名 0。vmlinux.symvers、modules.builtin 與 v18 完全相同；System.map 多了 0149 新增的 `f2fs_submit_all_merged_ipu_writes`，其餘差異是 memcontrol.c 行數變動造成的 initcall 名稱，和 2 個 linker veneer。AnyKernel3 ZIP 是 `myron-kmi5-3e58b2a92be4-AnyKernel3.zip`（SHA-256 `db10db6b…`），已推到手機 `/sdcard/Download/`。
+
+刷入前的暫存重封裝驗收：目前 boot_a 是 v18 的 `6fb660a8…`，用 310 原廠 boot 重封裝通過，boot_a 未改變。
 
 ## 實機驗收（後續版本）
 

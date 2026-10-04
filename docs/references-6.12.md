@@ -30,6 +30,8 @@ LunarKernel 6.12 的核心原始碼沒有找到：[`4532sde/LunarKernel6.12-back
 - `main` 能用 KMI 6（r21，6.12.81），是因為小米 17 HyperOS 4 的原廠核心本來就是 `6.12.69-android16-6`。myron OS3 的原廠是 KMI 5，不能照搬。
 - `os3` 分支的兩個 backport（binder `binder_free_transaction` 生命週期、UFS runtime PM 錯誤復原）在本專案的 6.12.38 基底裡已經有了。unicode 相容 patch 改的是 ext4 casefold，手機 `/data` 是 f2fs，而 f2fs 的部分基底也已經有了。ADIOS、TCP Brutal 是新功能，不在本專案範圍。
 
+2026/10/4 補讀：效能改動分在兩處，`patches/backports/r21-independent/` 標成效能的 5 筆，加上 `patch.sh` 的「Selected upstream performance backports」6 筆（10/3 漏記）。後者用 `.env` 的 `ENABLE_*_FAST_PATH` 開關，來源 commit 與 patch-id 也固定在 `.env`。11 筆中採用 6 筆，加上 2 筆修正做成批次 9（0148～0155）；拿掉 `__submit_bio()` plug、PSI 零增量、EAS 兩筆、MGLRU、f2fs DIO 不採用。逐筆判斷見 [實作紀錄](kmi6-backport-batches.md#批次-9參考-lunakernel-的效能-backport2026104)。`build.sh` 的設定沒有額外的效能選項；它要求 `LTO_NONE`，和原廠相同。
+
 ## 小米官方釋出
 
 | repo／分支 | 內容 |

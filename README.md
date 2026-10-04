@@ -30,6 +30,7 @@ v18：`6.12.38-android16-5-g4b4d4935db3b-4k`，下載在 [Releases](https://gith
 | 0136 | 預設 TCP 擁塞控制改為 BBR |
 | 0137～0140 | Image 內高通相關程式碼的修正：Gunyah 3 份、SCMI 1 份 |
 | 0141～0147 | stable 6.12.112 補掃的 7 份：anon_vma 發布的 barrier、exec 的 CPU timer、UDP 與 TCP 的 UAF、IPv6 dst 洩漏、xfrm state 二次刪除 |
+| 0148～0155 | 參考 LunaKernel 的 8 份：TCP 接收視窗被 scaling_ratio 拉低、f2fs 前景 GC 死鎖兩份修正，以及 f2fs 覆寫、memcg 統計、timer、TCP recvmsg、wbt、hrtimer 的效能 backport |
 
 每份 backport 的檔頭寫著來源、upstream commit 和採用理由。挑選過程與排除項目見 [候選清單](docs/kmi6-backport-candidates.md) 和 [實作紀錄](docs/kmi6-backport-batches.md)。
 
@@ -128,13 +129,14 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v16.1 | 核心與 v16 相同；安裝器接受 310 的原廠 init_boot（[紀錄](docs/rom-upgrade-310.md)） | 核心在 310 上正常 |
 | v17 | 把小米 cpq、kshrink_slabd 編進 Image；原廠 first stage 的 `cpq.ko` 會載入失敗，已撤回 | 沒有刷 |
 | v18 | 批次 8：stable 6.12.112 補掃（[紀錄](docs/kmi6-backport-batches.md#批次-8stable-612112-補掃2026103)） | 正常 |
+| v19 | 批次 9：參考 LunaKernel 的效能 backport 與 2 份修正（[紀錄](docs/kmi6-backport-batches.md#批次-9參考-lunakernel-的效能-backport2026104)） | 待刷 |
 
 公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，之後是 v16、v16.1。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 
 ## 文件
 
 - [backport 候選清單](docs/kmi6-backport-candidates.md)：936 筆候選的來源、篩選與判斷，完整表格在 [TSV](docs/kmi6-backport-candidates.tsv)。
-- [backport 實作紀錄](docs/kmi6-backport-batches.md)：v9～v18 的做法、改寫、排除項目與實機結果；6.12.112 補掃的判斷在 [TSV](docs/stable-6.12.112-candidates.tsv)。
+- [backport 實作紀錄](docs/kmi6-backport-batches.md)：v9～v19 的做法、改寫、排除項目與實機結果；6.12.112 補掃的判斷在 [TSV](docs/stable-6.12.112-candidates.tsv)。
 - [升級到 OS3.0.310](docs/rom-upgrade-310.md)：第一次在自編核心上升級韌體，保留資料；用 310 原廠 boot 重封裝 v16 的原因、做法與實機結果。
 - [可參考的 6.12 開源核心](docs/references-6.12.md)：LokumKernel、LunaKernel、小米官方釋出，以及原廠私有修改的查核。
 - [ReSukiSU／SUSFS 的固定版本](docs/resukisu-susfs-fixed.md)、[模組相容與封裝](docs/module-policy-and-packaging.md)、[LunarKernel v1.3 套件查核](docs/lk-v1.3-audit.md)。

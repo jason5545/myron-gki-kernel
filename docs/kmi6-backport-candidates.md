@@ -24,6 +24,8 @@
 
 netlink 的 rmem wraparound 修正 `4b8e18af7bea`（6.12.39，upstream `ae8f160e7eb2`）單獨試套用可以直接套上，但標題沒有命中嚴重性關鍵字而被篩掉。它和後續的 `f98c4cec7`、`42baf9977`、`44ddd7b1ae0b` 是同一組。下一輪可以一起補。
 
+2026/10/4 的批次 9 從下表的可選項目採用 `a83264d8dfba`、`222bc257a151`、`d8d7b0043acc`，另加 LunaKernel `patch.sh` 的 4 筆效能 backport，以及被 Stable-dep-of 篩掉的 f2fs 修正 `44480f7e3f83`，判斷見 [實作紀錄](kmi6-backport-batches.md#批次-9參考-lunakernel-的效能-backport2026104)。`9cbbac29d752`、`b0bc1c75f304`、`29cf3b31e8cc` 確認後不採用。
+
 ## 來源與篩選
 
 | 來源 | 範圍 | 數量 |
