@@ -6,14 +6,14 @@ POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM`、`OS3.0.310.0.WPMCNXM` 
 
 ## 目前版本
 
-v18：`6.12.38-android16-5-g4b4d4935db3b-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。v16.1 再加上 stable 6.12.112 的 7 份修正（0141～0147）。
+v19：`6.12.38-android16-5-g4b4d49351f54-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。v18 再加上參考 LunaKernel 的 8 份 patch（0148～0155）：2 份修正、6 份效能 backport。
 
-- 2026/10/3 起在作者的手機（310）上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS、Wi-Fi、IMS、IPsec 都正常，dmesg 的 WARNING 與 v16 相同。
+- 2026/10/4 起在作者的手機（310）上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS、行動網路與 IMS 都正常，dmesg 的 WARNING 與 v18 相同。Wi-Fi 當時關閉，沒有驗到；v18 的 Wi-Fi 與 IPsec 正常。
 - 原廠模組需要的 4,015 個核心符號，CRC 全部一致；內建模組與匯出符號沒有跟原廠模組同名。
 - 版本字串中 commit 的開頭固定為 `4b4d4935`，是 "KMI5" 的 ASCII hex。
 - 2026/10/3 手機從 309 升級到 `OS3.0.310.0.WPMCNXM`，保留資料。310 的原廠核心與 309 相同（[升級紀錄](docs/rom-upgrade-310.md)）。
 
-只在這一台手機驗證過。v18 在 310 上實測；309 與 310 的原廠核心相同，v16 在兩個版本上都實測過。
+只在這一台手機驗證過。v18、v19 在 310 上實測；309 與 310 的原廠核心相同，v16 在兩個版本上都實測過。
 
 ## 內容
 
@@ -53,6 +53,8 @@ v18：`6.12.38-android16-5-g4b4d4935db3b-4k`，下載在 [Releases](https://gith
 手機上沒有內建 root 的核心時，只能用 fastboot 寫入。[`scripts/repack_check.py`](scripts/repack_check.py) 可以用原廠 boot 加新的 Image 重封裝出 boot 映像並驗收；它只在手機暫存目錄操作，不寫分割區。
 
 root 管理器請用 ReSukiSU v4.2.0-rc3（UAPI 4），下載連結在 `root.lock.json`。舊版或 UAPI 2 的管理器不相容。
+
+核心內建的 root 版本在編譯時就固定了，管理器更新不會更新核心這一半。管理器要跟核心的 UAPI 完全相同才有完整功能：新版管理器只要仍是 UAPI 4 就能用（2026/10/4 ReSukiSU main 仍是 4）；UAPI 改了，管理器會顯示「Kernel update required」，要等核心更新。不要用管理器的 LKM 安裝：它會修補 init_boot，之後這個安裝器會拒絕刷入，要先把 init_boot 換回原廠。
 
 刷入前先備份目前的 boot 分割區；開不了機時，用 fastboot 寫回備份。
 
