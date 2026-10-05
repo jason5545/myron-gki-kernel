@@ -6,14 +6,14 @@ POCO F8 Ultra（`myron`）HyperOS `OS3.0.309.0.WPMCNXM`、`OS3.0.310.0.WPMCNXM` 
 
 ## 目前版本
 
-v19：`6.12.38-android16-5-g4b4d49351f54-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。v18 再加上參考 LunaKernel 的 8 份 patch（0148～0155）：2 份修正、6 份效能 backport。
+v20：`6.12.38-android16-5-g4b4d49355000-4k`，下載在 [Releases](https://github.com/jason5545/myron-gki-kernel/releases)。patch 與 v19 相同，內建的 ReSukiSU 升到 main `8770c7e3`（UAPI 5），要配同一提交的管理器（35203）；從 v19 以前升級時，核心與管理器要在同一次重開機前一起換（[順序](docs/resukisu-susfs-fixed.md#換核心與管理器的順序)）。
 
-- 2026/10/4 起在作者的手機（310）上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS、行動網路與 IMS 都正常，dmesg 的 WARNING 與 v18 相同。Wi-Fi 當時關閉，沒有驗到；v18 的 Wi-Fi 與 IPsec 正常。
+- 2026/10/5 起在作者的手機（310）上使用：開機、顯示、616 個原廠模組、UFS、Gunyah VM、SCMI 調頻、ReSukiSU 與 SUSFS、Wi-Fi、行動網路與 IMS 都正常，dmesg 的 WARNING 與 v19 相同。當時的 Wi-Fi 沒有 IPv6，Wi-Fi 的 IPv6 沒有驗到。
 - 原廠模組需要的 4,015 個核心符號，CRC 全部一致；內建模組與匯出符號沒有跟原廠模組同名。
 - 版本字串中 commit 的開頭固定為 `4b4d4935`，是 "KMI5" 的 ASCII hex。
 - 2026/10/3 手機從 309 升級到 `OS3.0.310.0.WPMCNXM`，保留資料。310 的原廠核心與 309 相同（[升級紀錄](docs/rom-upgrade-310.md)）。
 
-只在這一台手機驗證過。v18、v19 在 310 上實測；309 與 310 的原廠核心相同，v16 在兩個版本上都實測過。
+只在這一台手機驗證過。v18～v20 在 310 上實測；309 與 310 的原廠核心相同，v16 在兩個版本上都實測過。
 
 ## 內容
 
