@@ -54,7 +54,7 @@ v19：`6.12.38-android16-5-g4b4d49351f54-4k`，下載在 [Releases](https://gith
 
 root 管理器請用 ReSukiSU `8770c7e3` 的 CI 版本（35203，UAPI 5），來源在 `root.lock.json`。v19 以前的核心是 UAPI 4，要配 v4.2.0-rc3 到 `4c5c8ced` 之間的管理器。舊版或 UAPI 2 的管理器不相容。
 
-核心內建的 root 版本在編譯時就固定了，管理器更新不會更新核心這一半。管理器要跟核心的 UAPI 完全相同才有完整功能：新版管理器只要 UAPI 沒變就能用；UAPI 改了，管理器會顯示「Kernel update required」，要等核心更新。ReSukiSU main 在 2026/10/4 的 `8770c7e3` 升到 UAPI 5，v20 起跟上。UAPI 5 的管理器配 v19 以前的核心時，開機的 service 階段會被跳過，`service.d` 與模組的 `service.sh` 都不會執行（[說明](docs/resukisu-susfs-fixed.md#2026105升到-main-8770c7e3v20)）。不要用管理器的 LKM 安裝：它會修補 init_boot，之後這個安裝器會拒絕刷入，要先把 init_boot 換回原廠。
+核心內建的 root 版本在編譯時就固定了，管理器更新不會更新核心這一半。管理器要跟核心的 UAPI 完全相同才有完整功能：新版管理器只要 UAPI 沒變就能用；UAPI 改了，管理器會顯示「Kernel update required」，要等核心更新。ReSukiSU main 在 2026/10/4 的 `8770c7e3` 升到 UAPI 5，v20 起跟上。管理器開啟時會換掉 ksud，ksud 與核心的 UAPI 不同時，開機的每個階段都會跳過，模組都不會執行。從 v19 以前升到 v20：先刷核心、不要重開機，裝新管理器並開一次，再重開機（[說明](docs/resukisu-susfs-fixed.md#換核心與管理器的順序)）。不要用管理器的 LKM 安裝：它會修補 init_boot，之後這個安裝器會拒絕刷入，要先把 init_boot 換回原廠。
 
 刷入前先備份目前的 boot 分割區；開不了機時，用 fastboot 寫回備份。
 
@@ -132,7 +132,7 @@ python3 scripts/inspect_kernel.py /path/to/AnyKernel3.zip
 | v17 | 把小米 cpq、kshrink_slabd 編進 Image；原廠 first stage 的 `cpq.ko` 會載入失敗，已撤回 | 沒有刷 |
 | v18 | 批次 8：stable 6.12.112 補掃（[紀錄](docs/kmi6-backport-batches.md#批次-8stable-612112-補掃2026103)） | 正常 |
 | v19 | 批次 9：參考 LunaKernel 的效能 backport 與 2 份修正（[紀錄](docs/kmi6-backport-batches.md#批次-9參考-lunakernel-的效能-backport2026104)） | 正常（Wi-Fi 未驗） |
-| v20 | ReSukiSU 升到 main `8770c7e3`（UAPI 5），patch 不變（[紀錄](docs/kmi6-backport-batches.md#v20resukisu-升到-main-8770c7e32026105)） | 待刷 |
+| v20 | ReSukiSU 升到 main `8770c7e3`（UAPI 5），patch 不變（[紀錄](docs/kmi6-backport-batches.md#v20resukisu-升到-main-8770c7e32026105)） | 正常（Wi-Fi IPv6 未驗） |
 
 公開時把開發歷史合併成單一 commit，v15 是第一個公開版本，之後是 v16、v16.1。`docs/` 與 `baseline/` 提到的專案 commit（例如 `7868bf2`）屬於公開前的歷史，在這個 repo 裡已經找不到。
 

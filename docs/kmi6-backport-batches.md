@@ -302,7 +302,32 @@ v20 Image `6cd174a92948…`，版本字串 `6.12.38-android16-5-g4b4d49355000-4k
 
 刷入前的暫存重封裝驗收：目前 boot_a 是 v19 的 `b9a6f8c3…`，init_boot_a 是 310 原廠 `0a9871f4…`；用 310 原廠 boot 重封裝通過（`bb2d1731…`），boot_a 未改變。
 
-刷入後再換管理器：裝 `out/manager/` 的 Spoofed 版（`ntaxru.tzihjp.gpckog`，35203），移除舊的 `dultqo.utgklb.okvfdx`（35199）。實機要多看兩項：管理器不再顯示「Kernel update required」，以及 service 階段有執行（dmesg 有一次 `services triggered`）。
+管理器換成 `out/manager/` 的 Spoofed 版（`ntaxru.tzihjp.gpckog`，35203），移除舊的 `dultqo.utgklb.okvfdx`（35199）。核心與 ksud 要在同一次重開機前一起換，見 [換核心與管理器的順序](resukisu-susfs-fixed.md#換核心與管理器的順序)。
+
+## v20 實機（2026/10/5）
+
+經 Jason 同意，用 adb 把暫存重封裝的映像（`bb2d1731…`）寫進 boot_a，清掉 page cache 後讀回相同，07:53 重新開機。開機後才換管理器，順序錯了，多了兩次慢開機：第一次開機舊 ksud 因 UAPI 不同跳過所有開機階段（模組沒跑，adb shell 的 `su` 不能用）；換新 ksud 後第二次開機，brene 模組把各分割區的 build fingerprint 統一回來，PackageManager 判定系統升級，dexopt 約 95 秒，開機動畫到 146.5 秒才結束。細節見 [ReSukiSU／SUSFS 的固定版本](resukisu-susfs-fixed.md#換核心與管理器的順序)。
+
+第二次開機後約 3 分鐘檢查，對照 v19（`out/v19-device/`）：
+
+| 項目 | 結果 |
+| --- | --- |
+| 核心 | `6.12.38-android16-5-g4b4d49355000-4k`，310，slot a；boot_a `bb2d1731…`，init_boot 310 原廠 `0a9871f4…` |
+| boot_a 內容 | 讀回與刷入前暫存重封裝的映像位元相同 |
+| root | 管理器顯示運作中（Built-in），核心驅動 `v4.2.0-rc3-8770c7e3@ReSukiSU (35203/5)`，管理器 35203／5；ksud `4.2.0-rc3-32-g8770c7e3 (uapi: 5)`；SUSFS v2.3.0 已初始化 |
+| 開機階段 | post-fs-data 有執行，`su_compat` 等功能有設定；`services triggered` 只出現一次（5.9 秒）；`on_boot_completed` 有執行 |
+| 模組 | 616 個，清單與 v19 完全相同 |
+| 顯示 | logcat 沒有 `drmModeAtomicCommit failed` |
+| UFS | 沒有錯誤，`ufshcd_err_handler` 0 次 |
+| dmesg | WARNING 只有 `spmi-pmic-arb.c:352` 兩次與 eBPF 提示，與 v19 相同；沒有 Oops、stall、lockup、hung task；`msm_vidc` session error 0 次 |
+| Gunyah | `gunyah_rm_rx` 1156 次、`gunyah_rm_tx` 1003 次 |
+| SCMI | 兩個 policy 都是 `scmi`、governor `walt` |
+| 網路 | Wi-Fi 開著：wlan0 IPv4 ping 正常；這個 Wi-Fi 沒有發 IPv6（wlan0 只有 link-local，`accept_ra` 2），IPv6 沒驗到。Wi-Fi、行動網路 internet 與兩張卡的 IMS（MMTEL）都通過驗證 |
+| 其他 | `/sdcard` 讀寫正常，擁塞控制 bbr，`tcp_fastopen` 1，sda 排程器 `[cpq]`。新的 tombstone 只有開機 dexopt 中 dex2oat 的 abort（GMS split APK），跟核心無關 |
+
+USB 在換核心前看過：v19 開機 14 小時中有兩次 2 秒的斷線後自動接回，adbd 沒重啟，dwc3 訊息與 v16、v18 相同，沒有錯誤。
+
+dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v20-device/`。要退回 v19，寫 `out/v19-device/boot_a.img`（`b9a6f8c3…`），管理器也要換回舊的。
 
 ## 實機驗收（後續版本）
 

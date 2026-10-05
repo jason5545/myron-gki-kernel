@@ -27,7 +27,7 @@ rc3 是官方預發行版本，v15～v19 固定它的來源與配套 APK。v20 �
 
 main 在 `8770c7e3`（「Avoid repeatedly triggering service stage」，上游 tiann/KernelSU#3800）把 UAPI 從 4 升到 5：新增 `EVENT_SERVICES`，核心回傳 1 表示執行 service 階段，回傳 0 表示已經執行過。
 
-手機上的管理器一直跟著 main 的 CI 版本（10/5 時是 35199，`80c0e190`，UAPI 4）。管理器更新到 `8770c7e3` 之後，會把 `/data/adb/ksud` 換成新版。新 ksud 在 service 階段先問核心，rc3 的核心對不認得的事件一律回 0，ksud 就當成已經執行過而跳過：`/data/adb/service.d` 與模組的 `service.sh` 都不會跑。管理器也會顯示「Kernel update required」。所以核心跟著升。
+手機上的管理器一直跟著 main 的 CI 版本（10/5 時是 35199，`80c0e190`，UAPI 4）。管理器開啟時會把 `/data/adb/ksud` 換成同版本的 ksud。ksud 在 post-fs-data、service、boot-completed 每個階段開頭都先呼叫 `ensure_uapi_version_matched()`，核心與 ksud 的 UAPI 不同就整段跳過（`80c0e190` 與 `8770c7e3` 的 `init_event.rs` 都是這樣）。所以只要管理器更新到 `8770c7e3` 之後，配 rc3 的核心開機時，所有模組都不會執行，`su_compat` 等功能設定也不會套用；管理器會顯示「Kernel update required」。所以核心跟著升。
 
 rc3 之後 32 個提交，改到 `kernel/` 與 `uapi/` 的有 6 個：
 
@@ -46,7 +46,23 @@ rc3 之後 32 個提交，改到 `kernel/` 與 `uapi/` 的有 6 個：
 
 管理器改用 Jason 指定的 Spoofed 版，取代手機上的舊管理器（`dultqo.utgklb.okvfdx`，35199）。舊 APK 備份在 `local-backup/eu310/manager-35199-80c0e190-dultqo.apk`。CI artifact 有保存期限，以本機那份為準。
 
-順序是先刷 v20，再裝新管理器、移除舊的。反過來做的話，新管理器配 v19 會顯示「Kernel update required」，可能擋住管理器的刷入功能，ksud 也已經被換掉。退回 v19 時，管理器也要換回舊的。
+### 換核心與管理器的順序
+
+UAPI 改變時，核心與 ksud 要在同一次重新開機前一起換好：
+
+1. 用舊管理器（或 adb）把新核心寫進 boot_a，先不要重新開機。
+2. 裝新管理器、移除舊的，開一次新管理器，讓它換掉 `/data/adb/ksud`。
+3. 重新開機。
+
+10/5 實際做的時候順序錯了：先寫 boot_a 並重開機，開機後才換管理器，結果多花了兩次慢開機。
+
+- 第一次 v20 開機時還是舊 ksud（UAPI 4 對 5），所有開機階段都被跳過：模組沒跑，`su_compat` 沒開，adb shell 的 `su` 回「inaccessible or not found」。
+- 手機上的 brene 模組（`.BRENE - SuSFS` v0.0.69）會在 post-fs-data 把各分割區的 `ro.*.build.fingerprint` 統一成 `ro.build.fingerprint`。原廠各分割區的值本來就不同（system 是 `Xiaomi/missi/…`，vendor 是 `Xiaomi/mivendor/…`，product 是 `Redmi/myron/miproduct:…`）。brene 沒跑時，PackageManager 算出的分割區 fingerprint 雜湊不同，當成系統升級。
+- 第二次開機換成新 ksud，brene 又把值統一回來，雜湊從 `eaabb259…` 變回 `c979e877…`。PackageManager 再判定一次升級，清掉程式碼快取，在 system_server 啟動時 dexopt 約 95 秒（`boot_progress_pms_ready` 37.5 秒，`ams_ready` 134.4 秒，開機動畫在 146.5 秒結束）。dexopt 中 dex2oat 編 GMS 的 split APK 時 abort 兩次（`InitializeAppImageClasses() implies keep`），留下 tombstone_30、31，是 ART／GMS 的問題，跟核心無關。
+
+之後的開機兩邊一致，不會再觸發；這點還沒有實測。
+
+退回 v19 時也一樣：寫回 v19 的 boot_a，裝回 `local-backup/eu310/manager-35199-80c0e190-dultqo.apk` 並開一次，再重新開機。
 
 `root.lock.json` 保存提交、版本、APK 與每個上游來源檔案的 SHA 或連結資訊。`vendor/` 保存原始 ReSukiSU 核心／UAPI 和 SUSFS 檔案；不執行上游會拉取 main 的 setup.sh。Kleaf 將來源實體化到 `drivers/kernelsu`，建置資料由固定提交產生，避免編譯中依賴 sandbox 外的 Git 資料或網路。版本碼屬於該來源的真實版本；UAPI 定義與驅動實作一併更新。
 
