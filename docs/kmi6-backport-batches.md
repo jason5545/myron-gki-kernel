@@ -1,4 +1,4 @@
-# KMI 6 時期修正 backport：九批實作與編譯（v9～v19）
+# KMI 6 時期修正 backport：十批實作與編譯（v9～v21）
 
 依 [候選清單](kmi6-backport-candidates.md) 的建議，2026/10/2 晚上 Jason 確認全部做，需要改寫的也一起做。手機當時已拔掉 USB，所以當晚只做到編譯和 CRC 關卡。10/3 Jason 直接刷入 v13，實機結果見下方；之後追加批次 6 編出 v14。
 
@@ -26,6 +26,7 @@
 | v18 | ＋批次 8：stable 6.12.112 補掃 | 0141～0147（7） | `6.12.38-android16-5-g4b4d4935db3b-4k` | `fdea557f4842…` | 缺少 0、不符 0 |
 | v19 | ＋批次 9：參考 LunaKernel 的效能 backport | 0148～0155（8） | `6.12.38-android16-5-g4b4d49351f54-4k` | `3e58b2a92be4…` | 缺少 0、不符 0 |
 | v20 | ReSukiSU 升到 main `8770c7e3`（UAPI 5） | 沒有新 patch | `6.12.38-android16-5-g4b4d49355000-4k` | `6cd174a92948…` | 缺少 0、不符 0 |
+| v21 | ＋批次 10：ACK 10/5 之後的 softirq、USB gadget 修正 | 0156～0157（2） | `6.12.38-android16-5-g4b4d4935490d-4k` | `bdabe703597c…` | 缺少 0、不符 0 |
 
 每一版的 KMI 都是 `6.12-android16-5`，頁面 4096 bytes，Image 內都有 ReSukiSU（`v4.2.0-rc3-239e1e88@ReSukiSU`）、SUSFS 與 0006 的字串，Mac 上重跑映像驗收也通過。CRC 共 4,015 個符號。`rust_binder.ko` 例外和 v8 相同：不符 16、未版本化缺少 4。18 項測試通過。產物在 `out/build-2025-09-v<N>/`。
 
@@ -328,6 +329,49 @@ v20 Image `6cd174a92948…`，版本字串 `6.12.38-android16-5-g4b4d49355000-4k
 USB 在換核心前看過：v19 開機 14 小時中有兩次 2 秒的斷線後自動接回，adbd 沒重啟，dwc3 訊息與 v16、v18 相同，沒有錯誤。
 
 dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v20-device/`。要退回 v19，寫 `out/v19-device/boot_a.img`（`b9a6f8c3…`），管理器也要換回舊的。
+
+## 批次 10：ACK 10/5 之後的修正（2026/10/10）
+
+10/10 補掃：stable 最新仍是 6.12.112，SUSFS 沒動。ACK `android16-6.12` 從 `3a7d1771`（10/1）推進到 `e65d8941`（10/8），多了 33 個提交。Jason 確認做前兩組，mglru 先不動。
+
+| patch | 來源 | 理由 |
+| --- | --- | --- |
+| 0156 | ACK `2dc4b9007e57` | `softirq_deferred_for_rt()` 只看 `rt_task(current)`，RT 任務已排進佇列、還沒切過去時不會延後長 softirq。Google 量到 RT 喚醒延遲跳到 1～2 ms 以上。基底是舊寫法，defconfig 有開 `RT_SOFTIRQ_AWARE_SCHED`。直接套用 |
+| 0157 | ACK `0aea479006df`（upstream `baeb66fbd420`）＋ `7e73c6dc7aaf` | gadget 拆除時 `usb_gadget_state_work` UAF。10/2 的 upstream 版（stable `10014310193c`）改到 KMI 型別 `struct usb_gadget` 而排除；ACK 的 KABI-safe 版把 `teardown` 放到 core.c 私有的 `struct usb_udc`，lock 改用全域 spinlock，兩筆合成一份淨 diff，`gadget.h` 不變 |
+
+改寫：0157 的上下文有 FROMGIT 的 `trace_usb_gadget_set_state()`，基底沒有，從上下文拿掉。改動與 ACK 兩筆合併後相同。
+
+沒採用的：
+
+- mglru 5 筆（`f683398b`、`4bbce090`、`5ecfd7e1`、`aa438a63`、`0ff387da`）：回收策略的行為調整，不是修正；跟小米 vendor hook 的互動沒驗過，先不動。
+- f2fs 2 筆（`db610c24`、`c7ad8c94`）：前者修 zoned device 的 file pinning，手機的 UFS 不是 zoned；後者縮小 `gc_lock` 範圍，偏效能。
+- KVM 2 筆、microdroid 5 筆（手機 KVM 不可用）、Gunyah vcpu 3 筆（新功能，附 KMI workaround）、rust_binder 8 筆（手機走 C binder）、HID nintendo、afdo profile、OWNERS。
+- xfrm6 `31493cc8` 就是 stable `43de8a49`，批次 4 已收。
+- ACK log 另有 udc 的 `gadget_match_driver` UAF（stable `d026f71df141`），10/2 列為可選，這次沒加。
+
+10/4 撤回的 v20 也用過 0156 這個編號（netlink 收件門檻），沒推送，跟這次的 0156 無關。
+
+v21 Image `bdabe703597c…`，版本字串 `6.12.38-android16-5-g4b4d4935490d-4k`，157 份 patch 全部套上。CRC 4,015 個符號缺少 0、不符 0，`rust_binder.ko` 例外與之前相同，原廠模組撞名 0。21 項測試通過。AnyKernel3 ZIP 是 `myron-kmi5-bdabe703597c-AnyKernel3.zip`（SHA-256 `8401ceda…`），經無線 ADB 推到手機 `/sdcard/Download/`，手機上讀回雜湊相同。
+
+## v21 實機（2026/10/10）
+
+Jason 用 ReSukiSU 管理器刷入 AnyKernel3 ZIP，沒有跑暫存重封裝驗收。管理器沒換（root 來源與 UAPI 和 v20 相同）。開機約 3 分鐘檢查，對照 v20（`out/v20-device/`）：
+
+| 項目 | 結果 |
+| --- | --- |
+| 核心 | `6.12.38-android16-5-g4b4d4935490d-4k`，slot a；boot_a `017e8cde…`，init_boot 310 原廠 `0a9871f4…` |
+| root | ksud `4.2.0-rc3-32-g8770c7e3 (uapi: 5)`，SUSFS v2.3.0 已初始化 |
+| 模組 | 616 個，清單與 v20 相同 |
+| 顯示 | logcat 沒有 `drmModeAtomicCommit failed` |
+| UFS | 沒有錯誤，`ufshcd_err_handler` 0 次 |
+| dmesg | WARNING 只有 `spmi-pmic-arb.c:352` 兩次與 eBPF 提示，與 v20 相同；沒有 Oops、RCU stall、soft／hard lockup、hung task |
+| USB | `sys.usb.config` 是 adb；dwc3 只有開機 probe 時的 gpio、`hs_phy_irq`、dst node 訊息 |
+| Gunyah | `gunyah_rm_rx` 151 次、`gunyah_rm_tx` 3 次，vcpu 中斷在跑 |
+| SCMI | 兩個 policy 都是 `scmi`、governor `walt` |
+| 網路 | IPv4 ping 1.1.1.1 正常 |
+| 其他 | 擁塞控制 bbr，sda 排程器 `[cpq]`；沒有新的 tombstone（最新的仍是 10/5 的 dex2oat） |
+
+dmesg、logcat、模組清單與讀回的 boot_a 在 `out/v21-device/`。要退回 v20，寫 `out/v20-device/boot_a.img`（`bb2d1731…`），管理器不用換。
 
 ## 實機驗收（後續版本）
 
