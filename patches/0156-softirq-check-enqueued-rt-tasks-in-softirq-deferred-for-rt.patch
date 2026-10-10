@@ -1,0 +1,47 @@
+# 來源：ACK android16-6.12 2dc4b9007e57（ANDROID，2026/10/6）
+# ANDROID: softirq: Ensure we check for enqueued RT tasks in softirq_deferred_for_rt()
+# 修正：RT_SOFTIRQ_AWARE_SCHED 只看 rt_task(current)，漏掉 RT 任務已排進佇列、還沒切過去的情況；Google 量到 RT 喚醒延遲跳到 1～2 ms 以上。defconfig 有開這個選項
+diff --git a/include/linux/sched/rt.h b/include/linux/sched/rt.h
+index 4e33381036..a50aa541c9 100644
+--- a/include/linux/sched/rt.h
++++ b/include/linux/sched/rt.h
+@@ -75,6 +75,10 @@ static inline struct task_struct *rt_mutex_get_top_task(struct task_struct *task
+ extern void normalize_rt_tasks(void);
+ 
+ 
++#ifdef CONFIG_RT_SOFTIRQ_AWARE_SCHED
++extern bool local_rt_runnable(void);
++#endif
++
+ /*
+  * default timeslice is 100 msecs (used only for SCHED_RR tasks).
+  * Timeslices get refilled after they expire.
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 2247efe90a..909dcaf31e 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -1589,6 +1589,11 @@ bool cpu_busy_with_softirqs(int cpu)
+ 	return softirqs & LONG_SOFTIRQ_MASK;
+ }
+ EXPORT_SYMBOL_GPL(cpu_busy_with_softirqs);
++
++bool local_rt_runnable(void)
++{
++	return sched_rt_runnable(this_rq());
++}
+ #endif /* CONFIG_RT_SOFTIRQ_AWARE_SCHED */
+ 
+ static bool rt_task_fits_cpu(struct task_struct *p, int cpu)
+diff --git a/kernel/softirq.c b/kernel/softirq.c
+index a09546d37f..9afb568bed 100644
+--- a/kernel/softirq.c
++++ b/kernel/softirq.c
+@@ -561,7 +561,7 @@ static __u32 softirq_deferred_for_rt(__u32 *pending)
+ {
+ 	__u32 deferred = 0;
+ 
+-	if (rt_task(current)) {
++	if (rt_task(current) || local_rt_runnable()) {
+ 		deferred = *pending & LONG_SOFTIRQ_MASK;
+ 		*pending &= ~LONG_SOFTIRQ_MASK;
+ 	}

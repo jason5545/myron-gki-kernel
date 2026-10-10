@@ -154,3 +154,5 @@
 0153-tcp-remove-one-ktime-get-from-recvmsg-fast.patch
 0154-blk-wbt-optimize-wbt-done-for-non-throttled.patch
 0155-hrtimer-avoid-pointless-reprogramming-in-hrtimer-start.patch
+0156-softirq-check-enqueued-rt-tasks-in-softirq-deferred-for-rt.patch
+0157-usb-gadget-udc-fix-uaf-in-usb-gadget-state-work-kabi-safe.patch
